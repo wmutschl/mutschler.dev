@@ -4,12 +4,12 @@
 #   The weight parameter defines the order that the links will appear in.
 
 main: 
-- name: Apple
-  url: apple/
-  weight: 2
-- name: Linux
-  url: linux/
-  weight: 3
-- name: Stuff
-  url: stuff/
-  weight: 4
+  - name: Apple
+    url: apple/
+    weight: 2
+  - name: Linux
+    url: linux/
+    weight: 3
+  - name: Stuff
+    url: stuff/
+    weight: 4

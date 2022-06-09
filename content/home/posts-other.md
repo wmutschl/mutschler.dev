@@ -6,7 +6,6 @@ weight: 40
 title: 'Other stuff'
 subtitle:
 content:
-  sort_by: 'lastmod'
   offset: 0
   order: desc
   count: 10

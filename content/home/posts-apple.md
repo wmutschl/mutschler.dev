@@ -6,7 +6,6 @@ weight: 20
 title: 'Recent Apple related posts'
 subtitle:
 content:
-  sort_by: 'lastmod'
   offset: 0
   order: desc
   count: 10

@@ -5,7 +5,6 @@
 
 title: mutschler.dev # Website name
 baseurl: 'https://mutschler.dev' # Website URL
-copyright: '© 2022-present Willi Mutschler' # Footer text, e.g. '© {year} Me'
 
 ############################
 ## LANGUAGE
@@ -68,4 +67,6 @@ related:
     - name: categories
       weight: 70
 security:
+  _merge: deep
+sitemap:
   _merge: deep

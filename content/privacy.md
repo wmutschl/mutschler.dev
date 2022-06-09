@@ -7,8 +7,8 @@ editable: false
 
 # Optional header image (relative to `static/media/` folder).
 header:
-  caption: ""
-  image: ""
+  caption: ''
+  image: ''
 date: 2022-05-24
 ---
 

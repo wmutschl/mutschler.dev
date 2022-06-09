@@ -6,7 +6,6 @@ weight: 30
 title: 'Recent Linux related posts'
 subtitle:
 content:
-  sort_by: 'lastmod'
   offset: 0
   order: desc
   count: 10
