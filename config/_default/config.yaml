@@ -4,8 +4,8 @@
 # This file is formatted using YAML syntax - learn more at https://learnxinyminutes.com/docs/yaml/
 
 title: mutschler.dev # Website name
-baseurl: 'https://mutschler.dev' # Website URL
-
+#baseurl: 'https://mutschler.dev' # Website URL
+baseurl: 'https://wmutschl.github.io'
 ############################
 ## LANGUAGE
 ############################
