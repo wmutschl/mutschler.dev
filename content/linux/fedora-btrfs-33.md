@@ -11,7 +11,7 @@ date: 2020-11-04
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 ## Overview 
-Since Fedora switched their default filesystem to btrfs I decided to give it a go as I am exclusively using btrfs on all my systems, see: [Why I (still) like btrfs](../../btrfs/). Fedora's automatic installation routine with encryption is actually almost perfect for me except some changes regarding the btrfs mount options and subvolume names. 
+Since Fedora switched their default filesystem to btrfs I decided to give it a go as I am exclusively using btrfs on all my systems, see: [Why I (still) like btrfs](../btrfs/). Fedora's automatic installation routine with encryption is actually almost perfect for me except some changes regarding the btrfs mount options and subvolume names. 
 
 So, in this guide I will show how to install Fedora 33 with the following structure:
 

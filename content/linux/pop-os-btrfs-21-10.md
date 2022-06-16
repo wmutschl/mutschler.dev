@@ -13,7 +13,7 @@ date: 2021-12-13
 
 
 ## Overview 
-I am exclusively using btrfs as my filesystem on all my Linux systems, see [Why I (still) like btrfs](../../btrfs/). So, in this guide I will show how to install Pop!_OS 21.10 with the following structure:
+I am exclusively using btrfs as my filesystem on all my Linux systems, see [Why I (still) like btrfs](../btrfs/). So, in this guide I will show how to install Pop!_OS 21.10 with the following structure:
 
 - an unencrypted EFI partition for the systemd bootloader
 - an unencrypted partition for the Pop!_OS recovery system

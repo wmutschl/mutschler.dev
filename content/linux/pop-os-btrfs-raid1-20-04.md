@@ -17,7 +17,7 @@ date: 2020-04-21
 
 
 ## Overview 
-Since a couple of months, I am exclusively using btrfs as my filesystem on all my systems, see [Why I (still) like btrfs](../../btrfs/). So, in this guide I will show how to install Pop!_OS 20.04 with the following structure:
+Since a couple of months, I am exclusively using btrfs as my filesystem on all my systems, see [Why I (still) like btrfs](../btrfs/). So, in this guide I will show how to install Pop!_OS 20.04 with the following structure:
 
 - a btrfs-LVM-inside-luks partition for the root filesystem on two hard disks in a RAID1 managed by btrfs
   - the btrfs logical volume contains a subvolume `@` for `/` and a subvolume `@home` for `/home`. Note that the Pop!_OS installer does not create any subvolumes on btrfs, so we need to do this manually.

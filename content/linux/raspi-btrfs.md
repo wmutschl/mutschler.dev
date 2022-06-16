@@ -12,7 +12,7 @@ date: 2021-01-10
 
 
 ## Overview 
-Since 2020, I am exclusively using btrfs as filesystem on all my systems, see: [Why I (still) like btrfs](../../btrfs/). So, in this guide I will show how to install Ubuntu Server 20.10 on a Raspberry Pi 4 with the following structure:
+Since 2020, I am exclusively using btrfs as filesystem on all my systems, see: [Why I (still) like btrfs](../btrfs/). So, in this guide I will show how to install Ubuntu Server 20.10 on a Raspberry Pi 4 with the following structure:
 
 - an unencrypted boot partition to make the Pi boot completely from USB (no SD card required)
 - a btrfs-inside-luks partition for the root filesystem (excluding `/boot`) containing a subvolume `@` mounted as `/` and a subvolume `@home`  mounted as `/home`

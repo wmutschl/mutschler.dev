@@ -12,7 +12,7 @@ date: 2021-12-14
 
 ## Overview 
 
-Since Fedora switched their default filesystem to btrfs I decided to give it a go as I am exclusively using btrfs on all my systems, see: [Why I (still) like btrfs](../../btrfs/). Fedora's automatic installation routine with encryption is actually almost perfect for me except some changes regarding the btrfs mount options.
+Since Fedora switched their default filesystem to btrfs I decided to give it a go as I am exclusively using btrfs on all my systems, see: [Why I (still) like btrfs](../btrfs/). Fedora's automatic installation routine with encryption is actually almost perfect for me except some changes regarding the btrfs mount options.
 
 So, in this guide I will show how to install Fedora 35 with automatic system snapshots and backups using [BTRBK](https://github.com/digint/btrbk) which will regularly take (almost instant) btrfs snapshots of the system and send/receive these to a backup disk given a chosen retention policy.[^1]
   

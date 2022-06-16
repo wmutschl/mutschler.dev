@@ -17,7 +17,7 @@ date: 2020-05-08
 
 
 ## Overview 
-Since a couple of months, I am exclusively using btrfs as my filesystem on all my systems, see: [Why I (still) like btrfs](../../btrfs/). So, in this guide I will show how to install Ubuntu 20.04 with the following structure:
+Since a couple of months, I am exclusively using btrfs as my filesystem on all my systems, see: [Why I (still) like btrfs](../btrfs/). So, in this guide I will show how to install Ubuntu 20.04 with the following structure:
 
 - a btrfs-inside-luks partition for the root filesystem (including `/boot`) containing a subvolume `@` for `/` and a subvolume `@home` for `/home` with only one passphrase prompt from GRUB
 - either an encrypted swap partition or a swapfile (I will show both)
