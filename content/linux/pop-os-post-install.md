@@ -4,7 +4,7 @@ summary: In the following I will go through my post installation steps on Pop!_O
 header:
   image: "Linux_Pop_OS!_penguin_Tux.png"
   caption: "Image credit: [**Linux_Pop_OS!_penguin_Tux by Jayaguru-Shishya**](https://commons.wikimedia.org/wiki/File:Linux_Pop_OS!_penguin_Tux.png)"
-tags: ["linux", "pop-os", "install guide", "btrfs", "luks", "timeshift", "timeshift-autosnap-apt"]
+tags: ["linux", "pop-os", "install guide", "post install"]
 date: 2022-05-12
 ---
 
