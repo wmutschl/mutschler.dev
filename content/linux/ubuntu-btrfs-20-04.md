@@ -6,6 +6,7 @@ header:
   caption: "Image credit: [**Desktop Ubuntu 20.04 'Focal Fossa' with GNOME 3.36 by wikimedia.org**](https://commons.wikimedia.org/wiki/File:Desktop_Ubuntu_20.04.png)"
 tags: ["linux", "ubuntu", "install guide", "btrfs", "luks", "timeshift", "timeshift-autosnap-apt"]
 date: 2020-05-08
+type: book
 ---
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
@@ -14,7 +15,7 @@ date: 2020-05-08
 {{< youtube yRSElRlp7TQ >}}
 ```
 *Note that this written guide is an updated version of the video and contains much more information.*
-
+{{< toc hide_on="xl" >}}
 
 ## Overview 
 Since a couple of months, I am exclusively using btrfs as my filesystem on all my systems, see: [Why I (still) like btrfs](../btrfs/). So, in this guide I will show how to install Ubuntu 20.04 with the following structure:

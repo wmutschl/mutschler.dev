@@ -6,11 +6,12 @@ header:
   caption: "Image credit: [**idroot.us**](https://idroot.us/install-timeshift-ubuntu-20-04/)"
 tags: ["backup", "linux", "timeshift", "btrfs"]
 date: 2020-04-01
+type: book
 ---
 [Work-In-Progress]
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-
+{{< toc hide_on="xl" >}}
 ### If you can access your desktop environment (either directly or via an old snapshot)
 
 Launch Timeshift from the menu (or desktop shortcut) and select a snapshot and hit restore. A reboot and you're done. Takes mere seconds and doesn’t get any easier.

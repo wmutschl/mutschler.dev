@@ -6,6 +6,7 @@ header:
   caption: "Image credit: [**Linux_Pop_OS!_penguin_Tux by Jayaguru-Shishya**](https://commons.wikimedia.org/wiki/File:Linux_Pop_OS!_penguin_Tux.png)"
 tags: ["linux", "pop-os", "install guide", "btrfs", "luks", "timeshift", "timeshift-autosnap-apt"]
 date: 2021-07-27
+type: book
 ---
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
@@ -14,7 +15,7 @@ date: 2021-07-27
 {{< youtube GTr9_bzMNRA >}}
 ```
 *Note that this written guide is an updated version of the video and contains much more information.*
-
+{{< toc hide_on="xl" >}}
 
 ## Overview 
 I am exclusively using btrfs as my filesystem on all my systems, see [Why I (still) like btrfs](../btrfs/). So, in this guide I will show how to install Pop!_OS 21.04 with the following structure:

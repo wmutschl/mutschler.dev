@@ -6,11 +6,13 @@ header:
   caption: "Image credit: [**Willi Mutschler**](https://mutschler.dev)"
 tags: ["apple", "macos", "post-installation"]
 date: 2022-01-13
+type: book
 ---
 [WORK-IN-PROGRESS]
 
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+{{< toc hide_on="xl" >}}
 
 Since January 2021 I've been using an Apple MacBook Air (M1) as my daily driver. Even though I have a strong Linux background, I do like macOS quite a lot. Particularly, one of the great things about macOS is the huge amount of useful and well-designed apps, tools and utilities; not only on from the App Store but also by side-loading. Therefore, in the following I will go through my post installation steps, i.e. which apps I install and use and which system preferences I choose. In other words, this guide serves as a reminder of what I set and how I use my MacBook Air (M1).
 

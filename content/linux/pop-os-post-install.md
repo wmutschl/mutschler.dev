@@ -6,13 +6,14 @@ header:
   caption: "Image credit: [**Linux_Pop_OS!_penguin_Tux by Jayaguru-Shishya**](https://commons.wikimedia.org/wiki/File:Linux_Pop_OS!_penguin_Tux.png)"
 tags: ["linux", "pop-os", "install guide", "post install"]
 date: 2022-05-12
+type: book
 ---
 
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 In the following I will go through my post installation steps, i.e. which settings I choose and which apps I install and use.
-
+{{< toc hide_on="xl" >}}
 ## Basic Steps
 
 ### Set hostname

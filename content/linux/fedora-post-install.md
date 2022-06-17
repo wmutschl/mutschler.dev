@@ -6,13 +6,14 @@ header:
   caption: "Image credit: [**Fedora data points**](https://www.ctrl.blog/entry/fedora-popcon.html) by [Daniel Aleksandersen](https://www.daniel.priv.no/)"
 tags: ["linux", "fedora", "install guide", "btrfs", "luks", "timeshift"]
 date: 2022-01-01
+type: book
 ---
 
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 In the following I will go through my post installation steps, i.e. which settings I choose and which apps I install and use.
-
+{{< toc hide_on="xl" >}}
 ## Basic Steps
 
 ### Go through welcome screen

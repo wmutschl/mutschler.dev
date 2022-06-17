@@ -6,10 +6,11 @@ header:
   caption: "Image credit: [**btrfs.wiki.kernel.org**](https://btrfs.wiki.kernel.org/index.php/File:Btrfs_logo.svg)"
 tags: ["btrfs", "linux"]
 date: 2020-08-19
+type: book
 ---
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-
+{{< toc hide_on="xl" >}}
 Linux is about choice, so since a couple of months I started using btrfs as my filesystem of choice on all my computers and servers. Granted, for most desktop users the default ext4 file system will work just fine; however, for those of us who like to tinker with their system an advanced file system like ZFS or btrfs offers much more functionality. Particularly, the possibility of taking snapshots within seconds (due to copy-on-write) and easy ways to rollback your system in case anything breaks are just awesome selling points for me as an advanced desktop user (and occasional distro hopper). Even though, for an enterprise environment, there is some heated debate why ZFS is allegedly better than btrfs, but for me as a desktop user both filesystems offer basically the same functionality and reliability, that is:
 
 - automatic defragmentation

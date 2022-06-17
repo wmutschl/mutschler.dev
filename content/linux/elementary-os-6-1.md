@@ -7,6 +7,7 @@ header:
 tags: ["linux", "elementary-os", "install guide", "btrfs", "luks", "timeshift", "timeshift-autosnap-apt"]
 date: 2022-06-15
 draft: false
+type: book
 ---
 
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
@@ -18,7 +19,7 @@ draft: false
 *Video coming soon*
 
 *Note that this written guide is an updated version of the video and contains much more information.*
-
+{{< toc hide_on="xl" >}}
 ## Overview
 
 In this guide I will show how to install Elementary OS 6.1 Jólnir with the following structure:

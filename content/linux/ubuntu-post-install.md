@@ -6,12 +6,13 @@ header:
   caption: "Image credit: [**Desktop Ubuntu 20.04 'Focal Fossa' with GNOME 3.36 by wikimedia.org**](https://commons.wikimedia.org/wiki/File:Desktop_Ubuntu_20.04.png)"
 tags: ["linux", "ubuntu", "install guide", "btrfs", "luks", "timeshift", "timeshift-autosnap-apt"]
 date: 2020-04-24
+type: book
 ---
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 In the following I will go through my post installation steps, i.e. which settings I choose and which apps I install and use.
-
+{{< toc hide_on="xl" >}}
 ## Basic Steps
 
 #### Go through welcome screen

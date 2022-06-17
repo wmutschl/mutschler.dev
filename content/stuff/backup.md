@@ -7,9 +7,11 @@ header:
   caption: "Image credit: [**Tim Reckmann on ccnull.de**](https://ccnull.de/foto/backup/1000971)"
 tags: ["backup", "linux", "macos", "apple", "windows", "nextcloud", "rsync", "restic", "btrbk", "time machine", "minio", "btrfs", "ntfs", "exfat", "apfs"]
 date: 2022-01-13
+type: book
 ---
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+{{< toc hide_on="xl" >}}
 
 **This post serves as a mental note to me (and my relatives) about my backup strategy. Of course, this is work-in-progress and not perfect, so I will update this post from time to time. Any comments, questions, and suggestions are much appreciated.**
 

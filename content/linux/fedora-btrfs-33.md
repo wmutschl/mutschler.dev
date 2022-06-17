@@ -6,10 +6,11 @@ header:
   caption: "Image credit: [**Fedora data points**](https://www.ctrl.blog/entry/fedora-popcon.html) by [Daniel Aleksandersen](https://www.daniel.priv.no/)"
 tags: ["linux", "fedora", "install guide", "btrfs", "luks", "timeshift"]
 date: 2020-11-04
+type: book
 ---
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-
+{{< toc hide_on="xl" >}}
 ## Overview 
 Since Fedora switched their default filesystem to btrfs I decided to give it a go as I am exclusively using btrfs on all my systems, see: [Why I (still) like btrfs](../btrfs/). Fedora's automatic installation routine with encryption is actually almost perfect for me except some changes regarding the btrfs mount options and subvolume names. 
 

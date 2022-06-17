@@ -6,13 +6,14 @@ header:
   caption: "Image credit: [**https://pxhere.com/en/photo/796221**](https://pxhere.com/en/photo/796221)"
 tags: ["linux", "raspberry pi", "ubuntu", "install guide", "btrfs", "luks", "timeshift", "timeshift-autosnap-apt", "usb boot"]
 date: 2021-01-11
+type: book
 ---
 
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 In the following I will go through my post installation steps, i.e. which settings I choose and which apps I install and use on my Raspberry Pi 4 (4 GB) after [installing Ubuntu Server 20.10 with btrfs-luks booted from an external USB drive](../raspi-btrfs).
-
+{{< toc hide_on="xl" >}}
 
 ## Basic steps
 

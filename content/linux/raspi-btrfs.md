@@ -6,10 +6,11 @@ header:
   caption: "Image credit: [**https://pxhere.com/en/photo/796221**](https://pxhere.com/en/photo/796221)"
 tags: ["linux", "raspberry pi", "ubuntu", "install guide", "btrfs", "luks", "timeshift", "timeshift-autosnap-apt", "usb boot"]
 date: 2021-01-10
+type: book
 ---
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-
+{{< toc hide_on="xl" >}}
 
 ## Overview 
 Since 2020, I am exclusively using btrfs as filesystem on all my systems, see: [Why I (still) like btrfs](../btrfs/). So, in this guide I will show how to install Ubuntu Server 20.10 on a Raspberry Pi 4 with the following structure:
