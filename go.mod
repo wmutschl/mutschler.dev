@@ -1,4 +1,4 @@
-module github.com/wowchemy/starter-hugo-academic
+module mutschler.dev
 
 go 1.15
 
