@@ -201,8 +201,9 @@ Now we will first create the subvolume `@` and move all files and folders from t
 ```sh
 btrfs subvolume create /mnt/@
 # Create subvolume '/mnt/@'
-mv /mnt/* /mnt/@/
-# mv: cannot move '/mnt/@' to a subdirectory of itself, '/mnt/@/@' (ignore this)
+cd /mnt
+ls | grep -v @ | xargs mv -t @
+# this moves all files that don't have "@" in the name to the @/ folder
 ls -a /mnt
 # . .. @
 ```
