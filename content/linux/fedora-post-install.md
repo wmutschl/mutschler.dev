@@ -96,7 +96,7 @@ Fedora has not optimized the mount options for btrfs yet. I have found that ther
 
 - `ssd`: use SSD specific options for optimal use on SSD and NVME
 - `noatime`: prevent frequent disk writes by instructing the Linux kernel not to store the last access time of files and folders
-- `space_cache`: allows btrfs to store free space cache on the disk to make caching of a block group much quicker
+- `space_cache=v2`: allows btrfs to store free space cache on the disk to make caching of a block group much quicker
 - `commit=120`: time interval in which data is written to the filesystem (value of 120 is taken from Manjaro’s minimal iso)
 - `compress=zstd`: allows to specify the compression algorithm which we want to use. btrfs provides lzo, zstd and zlib compression algorithms. Based on some Phoronix test cases, zstd seems to be the better performing candidate.
 - `discard=async`: [Btrfs Async Discard Support Looks To Be Ready For Linux 5.6](https://www.phoronix.com/scan.php?page=news_item&px=Btrfs-Async-Discard)
@@ -104,11 +104,11 @@ Fedora has not optimized the mount options for btrfs yet. I have found that ther
 So add these options to your btrfs subvolume mount points in your fstab:
 ```sh
 sudo nano /etc/fstab
-# UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /                       btrfs   subvol=root,x-systemd.device-timeout=0,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async 0 0
+# UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /                       btrfs   subvol=root,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
 # UUID=04ae92cd-717c-4aaf-bb24-58001be8d334 /boot                   ext4    defaults        1 2
 # UUID=C17B-722D                            /boot/efi               vfat    umask=0077,shortname=winnt 0 2
-# UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /home                   btrfs   subvol=home,x-systemd.device-timeout=0,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async 0 0
-# UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /btrfs_pool             btrfs   subvolid=5,x-systemd.device-timeout=0,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async 0 0
+# UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /home                   btrfs   subvol=home,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
+# UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /btrfs_pool             btrfs   subvolid=5,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
 sudo mkdir -p /btrfs_pool
 sudo mount -a
 ```
