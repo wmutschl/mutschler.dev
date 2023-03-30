@@ -1,23 +1,22 @@
 ---
 title: 'macOS: Things to do after installation (Apps, Settings, and Tweaks)'
-summary: In the following I will go through my post installation steps on macOS Monterey 12.1, i.e. which settings I choose and which apps I install and use.
+summary: In the following I will go through my post installation steps on macOS Ventura, i.e. which settings I choose and which apps I install and use.
 header:
   image: "DeskSetup.jpg"
   caption: "Image credit: [**Willi Mutschler**](https://mutschler.dev)"
 tags: ["apple", "macos", "post-installation"]
-date: 2022-01-13
+date: 2023-03-29
 type: book
 ---
-[WORK-IN-PROGRESS]
 
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
 <a href="https://www.buymeacoffee.com/mutschler" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 {{< toc hide_on="xl" >}}
 
-Since January 2021 I've been using an Apple MacBook Air (M1) as my daily driver. Even though I have a strong Linux background, I do like macOS quite a lot. Particularly, one of the great things about macOS is the huge amount of useful and well-designed apps, tools and utilities; not only on from the App Store but also by side-loading. Therefore, in the following I will go through my post installation steps, i.e. which apps I install and use and which system preferences I choose. In other words, this guide serves as a reminder of what I set and how I use my MacBook Air (M1).
+Since January 2021 I've been using an Apple MacBook Air (M1) as my daily driver and have switched to a MacBook Pro (M2 Max) in March 2023. Even though I have a strong Linux background, I do like macOS quite a lot. Particularly, one of the great things about macOS is the huge amount of useful and well-designed apps, tools and utilities; not only on from the App Store but also by side-loading. Therefore, in the following I will go through my post installation steps, i.e. which apps I install and use and which system preferences I choose. In other words, this guide serves as a reminder of what I set and how I use my MacBook.
 
 ### Beware of the costs
-As we all know, not only Apple hardware but also software comes at a hefty premium. I've tried to write down how much I've spent on apps and subscriptions since I started my macOS journey in January 2021, and I've documented that below for each app. Here is a rough summary:
+As we all know, not only Apple hardware but also software comes at a hefty premium. I've tried to write down how much I've spent on apps and subscriptions since I started my macOS journey in January 2021, and I've documented that below for each app. Here is a rough summary for 2021:
 
 - 700€ one-time on app purchases
 - 230€/year on app subscriptions
@@ -25,83 +24,87 @@ As we all know, not only Apple hardware but also software comes at a hefty premi
 
 This doesn't include the applications and subscriptions I tested and discarded, so there is probably a significant sunk costs as well. On the other hand, some apps are universal and I have bought them before on my iPhone or iPad. Moreover, some subscriptions are covered by my university. 
 
-Anyways, pay attention to the cost if you decide to use Apple's eco system. My tip: Try to cover the cost by buying gift cards in advance with a 15 or 20 percent bonus credit so that the cost is reduced by that percentage. I usually do this each year to at least cover my Apple One Family and other app subscriptions.
+Anyways, pay attention to the cost if you decide to use Apple's eco system. My tip (unfortunately not possible anymore): Try to cover the cost by buying gift cards in advance with a 15 or 20 percent bonus credit so that the cost is reduced by that percentage. I usually do this each year to at least cover my Apple One Family and other app subscriptions.
 
 
 
 ## Basic steps
 Note that I do the initial macOS setup without any devices connected to the MacBook.
 
-### Connect Thunderbolt docks
-After doing the initial steps, I use the two Thunderbolt ports on my MacBook Air to connect on the one hand a [LG 35WN75C-B Curved UltraWide monitor](https://www.lg.com/de/monitore/lg-35wn75c-b) (which gives me a couple of additional USB ports) and on the other hand an [Anker PowerExpand Elite 13-in-1 Thunderbolt dock](https://www.anker.com/de/a8396launch) (which gives me much needed connectivity).
+### Connect Thunderbolt docks and devices
+After doing the initial steps, I use the Thunderbolt ports to connect on the one hand a [LG 35WN75C-B Curved UltraWide monitor](https://www.lg.com/de/monitore/lg-35wn75c-b) (which gives me a couple of additional USB ports) and on the other hand an [Anker PowerExpand Elite 13-in-1 Thunderbolt dock](https://www.anker.com/de/a8396launch).
+I then connect all my peripherals either to the monitor, docker or directly to the MacBook.
 
-### Connect devices
-The following devices are connected to the Anker dock:
-- Audio Input & Output (Front): [Logitech Speakers Z130](https://www.logitech.com/de-de/products/speakers/z130-stereo-speakers.980-000418.html)
-- Gigabit Ethernet: [CAT 7 Ethernet cable](https://www.amazon.de/gp/product/B0119F6512/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
-- Thunderbolt 3 (40Gbps, 15W): [Solid State Logic SSL 2](https://www.solidstatelogic.com/products/ssl2)
-- Thunderbolt 3 (40Gbps, 85W): [MacBook Air M1](https://www.apple.com/de/macbook-air/)
-- USB 3.1 Gen 1 USB-A (Back): [Cable Matters DisplayLink 4K UHD](https://www.cablematters.com/pc-736-138-usb-30-to-hdmi-adapter-supporting-4k-resolution-for-windows-and-mac.aspx)
-- USB 3.1 Gen 1 USB-A (Front): [Yubikey 5 NFC](https://www.yubico.com/de/product/yubikey-5-nfc/)
-- USB 3.1 Gen 2 USB-C (Front): [Blackmagic ATEM Mini](https://www.blackmagicdesign.com/products/atemmini)
-
-
-The following devices are connected to the LG 38 curved monitor:
-- USB 3.0 USB-A: [Samsung T5 SSD](https://www.samsung.com/semiconductor/minisite/ssd/product/portable/t5/) for Time Machine
-- USB 3.0 USB-A: [Logitech unifying receiver](https://www.logitech.com/en-us/products/mice/unifying-receiver-usb.910-005235.html) which connects my [Logitech MX Master 3](https://www.logitech.com/en-us/products/mice/mx-master-3.html) and my [Logitech ERGO K860](https://www.logitech.com/de-de/products/keyboards/k860-split-ergonomic.html) keyboard (USB-A)
-
-### DisplayLink adapter
+### DisplayLink adapter (only for M1 MacBook Air)
 The MacBook Air M1 chip is only able to connect to a single external monitor natively; however, using an external DisplayLink Adapter I am able [to connect two or more external displays]((https://www.macworld.co.uk/how-to/how-connect-two-or-more-external-displays-apple-silicon-m1-mac-3799794/)). In particular, I connect a [FUJITSU Display B24-8 TS Pro](https://www.fujitsu.com/de/products/computing/peripheral/displays/b24-8-ts-pro/) in rotated mode. The quality is not great, either because of the adapter or the monitor or both, but as I am mostly using it to read PDFs, it does the job. To make this work, one has to install the [DisplayLink Manager](https://www.synaptics.com/products/displaylink-graphics/downloads/macos) software. After installing it, one needs to activate the app in `Screen Recording` in the `Security & Privacy` part of `System Preferences`.  Note that if you lock your system, there will be a message in the menu bar that *Your screen is being observed*.Moreover, in `Notifications & Focus` at the bottom activate `When mirroring or sharing the display` under `Allow notifications`. Furthermore, in the Apps settings, I set the rotation to 90° and set the software to launch at startup.
 
 ### Arrange displays and change desktop backgrounds
 Go to `Displays` in `System Preferences` and arrange the displays. My MacBook is typically on a pile of books (on the left), the LG monitor is the main monitor and the rotated Dell monitor is on the right. I also choose different backgrounds for each monitor.
 
+### Install Updates for MacOS
+Before I proceed, I see whether a new version of MacOS is available. Go to System Settings, General, and Software Update. Reboot.
+
+### Time Machine: Backup and restore files
+
+The easiest way to restore everything is to use the migration assistant, but typically I only need to restore some folders and files from my Time Machine backups (or alternatively sync from my Nextcloud server).
+So click on the red exclamation mark and "Claim existing backups". I then do a full back and activate both automatic backups as well as displaying it in the menu bar. After the first backup, you can either use Time Machine directly to restore certain folders and files or, alternatively, open the disk in finder, select the most recent snapshot and simply copy the files and folders over.
+
+I add several folders to the exclude list, note that I do this in Terminal.app, because some of these folders cannot be directly added via the Time Machine app:
+```sh
+sudo tmutil addexclusion -p $HOME/FinalCutRaw
+sudo tmutil addexclusion -p $HOME/Music
+sudo tmutil addexclusion -p $HOME/Movies
+sudo tmutil addexclusion -p $HOME/Parallels
+sudo tmutil addexclusion -p /private/var/db/diagnostics
+sudo tmutil addexclusion -p /private/var/db/oah
+```
+Note that you need to grant Terminal.app Full Disk Access for this.
+
 ### Browsers and extensions
-#### Safari (WIP)
-My daily driver for surfing the web is Safari, so I go through the preferences and set it up to my liking. I also adjust the start page to see my iCloud tabs. Lastly, I install the following extensions via the App Store:
+#### Safari
+My daily driver for surfing the web is Safari, so I go through the preferences and set it up to my liking. I also activate the `Show Favorites Bar` under View.
+Lastly, I install the following extensions via the App Store:
 - [Bitwarden (10$/year)](https://apps.apple.com/us/app/bitwarden/id1352778147?mt=12): This also installs a desktop app, which I start first to enable `Unlock with TouchID`. Then I set up the extension in Safari to also use Biometrics to unlock in Safari.
 - [1Blocker (1.99€/month)](https://apps.apple.com/us/app/1blocker-ad-blocker-privacy/id1365531024): In the extensions panel of the Safari preferences I enable all 1Blocker extensions and then set up the app to my liking.
-
-Settings:
-- Show Favorites Bar
   
 #### Chrome
 For YouTube and some websites that do not work under Safari, I also install [Google Chrome](https://www.google.com/chrome/). I don't make it my default browser, but do sign in to my Google account to sync my settings and extensions. Again I am using [Bitwarden](https://chrome.google.com/webstore/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb?hl=en) to access my passwords and [uBlock origin](https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm?hl=en) to block ads.
 
 ### Enable internet accounts for calendar, contacts and mails
 In `Internet Accounts` of `System Preferences` I enable and set up my accounts for mails, calendars and contacts:
-- Mailbox.org (IMAP and SMTP)
+- mutschler.dev (imap/smtp)
+- mutschler.eu (imap/smtp)
+- dynare.org (imap/smtp)
 - Nextcloud (CardDAV and CalDAV)
-- University account (IMAP and SMTP)
+- University Tübingen (Exchange)
 - Microsoft 365 account (Exchange)
-- iCloud (all except Mail)
+- iCloud
+
+### Mail
+I then open Mail.App to sync my emails. Meanwhile it syncs, I go through the preferences:
+- New messages sound: None
+- Deactivate "Enable message follow-up suggestions"
+- Composing: Message format: Plain Text
+- Privacy: Activate Protect Mail Activity
+
+I also deactivate "Organise by Conversation" in View for every Folder in every Mail Account (sic!).
+Lastly, I make sure that my S/MIME certificate is working (if not, [follow these steps](https://support.apple.com/en-gb/guide/mail/mlhlp1179/15.0/mac/13.0)) and also import your private key to the Key Chain.
 
 ### Finder Preferences
 I change some preferences in Finder for my convenience:
 
-- Show Connected servers on desktop
-- New Finder windows show `wmutschl` (my user name)
+- Turn off "Show these items on the desktop"
+- New Finder windows shows `wmutschl` (my user name)
 - Show all items in the sidebar except Recents and AirDrop
 - Show all filename extensions
 - Don't show warning before changing an extension
 - Don't show warning before removing from iCloud Drive
-- Show warning before emptying the Bin
 - Remove items from the Bin after 30 days
 - Keep folders on top for `In windows when sorting by name`
 - Keep folders on top for `On Desktop`
+- When performing a search: `Search the Current Folder`
 
-When performing a search I select `Search the Current Folder`; moreover, in the View menu I activate `Show Path Bar` and `Show Status Bar`. Lastly, I change the view to icon view, <kbd>CMD</kbd>+<kbd>1</kbd>, then I hit <kbd>CMD</kbd>+<kbd>j</kbd> and select the layout I want by default; particularly, I like:
-- Activate `Always open in icon view` and `Browse in icon view`
-- Group by `None`
-- Sort by `Name`
-- Icon Size `64 x 64`
-- Grid spacing `5`
-- Text Size `12`
-- Label Position: `Bottom`
-- Uncheck `Show Item Info`
-- Check `Show Item Preview`
-- Check `Show Library Folder`
-- Background `Default`
+Moreover, in the View menu I activate `Show Path Bar` and `Show Status Bar`. Lastly, I change the view to list view, <kbd>CMD</kbd>+<kbd>2</kbd>, then I hit <kbd>CMD</kbd>+<kbd>j</kbd> and select the layout I want by default.
 Hit `Use As Defaults` at the bottom.
 
 
@@ -120,20 +123,31 @@ Unfortunately, some software I use is still (and probably will never) be ported 
 ```sh
 softwareupdate --install-rosetta --agree-to-license
 ```
+Note that this needs to be done only once and often this is already triggered if you already installed an Intel version of a software.
 
-### Homebrew (Intel and ARM)
+### Homebrew with Alias for both Intel and ARM versions
 Homebrew is the [missing package manager for macOS](https://brew.sh) which allows one to install all sorts of software and tools I need for my work. I need to make sure that I have both the Intel as well as ARM version of homebrew installed. So open terminal.app and install the ARM version of homebrew first:
 ```sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/wmutschl/.zprofile
+(echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> /Users/wmutschl/.zprofile
 eval "$(/opt/homebrew/bin/brew shellenv)"
 ```
 This installs Homebrew into `/opt/homebrew`. Next, I install the Intel version using the `arch -x86_64` prefix:
 ```sh
 arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
-This install Homebrew into `/usr/local/homebrew`. 
-
+This install Homebrew into `/usr/local/homebrew`. Don't run the "Next steps" as by default the ARM version should be used.
+Now let's create two useful alias for both versions:
+```sh
+echo 'alias mbrew="/opt/homebrew/bin/brew"' >> /Users/wmutschl/.zshrc
+echo 'alias ibrew="arch -x86_64 /usr/local/bin/brew"' >> /Users/wmutschl/.zshrc
+```
+Close and re-open your terminal and test these by e.g. running update and upgrade commands:
+```sh
+mbrew update && mbrew upgrade
+ibrew update && ibrew upgrade
+```
+Note that `brew` refers to the ARM version, which is the right default for me.
 
 ### Fish (A Friendly Interactive Shell)
 Instead of Apples default `zsh` shell, I like to use [Fish shell](https://fishshell.com) as it is much more [interactive and user-friendly](https://fedoramagazine.org/fish-a-friendly-interactive-shell/). This can be installed easily with (ARM) homebrew:
@@ -144,13 +158,6 @@ To make fish the default shell one needs to first include it into `/etc/shells`:
 ```sh
 echo "/opt/homebrew/bin/fish" | sudo tee -a /etc/shells
 cat /etc/shells
-#/bin/bash
-#/bin/csh
-#/bin/dash
-#/bin/ksh
-#/bin/sh
-#/bin/tcsh
-#/bin/zsh
 #/opt/homebrew/bin/fish
 ```
 And then change the shell:
@@ -163,9 +170,7 @@ Lastly, I make sure that `/opt/homebrew/bin` is in my `fish_user_paths`:
 ```sh
 set -U fish_user_paths /opt/homebrew/bin $fish_user_paths
 ```
-
-### Alias for ARM Homebrew and Intel Homebrew in Fish
-Sometimes I need to be sure to either run Homebrew on ARM or on Intel, so I create an alias `mbrew` for the ARM version of Homebrew and another one `ibrew` for the Intel version of Homebrew. In Fish you do this in the following way:
+And I create Alias for ARM Homebrew and Intel Homebrew in Fish as well:
 ```sh
 alias mbrew "/opt/homebrew/bin/brew"
 funcsave mbrew
@@ -177,8 +182,8 @@ funcsave ibrew
 ### .local/bin in $PATH
 I like to have `$HOME/.local/bin` in my $PATH. In Fish one can do this using the following command:
 ```sh
-mkdir -p /Users/wmutschl/.local/bin
-set -Ua fish_user_paths /Users/wmutschl/.local/bin
+mkdir -p $HOME/.local/bin
+set -Ua fish_user_paths $HOME/.local/bin
 ```
 zsh and bash usually pick this up, once the folder is created. You can check this by opening another Terminal.app and running
 ```sh
@@ -186,19 +191,9 @@ bash -C "echo $PATH"
 zsh -c "echo $PATH"
 ```
 
-### Terminal theme
-I like the [Dracula Dark theme for Terminal.app](https://draculatheme.com/terminal), which can be downloaded via git:
-```sh
-mkdir -p $HOME/dracula/terminal-app
-git clone https://github.com/dracula/terminal-app.git $HOME/dracula/terminal-app
-```
-To activate the theme, go to the preferences menu of Terminal.app and to the `Profiles` tab. On the bottom click on the circle with the three dots and select import. Go to `$HOME/dracula/terminal-app` and select the `Dracula.terminal` file. Select the `Dracula` profile and click on `Default` at the bottom. Close the preferences and all Terminal.app windows. Re-open it and you should have the new theme. Actually, it is a mix between Fish and Dracula, which I like.
-
-
-## Time Machine: Backup and restore files
-
-The easiest way to restore everything is to use the migration assistant, but typically I only need to restore some folders and files from my Time Machine backups (or alternatively sync from my Nextcloud server). So I open Time Machine, add my backup disk and activate both automatic backups as well as displaying it in the menu bar. After the first backup, you can either use Time Machine directly to restore certain folders and files or, alternatively, open the disk in finder, select the most recent snapshot and simply copy the files and folders over.
-
+### perl: warning: Setting locale failed on servers
+I sometimes get a warning "perl: warning: Setting locale failed." on my servers. A quick fix is the following:
+- Open Terminal -> Preferences -> Profiles -> Advanced tab -> uncheck `Set locale environment variables on startup`
 
 ## SSH keys
 If I want to create a new SSH key, I run in Terminal.app:
@@ -231,7 +226,7 @@ Don't forget to add your public key to GitHub, Gitlab, Servers, etc.
 ## Private GPG key with Yubikey
 I store my private GPG key on two Yubikeys (a tutorial on how to put it there is taken from [Heise](https://www.heise.de/ratgeber/FIDO2-YubiKey-als-OpenPGP-Smartcard-einsetzen-4590032.html) or [YubiKey-Guide](https://github.com/drduh/YubiKey-Guide)). For this I need to install several packages via ARM Homebrew first
 ```sh
-mbrew install gnupg yubikey-personalization ykman
+brew install gnupg pinentry-mac yubikey-personalization ykman
 ```
 Make sure that the .gnupg folder has the correct permissions:
 ```sh
@@ -290,17 +285,24 @@ gpg --card-status
 #ssb>  rsa4096/8CFE5D68CC2871C3  created: 2019-12-09  expires: never     
 #                                card-no: 0006 09600174
 ```
-I copy my public key in a file called `/home/$USER/.gnupg/public.asc`:
-
+My public key is stored in a file `$HOME/.gnupg/public.asc` which I either copy from backup or download from GitHub:
+```
+curl https://github.com/wmutschl.gpg > $HOME/.gnupg/public.asc
+````
+Next I import it and give it trust level 5:
 ```sh
 cd ~/.gnupg
 gpg --import public.asc
-gpg --edit-key 91E724BF17A73F6D
+export KEYID=91E724BF17A73F6D
+gpg --edit-key $KEYID
   trust
   5
   y
   quit
-echo "This is an encrypted message on my Mac" | gpg --encrypt --armor --recipient $KEYID -o encrypted_MAC.txt
+```
+Let's test this:
+```
+echo "This is an encrypted message" | gpg --encrypt --armor --recipient $KEYID -o encrypted_MAC.txt
 gpg --decrypt --armor encrypted_MAC.txt
 ```
 This should ask you for the User Pin and you should be able to decrypt the message.
@@ -308,48 +310,77 @@ This should ask you for the User Pin and you should be able to decrypt the messa
 
 
 ## Apple Apps
-Before I install additional apps, I go through all the applications Apple ships by default in order to provide the necessary permissions and change some settings. So I click on all the apps in Launchpad and make changes to some app settings, which I list below.
+Before I install additional apps, I go through all the applications Apple ships by default in order to provide the necessary permissions and change some settings. So I click on all the apps in Launchpad and first delete all the apps that I don't use.
+Then I make changes to some app settings, which I list below.
 
 #### App Store
 Turn off Video Autoplay and Automatic Updates as I usually do manual updates once a week to not miss new features.
 
+#### Contacts
+Check whether all contacts are correctly synced and sort by first name. Adjust the Default Account.
+
 #### Calendar
 Check whether all calendars are correctly synced and set the default calendar and notification times.
 
-#### Contacts
-Check whether all contacts are correctly synced and sort by first name.
+#### Reminders
+Check the Default List.
 
-#### Disk Utility
-In the view menu I select to `Show all devices` and `Show APFS Snapshots`.
+#### Notes
+Set the Default account; do not Enable the On My Mac account.
 
-#### iMessage and FaceTime
-First, sign in to iMessage and then set up *Name and Photo*. Second, turn on *Enable Messages in iCloud* and *Send read receipts*. Also make sure that messages are kept forever. Lastly, I sign in to FaceTime and check the settings as well.
+#### FaceTime
+Make sure the Account is enabled and the numbers to be reached by are checked. Deactivate "Automatic Camera Selection" under Video.
 
-#### Mail
-- Check addresses and ports of mail accounts
-- Deactivate `organize by conversation` in *View* for all folders (needs to be done for each folder individually)
-- Change message font to Menlo
+#### iMessage
+First, sign in to iMessage and then set up *Name and Photo* or make sure it is in sync.
+Second, turn on *Enable Messages in iCloud* and *Send read receipts*. Also make sure that messages are kept forever. Lastly, I sign in to FaceTime and check the settings as well.
 
-#### Music
-Turn on Lossless audio.
+#### Photo Booth
+Deactivate "Automatic Camera Selection" under Camera.
 
 #### Photos
-I go to preferences and check the following:
+Make sure they are restored from your backup and in sync. Then go to preferences and check the following:
 - [x] Download Originals to this Mac
 - [x] Deactivate Autoplay Videos and Live Photos
 - [x] Activate Show Holiday Events
 - [x] Activate Show Memories Notifications
 - [x] Sharing: Include location information
 
+#### Music
+Turn on Lossless audio.
+
 #### Podcasts
-Deactivate automatic downloads.
+I don't use this app, so turn Automatic Download Off.
 
-#### TV+
-I change the quality of streaming and downloads to the highest values. Also I activate automatic deletion of watched movies and TV shows.
+#### TV
+Turn on "Automatically delete watched movies and TV shows".
 
+#### Keynote, Numbers, Pages
+Deactivate "Correct spelling automatically" and "Capitalise words automatically".
 
+#### Weather
+Enable notifications for "Severe Weather" and "Next-hour Precipitation"
 
+#### Home
+Make sure you have access to your Home.
 
+#### Shortcuts
+If one needs it: Activate "Allow Running Scripts"
+
+#### Text Edit
+Deactivate "Correct spelling automatically"
+
+#### Keychain Access
+Make sure my personal certificate is used for the correct emails and the private key is added.
+
+#### Disk Utility
+In the view menu I select to `Show all devices` and `Show APFS Snapshots`.
+
+#### Digital Colour Meter
+Select "as Hexadecimal" under View-Display Values.
+
+#### Other apps
+Nothing to do in: Maps, Find My, Preview, Voice Memos, Stocks, Books, Dictionary, Calculator, Freeform, Clock, QuickTime Player, Grapher, Font Book, Chess, Stickies, Image Capture, Voice Over Utility, AirPort Utility, Migration Assistant, Activity Monitor, Console, System Information, Automator, Script Editor, Color Sync Utility, Screenshot,Blueetooth File Exchange, Audio Midi Setup
 
 
 ## Apps, Apps, Apps
@@ -358,7 +389,7 @@ In the following I list the tools I use, how to install and configure them.
 ### Productivity and Utilities
 
 #### Amphetamine and Amphetamine Enhancer (free)
-A little helper in case my MacBook needs to stay up all night. It can be installed from the App Store. Start the app and follow the instructions on the welcome screen. I also download [Amphetamine Enhancer](https://github.com/x74353/Amphetamine-Enhancer) to use the *Closed Display fail-safe*.
+A little helper in case my MacBook needs to stay up all night. It can be installed from the App Store. Start the app and follow the instructions on the welcome screen.
 
 
 #### Dockey (free)
@@ -368,11 +399,11 @@ This neat little app makes the Dock behave as I like. [Download](https://dockey.
 - Animation Speed: Fast
 
 #### Logi Options+ (free)
-Logitech Options does not work well with Apple Silicon; however, they have a new beta software called [Logi Options+](https://www.logitech.com/de-ch/software/logi-options-plus.html) which you can download via signing up for the beta program. After that you get the download link via email. Install the software and follow the onboarding screen to allow some permissions in `Security & Privacy`, i.e. `Accessibility`,  `Bluetooth` and `Input Monitoring`. I set some general behavior; particularly, I don't use natural scrolling on the scroll wheel and use the inverted direction for the thumb wheel. I then have a look at the global settings of the buttons. I remap the default behavior of the forward and back buttons to copy and paste. At the same time, I enable applications-specific settings for Safari and Chrome such that the default behavior is to go forward and back again. Moreover, I like that the thumb wheel switches between tabs. Next, I remap the gestures such that clicking the thumb button opens Mission Control, hold+left goes back, hold+right goes forward, hold+up opens a terminal, hold+down opens Safari. 
+Install the software and follow the onboarding screen to allow some permissions in `Security & Privacy`, i.e. `Accessibility`,  `Bluetooth` and `Input Monitoring`. I set some general behavior; particularly, I don't use natural scrolling on the scroll wheel and use the inverted direction for the thumb wheel. I then have a look at the global settings of the buttons. I remap the default behavior of the forward and back buttons to copy and paste. I remap the gestures such that clicking the thumb button opens Mission Control, hold+left goes back, hold+right goes forward, hold+up opens a terminal, hold+down opens Safari.
 
 
 #### Mission Control Plus (9.65€)
-From Gnome I am used to be able to close the windows from the activity overview, which is called mission control on macOS. So I download [Mission Control plus](https://www.fadel.io/missioncontrolplus) for which I already purchased a license. Unzip it and manually move it to the applications folder. Open the app and follow the instructions. Then enter the license in the menu bar and I choose to hide the tray icon.
+From Gnome I am used to be able to close the windows from the activity overview, which is called mission control on macOS. So I download [Mission Control plus](https://www.fadel.io/missioncontrolplus) for which I already purchased a license. Unzip it and manually move it to the applications folder. Open the app and follow the instructions. Then enter the license in the menu bar and I choose to hide the menu icon.
 
 #### Moom (9.99€)
 There are many options for tiling windows on macOS. I find Moom quite flexible and install it via the [App Store](https://apps.apple.com/us/app/moom/id419330170?mt=12).  I choose to run it as a menu bar application and open at startup. I also add a keyboard shortcut <kbd>CTRL</kbd>+<kbd>space</kbd> and add layouts I use often to shortcuts. When I have a working configuration I backup the settings by running in terminal.app:
@@ -389,7 +420,7 @@ I really like this tool for my banking so I purchased a license. Download the so
 
 
 #### Nextcloud (free)
-I have all my user files synced to my own Nextcloud server, see my [backup strategy](../../linux/backup), so I need the sync client, which can be [downloaded](https://nextcloud.com/install/#install-clients). Open nextcloud.app and set up the server and a first folder sync. After the first sync, I need to recheck the options and particularly launch the app on System startup, deactivate 500 MB limit and edit the ignored files. Usually, I don't sync hidden files and add `.DS_Store` and `*.photoslibrary` to the ignored files list. Again make sure to adjust settings after the first folder sync, because otherwise the Global Ignore Settings cannot be adjusted.
+I have all my user files synced to my own Nextcloud server, see my [backup strategy](../../linux/backup), so I need the sync client, which can be [downloaded](https://nextcloud.com/install/#install-clients). Open nextcloud.app and set up the server and a first folder sync. After the first sync, I need to recheck the options and particularly launch the app on System startup, deactivate 500 MB limit and edit the ignored files. Usually, I don't sync hidden files and add `.DS_Store` and `*.photoslibrary` to the ignored files list only. Again make sure to adjust settings after the first folder sync, because otherwise the Global Ignore Settings cannot be adjusted.
 
 
 #### Reeder 5 (9.99€)
@@ -408,14 +439,14 @@ I've purchased a [Timeular Tracker](https://timeular.com/tracker/) in 2021, whic
 This is an amazing piece of software based on wireguard to connect all my devices no matter where I am at or if there are firewalls between the devices. It creates a Mesh network and I can access securely all my mobile devices, computers and servers without exposing them to the internet. Tailscale can be downloaded from the [App Store](https://apps.apple.com/us/app/tailscale/id1475387142?mt=12). Open the app and select to auto start on login. The app resides as a tray icon, which you can click to sign in to your account, change some settings and easily access the IP addresses of the different machines.
 
 
-#### Microsoft Remote Desktop (free)
-I use [xrdp](https://c-nergy.be/blog/?cat=79) on servers that have a desktop environment. As a client software I use Microsoft Remote Desktop which can be downloaded from the [App Store](https://apps.apple.com/us/app/microsoft-remote-desktop/id1295203466?mt=12). Open it and change the settings, particularly, the video settings to 1080p. Using the [Tailscale](#tailscale-free) IPs I can then connect to my servers.
+#### NoMachine
+I use [NoMachine](https://www.nomachine.com) on servers that have a desktop environment. So I download the client, install it, open it and change the settings; particularly, deactivating "Start the server at system startup" and "Shut down the Server". Using the [Tailscale](#tailscale-free) IPs I can then connect to my servers.
 
 #### Parallels (39.99€/year)
 This is a powerful and user-friendly piece of software to run virtual machines (VM). Particularly, I like to try out Linux ARM VM's, Raspberry Pi Images, or MacOS clean installs to test Dynare versions. Parallels can be downloaded from their [website](https://www.parallels.com/products/desktop/trial/) after signing up. I am eligible to use the Education version, which is sufficient for my needs. After installation and activating the software I go through the settings. If I have not done so already, I also create a clean MacOS install for testing. Note that all VMs will be installed into `~/Parallels`. Obviously, I don't want the virtual machines in my Time Machine backups, so I exclude this folder in my Time Machine preferences.
 
 #### Screens 4 (29.99€)
-To access my servers via VNC or my MacBook Air from remote, I use Screens 4 combined with [Tailscale](#tailscale-free). It can be downloaded from the [App Store](https://apps.apple.com/de/app/screens-4/id1224268771?mt=12) and I set it up to use sync my settings via iCloud. Particularly, I sync my machines and like to share the clipboard.
+To access my servers via VNC or my MacBook from remote, I use Screens 4 combined with [Tailscale](#tailscale-free). It can be downloaded from the [App Store](https://apps.apple.com/de/app/screens-4/id1224268771?mt=12) and I set it up to use sync my settings via iCloud. Particularly, I sync my machines and like to share the clipboard.
 
 
 #### University VPN and eduroam (free)
@@ -433,11 +464,8 @@ Then go to settings and install those profiles. Afterwards one simply follows th
 #### DeepL (free)
 One of the best tools ever to translate chunks of text from one language into another. [Download](https://www.deepl.com/en/app/) and install it. Now every time I hit <kbd>CMD</kbd>+<kbd>c</kbd> twice, my selected text will be sent to DeepL and auto-translated. I often improve my texts by translating the texts back and forth while adjusting the expressions by right-clicking on words and phrases.
 
-#### iA Writer (29.99€)
-Even though I do like [Ulysses](https://ulysses.app) and [Bear](https://bear.app), they miss Latex and table capabilities that I really like to use. I found that [iA Writer](https://ia.net/writer) is perfect for me and also does not include a subscription service which is great. Lastly, it creates standard `txt` or `md` files which you can easily move around instead of putting everything in some proprietary database. So overall, a great solution which also works across all my Apple devices. It can be installed from the [App Store](https://apps.apple.com/de/app/ia-writer/id775737590?mt=12). Start it and enable iCloud sync to get all your files. Also check the preferences, settings and themes. I quite like the default though.
-
-#### iWriter Pro ()
-Maybe even better than iA Writer???
+#### iWriter Pro (14.99€)
+Even though I tried out [iA Writer](https://ia.net/writer), [Ulysses](https://ulysses.app) and [Bear](https://bear.app), I found that [iA Writer](https://ia.net/writer) is perfect for me and also does not include a subscription service which is great. It creates standard `txt` or `md` files which you can easily move around instead of putting everything in some proprietary database. So overall, a great solution which also works across all my Apple devices. It can be installed from the [App Store](https://apps.apple.com/de/app/ia-writer/id775737590?mt=12). Start it and enable iCloud sync to get all your files. Also check the preferences, settings and themes. I quite like the default though.
 
 #### Keynote (free)
 Instead of Powerpoint I really like Apples take on presentations. It can be installed via thee [App Store](https://www.zotero.org). Open it and go through the settings.
@@ -446,7 +474,7 @@ Instead of Powerpoint I really like Apples take on presentations. It can be inst
 I simply install [MacTex](http://www.tug.org/mactex/mactex-download.html) and use the [LaTex Workshop extension](https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop) for [VScode](#visual-studio-code-free) as my editor.
 
 #### Liquid Text LIVE (95.99€/year)
-I use this app both on my Mac and iPad for research, it can be installed from the [App Store](https://apps.apple.com/us/app/liquidtext/id922765270) and has [different versions](https://www.liquidtext.net/pricing-features). As I am using it on my iPad as well I chose the LIVE edition. It does need some getting used to, particularly the handling of folders and files, but it is really great to collect thoughts and read papers for research, teaching and other projects. Highly recommended! After installation I need to restore my purchases to re-activate my license and sync my database.
+I use this app both on my Mac and iPad for research, it can be installed from the [App Store](https://apps.apple.com/us/app/liquidtext/id922765270) and has [different versions](https://www.liquidtext.net/pricing-features). As I am using it on my iPad as well I chose the LIVE edition. It does need some getting used to, particularly the handling of folders and files, but it is really great to collect thoughts and read papers for research, teaching and other projects. Highly recommended! After installation I need to restore my purchases to re-activate my license and sync my database (or Login to Existing Account).
 
 #### Microsoft Excel and Word (free via university, otherwise 69€/year)
 Sometimes I get documents which require [Microsoft Excel](https://apps.apple.com/us/app/microsoft-excel/id462058435?mt=12) and [Microsoft Word](https://apps.apple.com/us/app/microsoft-word/id462054704?mt=12) from the [App Store](https://apps.apple.com/de/app-bundle/microsoft-365/id1450038993?mt=12). Luckily, I have a license via my university; but honestly, I try to use other tools.
@@ -461,6 +489,10 @@ I have purchased PDF Expert in 2019 for any advanced PDF editing needs I have. I
 #### Zotero (free)
 Zotero is great to keep track of the literature I use in my research and teaching. Download it from their [website](https://www.zotero.org) and install it. Open zotero, log in to an account, and sync the settings. I need to install one extension called [better-bibtex](https://github.com/retorquere/zotero-better-bibtex/releases/) and also disable the LibreOffice and Word connector extensions.
 
+In better-bibtex I set the following:
+- Citation keys: Citation key formula: `authors(n=3,etal=EtAl,sep=".")+"_"+year+"_"+shorttitle(3,3)`
+- Export: BibTeX Add URLs to BibTeX export: `in the 'url' field`
+- Export: Fields: Fields to omit from export (comma-separated): `file`
 
 
 
@@ -470,7 +502,7 @@ Zotero is great to keep track of the literature I use in my research and teachin
 #### GitKraken (4.95€/month)
 GitKraken is a great tool that simplifies `git` for me. I use it daily and have a Pro license. So, download the [GitKraken installer](https://www.gitkraken.com/download) and install it. Open GitKraken and set up Accounts and Settings (or restore from Backup).
 
-#### Hugo (free)
+#### Hugo an Golang (free)
 My website uses the [Hugo Academic Theme](https://github.com/wowchemy/starter-hugo-academic) for [Hugo](https://github.com/gohugoio/hugo), which is based on Go. So I install Go and hugo with ARM Homebrew:
 ```sh
 mbrew install golang hugo
@@ -478,11 +510,23 @@ mbrew install golang hugo
 
 #### MATLAB (free via university, otherwise 500€ + 250€ per toolbox)
 I use MATLAB for teaching and research; unfortunately, the cost is quite high, but luckily I have a university-wide license. So I install MATLAB using the installation files from [Mathworks](https://mathworks.com/download). Follow the instructions to install all the toolboxes I need. Then start MATLAB, make sure the license is activated and I sign in. Then I go through the preference section.
-There is a `Warning: the font "Times" is not available, so "Lucida Bright" has been substituted, but may have unexpected appearance or behavor. Re-enable the "Times" font to remove this warning.` So I download a free [times font](https://www.freebestfonts.com/timr45w-font) and install it.
+In older versions, there is a `Warning: the font "Times" is not available, so "Lucida Bright" has been substituted, but may have unexpected appearance or behavor. Re-enable the "Times" font to remove this warning.` So I download a free [times font](https://www.freebestfonts.com/timr45w-font) and install it.
 
 
 #### Visual Studio Code (free)
-I do all my non-MATLAB development work and server administration stuff with VSCode. The Apple Silicon installer can be [downloaded and installed](https://code.visualstudio.com/download). As I use the *Settings Sync* functionality, I only need to sign in and sync all my settings and extensions cross-plattform. Pretty great!
+I do all my non-MATLAB development work and server administration stuff with VSCode. The Apple Silicon installer can be [downloaded and installed](https://code.visualstudio.com/download). As I use the *Settings Sync* functionality, I only need to sign in and sync all my settings and extensions cross-plattform. Pretty great! For completeness my extensions:
+
+- Code Spell Checker
+- German - Code Spell Checker
+- GitLens - Git supercharged
+- LaTeX Workshop
+- latex-count
+- Markdown All in One
+- Matlab
+- Pop Theme
+- Remote - SSH
+- Remote - SSH: Editing Configuration Files
+- Remote Explorer
 
 
 #### Dynare (free)
@@ -496,18 +540,15 @@ As I am a member of the development team, I need to have some tools installed wi
 ### Communication
 
 #### Mattermost (free)
-Our Dynare team communication is happening via Mattermost which can be easily [downloaded and installed](https://mattermost.com/download/#). Connect the server and log in. The preferences are synced from the server, but better safe than sorry, I double check the preferences.
+Our Dynare team communication is happening via Mattermost which can be easily [installed via the Mac App Store](https://mattermost.com/download/#). Connect the server and log in. The preferences are synced from the server, but better safe than sorry, I double check the preferences.
 
 #### Skype (free)
-I use Skype to communicate with work colleagues. The Apple Silicon installer for Skype can be installed from their [website](https://www.skype.com/de/get-skype/). Open skype, log in and set up audio and video. Start a meeting and try out to share the screen, this will open a prompt to also enable `Screen Sharing` in `Security & Privacy` settings, which I enable.
+I use Skype to communicate with work colleagues. The Skype Insider Program offers a native Apple Silicon variant of Skype and can be [downloaded here](https://www.skype.com/de/insider/).
+Open skype, log in and set up audio and video. Start a meeting and try out to share the screen, this will open a prompt to also enable `Screen Recording` in `Security & Privacy` settings, which I enable.
 
 
 #### Zoom (free via university, otherwise 14.99€/month)
-I use Zoom mostly for work meetings and teaching, but also the occasional private online gathering. Also my [booking appointments system](https://schedule.mutschler.eu) automatically creates Zoom links. The software can be installed from their [website](https://zoom.us/download). Choose the installer for Apple Silicon/M1. Open zoom, log in and set up audio and video, and any other settings. Start a meeting and try out to share the screen, this will open a prompt to also enable `Screen Sharing` in `Security & Privacy` settings, which I enable.
-
-#### Microsoft Teams (free via university, otherwise x€/month)
-
-
+I use Zoom mostly for work meetings and teaching, but also the occasional private online gathering. Also my [booking appointments system](https://schedule.mutschler.eu) automatically creates Zoom links. The software can be installed from their [website](https://zoom.us/download). Choose the installer for Apple Silicon/M1. Open zoom, log in and set up audio and video, and any other settings. Start a meeting and try out to share the screen, this will open a prompt to also enable `Screen Recording` in `Security & Privacy` settings, which I enable.
 
 ### Multimedia
 
@@ -515,23 +556,17 @@ I use Zoom mostly for work meetings and teaching, but also the occasional privat
 As I use an ATEM Mini to switch video inputs for teaching and presentations, I [download](https://www.blackmagicdesign.com/support/family/atem-live-production-switchers) and install the software to make sure I have the latest firmware. Open Atem Software Control.app and either restore your settings from a backup or set up the ATEM to your liking.
 
 #### Elgato Control Center (free)
-I have two Elgato Key Lights which I usually control via home.app (connected via [homeassistant](https://www.home-assistant.io/integrations/elgato/)). To make sure I have the latest firmware I also install the [Elgato Control Center](https://www.elgato.com/en/downloads). Once downloaded move it to the Applications folder and go through its preferences.
+I have two Elgato Key Lights which I usually control via home.app (connected via [a homebridge plugin](https://github.com/derjayjay/homebridge-keylights#readme)). To make sure I have the latest firmware I also install the [Elgato Control Center](https://www.elgato.com/en/downloads). Once downloaded move it to the Applications folder and go through its preferences.
 
 #### Fission (42$)
 For fast and lossless audio editing I have purchased [Fission](https://rogueamoeba.com/fission/). After downloading it, move the app to the applications folder, start it and enter your license. I also go through the preferences.
 
-#### Hand Mirror (free)
-A neat little tool to quickly check how you look on your webcam. Install it from the [App Store](https://apps.apple.com/us/app/hand-mirror/id1502839586?mt=12) and start it. I usually increase the window size to max.
-
-#### IINA (free)
-One of the best video players for macOS. [Download](https://iina.io), open the dmg and install it. Open the app and check the settings.
+#### Hand Mirror Plus (4.99€)
+A neat little tool to quickly check how you look on your webcam. Install it from the [App Store](https://apps.apple.com/us/app/hand-mirror/id1502839586?mt=12) and start it. I usually increase the window size to max. I also restore my plus subscription.
 
 #### Narrated (16.99€)
-A neat little software for screen recordings with a personal touch which I like to use for simple screen recordings. For more advanced settings, I rely on [OBS](#obs-free).
-Download from the [website](), open it and allow the required permissions in `Security & Privacy`. Close the overlay of the app so you can access the menu bar to change some settings and enter the license key.
-
-#### OBS (free)
-OBS is the number one choice for streaming and recording. It needs some getting used to, but once you set up your scenes it works flawlessly. [Download]((https://obsproject.com/download)) OBS Studio and install it. Open OBS and allow the required permissions in `Security & Privacy`. Import your scenes, etc. I still have much to learn in OBS.
+A neat little software for screen recordings with a personal touch which I like to use for simple screen recordings.
+Download from the [website](https://www.buildandshipapps.com), open it and allow the required permissions in `Security & Privacy`. Close the overlay of the app so you can access the menu bar to change some settings and enter the license key.
 
 #### OpenAudible (15.95€)
 OpenAudible is an audiobook library manager that helps keep track of and back up my audible purchases. [Download](https://openaudible.org), install and enter your license. Then I go through the preferences, change the default file format to MP3 and adjust the library folders. Next I connect to Audible and do a full sync of my library.
@@ -546,394 +581,417 @@ Creator’s Best Friend converts Chapter Markers from a Final Cut Pro project in
 Most of the times Apple Photos is sufficient for me to edit my pictures. However, for advanced editing I use Pixelmator Pro which can be installed from the [App Store](https://apps.apple.com/us/app/pixelmator-pro/id1289583905?mt=12).
 
 
+#### AlDente Pro (11.30€ p.a.)
+It is well known that charging the battery to 100% is not a good idea; so I use [AlDente Pro](https://apphousekitchen.com) to keep the battery at a healthier 80%. I am particularly using the Pro edition as I like the additional feature set. Install it and go through the settings.
 
+#### CleanMyMac X [wip]
+I am trying it out and so far I like it. One needs to `Grant Full Disk Access` in Privacy Settings. I remove Mail Attachments from the Scans.
 
-## System Preferences
+#### ControllerForHomeKit (29.99€ p.a.)
+I really like this app as it offers much more flexibility and hidden options to my Homekit devices. And most importantly, a backup setting!
 
-I open `System Preferences` and basically go through all the settings to improve my experience on macOS. I try to document this below.
+#### Silicon Info (free)
+A neat little utility, available in the [AppStore](https://apps.apple.com/de/app/silicon-info/id1542271266?mt=12) to check which apps have not been ported yet to Apple silicon chips.
+
+#### The Unarchiver (free)
+Sometimes I come across compressed formats that cannot be handled by the native archiver app. This little tool, available in the [App Store](https://apps.apple.com/de/app/the-unarchiver/id425424353?mt=12) is my go to in these cases.
+
+#### Tor Browser (free)
+Good to have this around for privacy related surfing. [Download](https://www.torproject.org/download/) and install it.
+
+## System Settings
+
+I open `System Settings` and basically go through all the settings to improve my experience on macOS. I try to document this below.
 
 
 #### Apple ID
 - Edit the profile picture
-- Check `Name, Phone, Email` and deactivate `Announcements` and `Apps, music, TV and more`
-- `Password & Security`: Make sure that `Two-Factor Authentification` is On and there is at least one `Trusted Phone Numbers`. I also `manage` the information in `Account Recovery` and `Legacy Contact` if there are changes. Lastly, it is nice to clean up `Apps Using Apple ID`.
-- `Payment & Shipping`: Double check whether my credit card and Shipping address are correct.
-- `iCloud`: Turn on all services I use, i.e. everything except *iCloud Mail* and *Hide My Email*. I also `Manage` my iCloud Storage and delete files/backups of devices and Apps that I don't use anymore.
-- `Media & Purchases`: Enable `Use TouchID for purchases`. I then double-check everything under `Manage` both my account and my subscriptions. Particularly, I `Share New Subscriptions` with my family and want to receive `Renewal Receipts`.
+- `Name, Phone, Email`
+  - deactivate `Announcements` and `Apps, music, TV and more`
+- `Password & Security`
+  - Make sure that `Two-Factor Authentification` is On. 
+  - I also use Security keys and there is at least one `Trusted Phone Numbers`.
+  - I also `manage` the information in `Account Recovery` and `Legacy Contact` if there are changes.
+  - `Automatic Verification` is also on.
+  - Lastly, it is nice to clean up `Apps Using Apple ID`.
+- `Payment & Shipping`
+  - Double check whether my credit card and shipping address are correct.
+- `iCloud`
+  - `Account Storage`: double check whether anything unusual (old devices) takes too much space
+  - Deactivate `Optimise Mac Storage`
+  - `Apps Using iCloud`:
+    - Turn on all services I use, i.e. everything except *Private Relay* and *Hide My Email*. Click on each entry and double check options.
+    - I activate `Advanced Data Protection`
+    - Deactivate `Access iCloud Data on the Web`
+- `Media & Purchases`
+  - Double-check everything under `Manage` for both my account and my subscriptions. Particularly, I `Share New Subscriptions` with my family and want to receive `Renewal Receipts`.
+  - Enable `Use TouchID for purchases`.
+- `Family Sharing`
+  - I check if I share all subscribed apps with my family and also if the roles are correct. Moreover, I go through everything under `Shared with your Family` and make changes if needed.
+  - Double check the `subscriptions`
+  - Enable `Purchase Sharing`
+  - Enable `Location Sharing` with familiy
+- `Devices`
+  - I `Remove from account` any devices that I don't have anymore.
 
-Lastly, I `Remove from account` any devices that I don't have anymore.
+#### Wi-Fi
+- Deactivate `Ask to join networks`
+- Deactivate `Ask to join hotspots`
+- `Advanced`: no changes, remove unnecessary Wi-Fi networks
 
-#### Family Sharing
+#### Bluetooth
+- Activate
+- For Air Pods: Change `Connect to this Mac` to `When last connected to this Mac`
 
-I check if I share all subscribed apps with my family and also if the roles are correct. Moreover, I go through everything under `Shared with your Family` and make changes if needed.
+#### Network
+I add two locations (under the three dots): one for Home and one for Work. I remove unnecessary services, rename them and add IP configurations if there are any. The two locations are then available in the top left Apple menu.
 
-#### General
+#### VPN
+Double check whether Tailscale is activated and whether I can connect to my University VPN.
 
+#### Notifications
+- Show previews: `When unlocked`
+- Deactivate `Allow notifications when the display is sleeping`
+- Deactivate `Allow notifications when the screen is locked`
+- Deactivate `Allow notifications when mirroring or sharing the display`
+- `Application Notifications`: My general approach is to turn everything off and only if I miss notifications, gradually turn them back on selectively. For instance for Calendar, CleanMyMac X, FaceTime, Find My, Home, Kerberos, Messages, Reminders, Things, Timeular
+
+#### Sound
+- Turn down the `Alert volume`
+- Turn off `Play sound on startup`
+
+#### Focus
+- Check the focus modes; I still aim to use this more.
+- Activate `Share across devices`
+- `Focus status` to `On` for all focus modes
+
+#### Screen Time
+I manage the screen time of my children, but try to keep it as permissive as possible.
+For me I also enable it, but don't change any settings here.
+
+
+
+
+#### General: About
+- Change the name of the computer
+
+#### General: Software Update
+- Automatic Updates: `Security Updates Only`
+  - Activate `Check for updates`
+  - Deactivate `Download new updates when available`
+  - Deactivate `Install macOS updates`
+  - Deactivate `Install application updates from the App Store`
+  - Activate `Install Security Responses and system files`
+
+#### General: Storage
+I don't use `Store in iCloud`. Go through the settings hidden under the circled i. Particularly, I remove the Garage Band files.
+
+#### General: AirDrop & Handoff
+- Activate `Allow Handoff between this Mac and your iCloud devices`
+- AirDrop: `Contacts Only`
+- Activate `AirPlay Receiver`
+- Allow AirPlay for `Current User`
+- Deactivate `Require password`
+
+#### General: Login Items
+Double check the `Open at Login` and `Allow in Background` lists whether there is something that I don't need. Particularly, `Google Updater`.
+
+#### General: Language & Region
+- Preferred Languages: English (Primary), German (Germany)
+- Region: Germany
+- Calendar: Gregorian
+- Temperature: Celcius
+- Measurement system: Metric
+- First day of week: Monday
+- Date format: 19.08.23
+- Number format: 1,234,567.89
+- List sort order: universal
+- Live Text: activate
+- Customised language settings for the following `Applications`:
+  - ControllerForHomeKit (Deutsch-German)
+  - Home (Deutsch-German)
+  - MoneyMoney (Deutsch-German)
+- Translation Languages: Download for English (US) and German (Germany)
+
+#### General: Date & Time
+- Activate `Set time and date automatically`
+- Source: Apple
+- 24-hour time: activate
+- Time zone: Centreal European
+- Closest city: Berlin - Germany
+
+#### General: Sharing
+For my Work Location I enable Internet Sharing of the Ethernet connection via Wi-Fi. Click on the circled i to edit the settins, then activate it.
+
+#### General: Time Machine
+I add two external disks, one at the office and one at home, and also a NAS which is on a Raspberry pi and can be used as a Time Machine target. I do hourly snapshots (they alternate between the local disk and online NAS). My exclude list is given above.
+
+#### General: Transfer or Reset
+Nothing to do.
+
+#### General: Startup Disk
+Nothing to do.
+
+#### Appearance
 - Appearance: Light
 - Accent color: multicolor (first one)
 - Highlight color: `Accent Color`
 - Sidebar icon size: `Small`
-- Check `Allow wallpaper tinting in windows`
+- Activate `Allow wallpaper tinting in windows`
 - Show scroll bars: `Automatically based on mouse or trackpad`
 - Click in the scroll bar to: `Jump to the next page`
-- Default web browser: `Safari.app`
-- Prefer tabs: `in full screen` when opening documents
-- Uncheck `Ask to keeo changes when closing documents`
-- Check `Close windows when quitting an app`
-- Recent items: `10` Documents, Apps, and Servers
-- Check `Allow Handoff between this Mac and your iCloud devices`
 
-#### Desktop & Screen Saver
+#### Accessibility
+Nothing to do.
 
+#### Control Centre
+- Wi-Fi: Don't Show in Menu Bar
+- Bluetooth: Don't Show in Menu Bar
+- AirDrop: Don't Show in Menu Bar
+- Focus: Show When Active
+- Stage Manager: Don't Show in Menu Bar
+- Screen Mirroring: Show When Active
+- Display: Show When Active
+- Sound: Show When Active
+- Now Playing: Show When Active
+- Accessibility Shortcuts:
+  - Deactivate Show in Menu Bar
+  - Deactivate Show in Control Centre
+- Battery
+  - Deactivate Show in Menu Bar (as I use AlDente)
+  - Activate Show in Control Centre
+  - Activate Show Percentage
+- Hearing:
+  - Deactivate Show in Menu Bar
+  - Deactivate Show in Control Centre
+- Fast User Switching
+  - Show in Menu Bar: Don't Show
+  - Show in Control Centre: Deactivate
+- Keyboard Brightness:
+  - Show in Menu Bar: Deactivate
+  - Show in Control Centre: Deactivate
+- Menu Bar Only
+  - Clock: Date
+    - Show date: When Space Allow
+    - Show the day of the week: Activate
+  - Clock: Time
+    - Style: Digital
+    - Use a 24-hour clock: activate
+    - Show am/pm: deactivate
+    - Flash the time separators: deactivate
+    - Display the time with seconds: deactivate
+    - Announce the time: deactivate
+    - Interval: On the hour
+  - Spotlight: Don't Show in Menu Bar
+  - Siri: Don't Show in Menu Bar
+  - Time Machine: Show in Menu Bar
+  - VPN: Don't Show in Menu Bar
+
+#### Siri & Spotlight
+- Ask Siri: Activate
+- Listen for "Hey Siri": deactivate
+- Keyboard shortcut: hold mic
+- Language: German (Germany)
+- Siri voice: German (Voice 2)
+- Siri Suggestions & Privacy: Activate everything
+- Siri Responses
+  - Voice feedback: deactivate
+  - Always show Siri captions: deactivate
+  - Always show speech: deactivate
+- Spotlight: activate everything
+- Spotlight Privacy: Add NAS with Time Machine Backup
+
+#### Privacy & Security
+- Privacy Location Services
+  - activate for: Calendar, ControllerForHomeKit, Find My, Home, Maps, Reminders, Safari, Siri & Dictation, Wallet, Weather
+  - System Services activate for: Location-based alerts, Location-based suggestions, Setting time zone, System customisation, Significant locations, Find My Mac, HomeKit, Networking and wireless
+  - System Services deactivate for Mac Analytics
+  - Activate Show location icon in Control Centre When System Services request your location
+
+#### Destkop & Dock
+- Size: leave at default (about 40%)
+- Magnification: Activate and set to about 50%
+- Position on screen: Bottom
+- Minimize windows using: Genie effect
+- Double-Click a window’s title bar: zoom
+- Minimize windows into application icon: activate
+- Automatically hide and show the Dock: activate
+- Animate opening applications: activate
+- Show indicators for open applications: activate
+- Show recent applications in Dock: activate
+- Menu Bar
+  - Automatically hide and show the menu bar on desktop: in Full Screen Only
+  - Recent documents, applications and servers: 10
+- Windows & Apps
+  - Prefer tabs when opening documents: In Full Screen
+  - Ask to keep changes when closing documents: deactivate
+  - Close windows when quitting an application: activate
+- Stage Manager: deactivate
+- Default web browser: Safari.app
+- Mission Control
+  - Automatically rearrange Spaces based on recent use: activate
+  - When switching to an application, switch to a Space with open windows for the application: deactivate
+  - Group windows by application: deactivate
+  - Displays have separate Spaces: activate
+- Shortcuts:
+  - Mission Control: Keyboard Shortcut: <kbd>CTRL</kbd>+<kbd>↑</kbd>, Mouse Shortcut: -
+  - Application windows: Keyboard Shortcut: <kbd>CTRL</kbd>+<kbd>↓</kbd>, Mouse Shortcut: -
+  - Show Desktop: Keyboard Shortcut: F11, Mouse Shortcut: -
+- Hot Corners: Deactivate
+
+#### Displays
+Arrange the monitors, then go to
+- Advanced: 
+  - Show resolutions as list: activate
+  - Link to Mac or iPad:
+    - Allow your pointer and keyboard to move between any nearby Mac or iPad: activate
+    - Push through the edge of a display to connect a nearby Mac or iPad: activate
+    - Automatically reconnect to any nearby Mac or iPad: activate
+  - Battery & Energy:
+    - Slightly dim the display on battery: activate
+    - Prevent automatic sleeping on power adapter when the display is off: deactivate
+- Night Shift
+  - Schedule: Off
+  - Turn on until tomorrow: deactivate
+  - Colour temperature: in the middle
+- Built-in Display:
+  - Use as `Extended display` with 1512x982 (Default)
+  - Automatically adjust brightness: activate
+  - True Tone: activate
+  - Presets:
+    - Apple XDR Display (P3-1600nits), Refresh rate: ProMotion
+- LG HDR WQHD:
+  - Use as `Main display` with 3440x1440 (Default)  
+  - Colour profile: LG HDR WQHD
+  - Refresh rate: 100 Hertz
+  - High Dynamic Range: deactivate
+  - Rotation: Standard
+- B24-8 TS Pro:
+  - Use as `Extended display` with 1080x1920 (Default)  
+  - Colour profile: B24-8 TS Pro
+  - Refresh rate: 60 Hertz
+  - Rotation: 90
+
+#### Wallpaper
 Desktop: Set background for each display. I like to use the Dynamic Desktops, `The Beach` for the MacBook Air, `The Lake` for the LG Monitor, and `The Cliffs` for the Fujitsu Monitor.
 
-Screen Saver: 
+#### Screen Saver
 - I like the `Hello` screensaver and use the default `Screen Saver Options`.
-- Activate `Show Screen Saver after *10* Minutes`. Note that we need to change the `Sleep` setting to a higher number.
-- Deactivate `Use random screen saver`
-- Deactivate `Show with clock`
-- Hot Corners (bottom right): remove everything as I don't use `Quick note`
+- Activate Show with clock.
 
-#### Dock & Menu Bar
-
-Dock & Menu Bar
-- Size: leave at default (about 40%)
-- Magnification: Activate and set to about 75%
-- Position on screen: `Bottom`
-- Minimize Windows using: `Genie effect`
-- Activate `Double-Click a window’s title bar` to `zoom`
-- Activate `Minimize windows into application icon`
-- Activate `Animate opening applications`
-- Activate `Automatically hide and show the Dock`
-- Activate `Show indicators for open applications`
-- Activate `Show recent applications in Dock`
-- Deactivate `Automatically hide and show the menu bar on desktop`
-- Activate `Automatically hide and show the menu bar in full screen`
-
-Control Center:
-- Deactivate `Show in Menu Bar` for
-  - Wi-Fi
-  - Bluetooth
-  - Air Drop
-  - Keyboard Brightness
-  - Display
-  - Sound
-- Activate `Show in Menu Bar` for
-  - Focus (when active)
-  - Screen Mirroring (when active)
-  - Now Playing (when active)
-
-Other Modules:
-- Accessibility Shortcuts: deactivate both `Show in Menu Bar` and `Show in Control Center`
-- Battery: activate `Show in Menu Bar`, activate `Show in Control Center`, activate `Show percentage`
-- Fast User Switching: deactivate both `Show in Menu Bar` and `Show in Control Center`
-
-Menu Bar Only:
-- Clock: 
-  - activate `Show the day of the week` and activate `Show date`
-  - Time Options: `Digital`
-  - activate `Use a 24-hour clock`
-  - deactivate `Flash the time separators` and `Display the time with seconds`
-  - deactivate `Announce the time`
-- Spotlight: deactivate `Show in Menu Bar`
-- Siri: activate `Show in Menu Bar`
-- Time Machine: activate `Show in Menu Bar`
-
-#### Mission Control
-
-I keep the defaults, i.e.:
-
-- activate `Automatically rearrange Spaces based on most recent use`
-- activate `When switching to an application, switch to a Space with open windows for the application`
-- deactivate `Group windows by application`
-- activate `Displays have separate Spaces`
-
-I also keep the default keyboard shortcuts, i.e. only <kbd>CTRL</kbd>+<kbd>↑</kbd> for Mission Control and <kbd>CTRL</kbd>+<kbd>↓</kbd> for Application windows. I manage the mouse buttons with [Logi Options+](#logi-options+-free) so no need to change mouse buttons heren. Moreover, in *Hot Corners* I remove everything as I don't use `Quick note` on my mac.
-
-#### Siri
-
-- Activate `Enable Ask Siri`
-- Deactivate `Listen for “Hey Siri”`
-- Keyboard Shortcut: default (`hold mic`)
-- Language: `German (Germany)`
-- Siri Voice: `Voice 1`
-- Voice Feedback: `On`
-- Activate `Show Siri in menu bar`
-- Sometimes, I do `Delete Siri & Dictation Histroy`, but mostly not
-- Go through `Siri Suggestions & Privacy`
-
-#### Spotlight
-
-- Search Results: activate everything
-- Privacy: don't add anything
-
-#### Language & Region
-General
-- Preferred languages: Primary: `English (US)`, Secondary: `German (Germany)`
-- Region: `Germany` which will change to `Germany (Custom)` once I changed the advanced settings below.
-- Calendar: Gregorian
-- Time format: 24-Hour Time
-- Temperature: Celsius
-- Live Text: Activate `Select Text in Images`
-- Under the wheel: Click `Apply to Login Windows`
-- Translation Languages: 
-  - Download *English (US)* and *German (Germany)*
-- Advanced:
-  - General
-    - Number separators: Grouping `,` Decimal `.`
-    - Currency: Euro (€), Grouping `,` Decimal `.`
-    - Measurement units: Metric
-    - First day of week: Monday
-    - List sort order: Universal
-  - Dates & Times: I keep the defaults
-
-Apps
-- Money Money in German
+#### Battery
+- Low Power Mode: Never
+- Battery Health click on i
+  - Optimised Battery Charging: deactivate
+- Options
+  - Wake for network access: Only on Power Adapter
+  - Optimise video streaming while on battery: deactivate
 
 
-#### Notifications & Focus (WIP)
-- Go through if you really need the notifications and which kind
-- Usually, I leave everything turned on and when something annoys me, I then go ahead and turn it off
+#### Lock Screen
+- Start Screen Saver when inactive: For 10 Minutes
+- Turn display off on battery when inactive: For 10 Minutes
+- Turn display off on power adapter when inactive: For 20 Minutes
+- Require password after screen saver begins or display is turned off: Immediately
+- Show message when locked: deactivate
+- When Switching User:
+  - Login window shows: List of users
+  - Show the Sleep, Restart and Shut Down buttons: activate
+  - Show password hints: deactivate
+- Accessibility Options: deactivate all
 
-#### Internet Accounts
-I already checked this at the beginning; but again I go through each account and turn off/on the required services.
-
-#### Passwords
-I don't use this and so I make sure this is empty.
-
-#### Wallet & Apple Pay
-Check whether my credit card is correct. Otherwise, I set it up by clicking on *Add Card*.
+#### Touch ID & Password
+- Touch ID: rename finger and add additional ones
+- Use Touch ID to unlock your Mac: activate
+- Use Touch ID for Apple Pay: activate
+- Use Touch ID for purchases in iTunes Store, App Store and Apple Books: activate
+- Use Touch ID for autofilling passwords: activate
+- Use Touch ID for fast user switching: activate
 
 #### Users & Groups
-Willi Mutschler (Admin)
-- Change your Avatar Picture and/or Password if needed
-- Open Contacts Card and check whether the info is correct
-- Go through “Login Items”
+Go through the users and remove unnecessary ones. Turn Guest User off.
 
-Guest user
-- Make sure it is turned off
+#### Passwords
+I use BitWarden, so nothing to do.
 
-Login Options: I usually leave the defaults:
-- Automatic login: `Off`
-- Display login window as: `List of users`
-- Activate `Show the Sleep, Restart, and Shut Down buttons`
-- Deactivate `Show input menu in login window`
-- Deactivate `Show password hints`
-- Deactivate `Show fast user switching menu`
-- I don't require any `Accessibility Options`
-- I don't have any `Network Account Server` to join
+#### Internet Accounts
+Check your accounts.
 
-#### Accessibility (WIP)
-- I leave all the defaults
+#### Game Center
+- Profile Privacy: Only You
+- Allow Finding by Friends: deactivate
+- Requests from Contacts Only: deactivate
+- Nearby Players: deactivate
+- Connect with Friends: deactivate
 
-#### Screen Time (WIP)
-- Turn On
-- Check “Share across devices”
-- Uncheck “Use Screen Time Passcode”
+#### Wallet & Apple Pay
+- Payment Cards: check or add new ones
+- Payment Details: check values
+- Compatible Cards: deactivate
+- Add Orders to Wallet: activate
 
-#### Extensions (WIP)
-- Go through what you really need
-
-
-#### Security & Privacy (WIP)
-- General
-    - Check “Require Password 5 Minutes after sleep or screen saver begins”
-    - Allow apps downloaded from “App Store and identified developers”
-    - Do I need System extensions????
-- File Vault: Turn On
-- Firewall: Turn Off
-- Privacy: Go through everything and make your choice accordingly
-
-
-#### Software Update
-I do my updates on a weekly basis, so I don't need the Automatic features of macOS. Therefore:
-- Uncheck “Automatically keep my Mac updated”
-- Advanced
-    - Check “Check for updates”
-    - Uncheck “Download new updates when available”
-    - Uncheck “Install macOS updates”
-    - Uncheck “Install app updates from the App Store”
-    - Uncheck “Install system data files and security updates”
-
-#### Network
-I set up two locations, one for home and one for my work, by hitting `duplicate location`. In each location I remove unused ones and change the order of the devices under `Set Service Order`. Particularly, I make sure that I have the following order: VPN, LAN, Wi-Fi, Tailscale. My Work location requires me to also set a certain IP address.
-
-#### Bluetooth
-- Turn On
-- AirPods Pro `Options`
-  - Switch `Connect to This Mac` to `When Last Connected to This Mac`.
-  - Press & Hold AirPod: Siri
-
-#### Sound
-Sound Effects
-  - Alert Sound: `Boop`
-  - Play sound effects through `Selected sound output device`
-  - Alert volume: `100%`
-  - Uncheck `Play sound on startup`
-  - Check `Play user interface sound effects`
-  - Uncheck `Play feedback when volume is changed`
-  - Output volume: `50%`
-  - Uncheck `Show Sound in menu bar`
-
-Output: Select your default device, for me it is Realtek USB2.0 Audio, and I set the volume to about 80%.
-
-Input: Select your default device, for me it is MacBook Air Microphone, and I set the input volume to 75%.
-
-#### TouchID
-I `Add Fingerprint` for my other index finger. I also ask my wife to add her finger as well. I select everything under `Use Touch ID for`.
-
-
-#### Keyboard (WIP)
-Keyboard
-  - Key Repeat: `7/8`
-  - Delay Until Repeat: `3/6`
-  - Check `Adjust keyboard brightness in low light`
-  - Uncheck `Turn keyboard backlight off after 5 secs of inactivity`
-  - Press Globe-key to `Show Emoji & Symbols`
-  - Check `Use F1, F2 etc keys as standard function keys`
-  - `Modifier keys`: keep defaults
-
-Text
-  - Replace “@@@“ with “@mutschler.eu” and remove other Text replace features
-  - Uncheck `Correct spelling automatically`
-  - Uncheck `Capitalise words automatically`
-  - Uncheck `Add period with double-space`
-    - Spelling: `Automatic by Language`
-    - Uncheck `Use smart quotes and dashes`
-- Shortcuts
-    - Go through whether you are happy with the defaults
-    - Uncheck “Use keyboard navigation to move focus between controls”
-- Input Sources:
-    - German
-    - Uncheck “Show Input menu in menu bar”
+#### Keyboard
+- Key repeat rate: one before fast
+- Delay until repeat: two before short
+- Adjust keyboard brightness in low light: activate
+- Keyboard brightness: low
+- Turn keyboard backlight off after inactivatiy: After 1 Minute
+- Press World key to: Show Emoji & Symbols
+- Keyboard navigation: activate
+- Keyboard shortcuts: I typically leave the defaults, except:
+  - Function Keys: Use F1, F2, etc. keys as standard function keys: deactivate
+- Input Sources (Edit) - All Input Sources
+  - Show Input menu in menu bar: deactivate
+  - Correct spelling automatically: deactivate
+  - Capitalise words automatically: deactivate
+  - Add full stop with double-space: activate
+  - Spelling: Automatic by Language
+  - Use smart quotes and dashes: deactivate
+- Text Replacements: remove everything
 - Dictation
-    - Off
-    - Language: English (United States)
-    - Shortcut: Press mic key
+  - Use Dictation wherever you can type text: deactivate
+  - Language: Add Language German
+  - Microphone Source: MacBook Pro Microphone
+  - Shortcut: Press Mic
+  - Auto-punctuation: activate
 
+#### Mouse
+- Tracking speed: 4th tick
+- Natural scrolling: activate
+- Secondary click: Click Right Side
+- Double-Click Speed: 9th tick
+- Scrolling Speed: 4th tick
 
 #### Trackpad
 - Point & Click
-    - Check “Look up & data detectors” - "Force Click with one finger"
-    - Check “Secondary click” - "Click or tap with two fingers"
-    - Check “Tap to click” - "Tap with one finger"
-    - Click: Medium
-    - Tracking speed: 4/10
-    - Uncheck “Silent clicking”
-    - Check “Force Click and haptic feedback”
+  - Tracking Speed: 4th tick
+  - Click: Medium
+  - Force Click and haptic feedback: activate
+  - Look up & data detectors: Force Click with One Finger
+  - Secondary click: Click or Tap with Two Fingers
+  - Tap to click: activate
 - Scroll & Zoom
-    - Check “Scroll direction: Natural”
-    - Check “Zoom in or out”
-    - Check “Smart zoom”
-    - Check “Rotate”
+  - Natural scrolling: activate
+  - Zoom in or out: activate
+  - Smart zoom: activate
+  - Rotate: activate
 - More Gestures
-    - Check “Swipe between pages”
-    - Check “Swipe between full-screen apps”
-    - Check “Notification Center”
-    - Check “Mission Control”
-    - Uncheck “App Exposé”
-    - Check “Launchpad”
-    - Check “Show Desktop”
+  - Swipe between pages: Off
+  - Swipe between full-screen applications: Swipe Left or Right with Three Fingers
+  - Notification Centre: deactivate
+  - Mission Control: Swipe Up with Three Fingers
+  - App Exposé: Off
+  - Launchpad: activate
+  - Show Desktop: activate
 
-#### Mouse (WIP)
+#### Printers & Scanners
+- Default printer: Last Printer used
+- Default paper size: A4
+- Click on `Add` and add your printer and set your Default printer and paper size
 
-
-#### Displays (WIP)
-- Display
-    - Resolution: Default for display
-    - Check "Automatically adjust brightness
-    - Check True Tone
-- Color: If you need, make changes to the Display profile (I don't)
-- Night Shift
-    - Schedule: Sunset to Sunrise
-    - Color Temperature: Middle
-- Check: Show mirroring options in the menu bar when available
-
-
-#### Printers & Scanners (WIP)
-- Click on the `+` and add your printer and set your Default printer and paper size
-
-
-#### Battery
-Battery
-- Turn display off after: `20 min`
-- Activate `Put hard disks to sleep when possible`
-- Activate `Slightly dim the display while on battery power`
-- Deactivate `Optimize video streaming while on battery`. If activated, then when you play high dynamic range (HDR) video while on battery power, the video will be played in standard dynamic range (SDR), which uses less energy.
-- Activate `Optimized battery charging`
-- Activate `Show battery status in menu bar`
-- Deactivate `Low power mode`
-- Check `Battery Health`: *Battery Condition: Normal* and *Maximum Capacity: 95%* after about 8 months of usage. Note that I use my MacBook Air mostly connected to a dock, except for presentations and when I am travelling.
-
-Power Adapter
-- Turn display off after: `20 min`
-- Activate `Prevent your Mac from automatically sleeping when the display is off`
-- Activate `Put hard disks to sleep when possible`
-- Activate `Wake for network access` (important for iCloud and find my features)
-- Deactivate `Low power mode`
-
-Schedule
-- Deactivate `Start up or wake`
-
-
-#### Date & Time (WIP)
-- Date & Time: Check "Set date and time automatically: Apple"
-- Time Zone: Check "Set time zone automatically using current location"
-
-#### Sharing (WIP)
-- Computer Name: "MacBook Air von Willi"
-- Service which I turn on:
-    - Printer Sharing
-Select my Work location (Apple-Location), I then enable Internet Sharing, i.e. I share from my LAN connection to computers using Wi-Fi. Under Wi-Fi Options I change the password. Double check in the Network preferences that if you change locations, that Wi-Fi is connected and not shared anymore.
-
-#### Time Machine (WIP)
-- Check "Back Up Automatically"
-- Check "Show Time Machine in menu bar"
-- Set up Time Machine by clicking "Select Backup Disk"
-- Options: Check "Back up while on battery power"
-
-#### Startup Disk (WIP)
-no need to set anything
-
-#### Profiles (WIP)
-- I need to install the eduroam certificate of my university here
-
-#### macFUSE (WIP)
-
-
-
-## Update routine
-
-### System updates
-Click on the Apple symbol in the left corner, select `About this Mac`, then `Software Update` and check for new updates. 
-
-Every Month or so TeX Live Utility.
-
-### App Store
-Open the AppStore and check which apps can be updated.
-
-### Homebrew
-Open terminal.app:
-```sh
-mbrew update
-mbrew upgrade
-mbrew autoremove
-
-ibrew update
-ibrew upgrade
-ibrew autoremove
-```
-
-
-Keyboard settings: Use keyboard navigation to move focus between controls
-
-
-## System extensions
+## System extensions (if needed for kernel extensions)
 To enable system extensions, you need to modify your security settings in the Recovery environment.
 To do this, shut down your system, then press and hold the Touch ID or power button to launch Startup Security Utility. In Startup Security Utility, enable kernel extensions from the Security Policy button.
-
-
-TRAY ICON AUFRÄUMEN
 
 ### Apps that I keep in my dock
 I changed the settings for the dock using dockey (see above) and have the following apps in my dock (I remove the other ones by right clicking on the symbol - Options - Remove from Dock; alternatively simply dragging them away from the dock)
@@ -943,17 +1001,15 @@ I changed the settings for the dock using dockey (see above) and have the follow
 - Messages
 - Mail
 - Calendar
-- THings
+- Things
 - Terminal
+- iWriter Pro
 - VS Code
-- Matlab
 - GitKraken
+- NoMachine
+- Zotero
 - LiquidText
-- Microsoft Remote Desktop
+- Notability
 - MoneyMoney
 - Mattermost
-- Zoom
-- iWriter Pro
-
-### Clean up apps
-go through applications folder
+- Matlab
