@@ -194,6 +194,8 @@ By default, POP!_OS 22.04. uses the default mount options of btrfs. That is, SSD
 
 We will later also append these mount options to the fstab, but it is good practice to already make use of compression when moving the system files from the top-level btrfs root into the dedicated subvolumes `@` and `@home`.
 
+Sometimes the LVM group is not activated, see [this issue for help](https://github.com/wmutschl/mutschler.dev/issues/4).
+
 ### Create btrfs subvolumes `@` and `@home`
 
 Now we will first create the subvolume `@` and move all files and folders from the top-level filesystem into `@`. Note that as we use the optimized mount options like compression, these will be already applied during the moving process:
