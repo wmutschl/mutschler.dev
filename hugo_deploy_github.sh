@@ -5,5 +5,5 @@ cp CNAME public/CNAME
 echo "gitdir: ../.git/modules/public" > public/.git
 cd public
 git add -A
-git commit -m "Built website $(date +%F)"
+git commit --no-gpg-sign -m "Built website $(date +%F)"
 git push origin main --force
