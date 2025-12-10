@@ -5,7 +5,7 @@ header:
   image: "linuxhacker.jpg"
   caption: ""
 tags: ["linux", "debian", "install guide", "btrfs", "luks", "timeshift"]
-date: 2025-12-10
+date: 2025-12-08
 type: book
 ---
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***

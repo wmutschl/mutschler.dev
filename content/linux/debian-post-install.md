@@ -5,7 +5,7 @@ header:
   image: "linuxhacker.jpg"
   caption: ""
 tags: ["linux", "debian", "install guide", "post-install"]
-date: 2025-12-10
+date: 2025-12-09
 type: book
 ---
 

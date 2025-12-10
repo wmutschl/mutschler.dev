@@ -5,7 +5,7 @@ header:
   image: "Linux_Pop_OS!_penguin_Tux.png"
   caption: "Image credit: [**Linux_Pop_OS!_penguin_Tux by Jayaguru-Shishya**](https://commons.wikimedia.org/wiki/File:Linux_Pop_OS!_penguin_Tux.png)"
 tags: ["linux", "pop-os", "install guide", "btrfs", "luks", "timeshift"]
-date: 2024-12-12
+date: 2025-12-10
 type: book
 ---
 ***Please feel free to raise any comments or issues on the [website's Github repository](https://github.com/wmutschl/mutschler.dev). Pull requests are very much appreciated.***
