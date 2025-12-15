@@ -34,16 +34,9 @@ jobs:
         id: pages
         uses: actions/configure-pages@v5
 
-      - name: Cache Hugo modules
-        uses: actions/cache@v4
-        with:
-          path: /tmp/hugo_cache
-          key: hugo-${{ github.run_id }}
-          restore-keys: hugo-
-
       - name: Build
         run: |
-          hugo --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/" --cacheDir /tmp/hugo_cache
+          hugo --gc --minify
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
