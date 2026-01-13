@@ -1,6 +1,34 @@
-I am using the [Academic Theme](https://github.com/wowchemy/starter-hugo-academic) for [Hugo](https://github.com/gohugoio/hugo) for my technical homepage located at <https://mutschler.dev> and [deploy it using GitHub pages](https://wowchemy.com/docs/hugo-tutorials/deployment/#github-pages).
+# Mutschler.dev
 
-This repository contains all content on the homepage and two useful scripts:
+Source code for my technical homepage at [mutschler.dev](https://mutschler.dev).
 
-* `update_hugo_extended.sh`: downloads the most recent version of Hugo Extended binary and copies it over to $HOME/.local/bin (make sure it is in your $PATH)
-* `hugo_deploy_github.sh`: git commands I use to deploy to GitHub pages (note that public is a submodule)
+## Tech Stack
+
+- **Static Site Generator**: [Hugo](https://github.com/gohugoio/hugo) (Extended version)
+- **Theme**: [Wowchemy](https://github.com/wowchemy/starter-hugo-academic) (formerly Academic Theme)
+- **Hosting**: [GitHub Pages](https://pages.github.com/)
+- **CI/CD**: GitHub Actions (automatic deployment on push to main branch)
+
+## Repository Structure
+
+- `config/`: Hugo configuration files
+- `content/`: All content for the website (blog posts, pages, etc.)
+  - `linux/`: Linux-related guides and tutorials
+  - `apple/`: macOS-related guides
+  - `stuff/`: Miscellaneous content
+- `assets/media/`: Images and media files
+- `.github/workflows/hugo.yml`: GitHub Actions workflow for automated deployment
+
+## Local Development
+
+```bash
+# Start local development server
+hugo server
+
+# Build the site
+hugo
+```
+
+## Deployment
+
+The site is automatically deployed to GitHub Pages via GitHub Actions whenever changes are pushed to the main branch. See `.github/workflows/hugo.yml` for the deployment configuration.
