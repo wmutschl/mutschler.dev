@@ -76,37 +76,46 @@ apt install firmware-linux firmware-linux-nonfree
 
 ### Install NVIDIA drivers
 
-If you have an NVIDIA GPU, the proprietary drivers provide significantly better performance than the open-source nouveau drivers.
-
-First, install the detection tool:
+First, use the detection tool to identify your GPU and the recommended driver:
 
 ```fish
-apt install nvidia-detect
+nvidia-detector
+# nvidia-driver-580
 ```
 
-Run it to identify your GPU and the recommended driver:
-
-```fish
-nvidia-detect
-# Detected NVIDIA GPUs:
-# 42:00.0 VGA compatible controller [0300]: NVIDIA Corporation GP107GL [Quadro P620] [10de:1cb6] (rev a1)
-#
-# Checking card:  NVIDIA Corporation GP107GL [Quadro P620] (rev a1)
-# Your card is supported by all driver versions.
-# Your card is also supported by the Tesla 535 drivers series.
-# It is recommended to install the
-#     nvidia-driver
-# package.
+Install the latest driver:
 ```
+sudo apt search nvidia-driver-
+# nvidia-driver-580/noble,now 580.82.09-1pop1~1759962949~24.04~eb2851e amd64 [installed]
+# NVIDIA driver metapackage
 
-Install the kernel headers and the recommended driver:
-
-```fish
-apt install linux-headers-amd64
-apt install nvidia-driver
+sudo apt install nvidia-driver-580 nvidia-utils-580
 ```
-
 Reboot to apply the changes.
+Then check if the driver is working:
+```sh
+nvidia-smi
+# Wed Dec 17 13:21:08 2025
+# +-----------------------------------------------------------------------------------------+
+# | NVIDIA-SMI 580.82.09              Driver Version: 580.82.09      CUDA Version: 13.0     |
+# +-----------------------------------------+------------------------+----------------------+
+# | GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+# | Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+# |                                         |                        |               MIG M. |
+# |=========================================+========================+======================|
+# |   0  Quadro P620                    Off |   00000000:42:00.0 Off |                  N/A |
+# | 34%   29C    P8            N/A  /  N/A  |       3MiB /   2048MiB |      0%      Default |
+# |                                         |                        |                  N/A |
+# +-----------------------------------------+------------------------+----------------------+
+#
+# +-----------------------------------------------------------------------------------------+
+# | Processes:                                                                              |
+# |  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+# |        ID   ID                                                               Usage      |
+# |=========================================================================================|
+# |  No running processes found                                                             |
+# +-----------------------------------------------------------------------------------------+
+```
 
 
 ### Fix IO_PAGE_FAULT errors (AMD systems)
@@ -136,6 +145,29 @@ Update GRUB and reboot:
 update-grub
 reboot
 ```
+
+### Check any other issues with the kernel
+
+```fish
+dmesg --level=emerg,err
+# [   46.898361] sd 23:0:0:0: Wrong diagnostic page; asked for 1 got 124
+# [   46.898368] sd 23:0:0:0: Failed to get diagnostic page 0x1
+# [   46.898372] sd 23:0:0:0: Failed to bind enclosure -19
+
+ls -l /sys/class/scsi_device/23:0:0:0/device/block
+# total 0
+# drwxr-xr-x 12 root root 0 Dec 17 13:15 sdh/
+
+lsblk -o NAME,MODEL,SERIAL,TRAN,HCTL,SIZE,TYPE,MOUNTPOINTS
+# sdh              USB DISK           18073111001162                   usb    23:0:0:0    29.3G disk
+# ├─sdh1                                                                                   2.9G part
+# ├─sdh2                                                                                     4M part
+# └─sdh3                                                                                  26.4G part  /media/wmutschl/writable
+```
+This is just a usb stick that is always plugged in, so it's not a problem.
+
+If you see any errors, you may need to adjust the kernel parameters.
+
 
 ### Enable TRIM for SSDs
 
@@ -532,6 +564,7 @@ Types: deb
 URIs: https://download.docker.com/linux/debian
 Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
 Components: stable
+Architectures: amd64
 Signed-By: /etc/apt/keyrings/docker.asc
 EOF
 
