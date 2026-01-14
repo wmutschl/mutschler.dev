@@ -576,42 +576,86 @@ docker compose -f simba-docker-compose.yml logs mattermost
 docker compose -f simba-docker-compose.yml logs mattermost-postgres
 ```
 
-## BTRBK snapshots and backups
+## BTRFS snapshots, backups, and maintenance
 
-First mount the system top root to `/btrfs_pool`:
+With all data stored on BTRFS, it's essential to configure automatic snapshots and backups for data protection.
+I use BTRBK to manage snapshots and backups, along with maintenance scripts that handle BTRFS balance and scrub operations via cron jobs.
+All configuration files and scripts are available in my [scripts](https://github.com/wmutschl/scripts) repository.
+
+### BTRBK: automatic snapshots and backups
+
+Begin by adding an entry to the fstab to mount the top-level BTRFS root to `/btrfs_pool`:
 
 ```fish
 sudo nano /etc/fstab
 # UUID=f18b85ef-a467-4664-8b59-2798c6ce80d3  /  btrfs  defaults,compress=zstd:1,subvol=@  0  0
 # UUID=f18b85ef-a467-4664-8b59-2798c6ce80d3  /home  btrfs  defaults,compress=zstd:1,subvol=@home  0  0
 # UUID=f18b85ef-a467-4664-8b59-2798c6ce80d3  /btrfs_pool  btrfs  defaults,compress=zstd:1,subvolid=5  0  0
-
-sudo mkdir -p /btrfs_pool/btrbk_snapshots
-sudo mount -av
 ```
+
+Then mount the filesystem:
+
+```fish
+sudo mount -av
+ls /btrfs_pool
+# @/  @home/
+```
+
+Create a directory for the snapshots:
+
+```fish
+sudo mkdir -p /btrfs_pool/btrbk_snapshots
+```
+
+Next, install BTRBK:
 
 ```fish
 sudo apt install btrbk
 btrbk --version
-btrbk command line client, version 0.32.5
+# btrbk command line client, version 0.32.5
 ```
 
-Check my configuration file:
+Test the BTRBK configuration with a dry run before executing the actual backup.
+Running this in a screen session is recommended to preserve the output if the session is interrupted:
+
 ```fish
 cd $HOME/scripts
+screen # recommended to prevent losing output if the session is interrupted
+
 sudo btrbk -c simba-btrbk.conf dryrun
 sudo btrbk -c simba-btrbk.conf run -v --progress
 ```
 
-### Check whether btrfs balance and btrfs scrub scripts are working
+Finally, I check whether the script which will be run by the cron job works:
 
 ```fish
+cd $HOME/scripts
+sudo sh btrfs-btrbk.sh
 ```
 
-## Adjust crontab for maintenance tasks
+### Maintenance: btrfs balance and btrfs scrub
+
+Verify that the BTRFS maintenance scripts execute properly:
+
+```fish
+cd $HOME/scripts
+sudo sh btrfs-balance.sh # should complete quickly
+sudo sh btrfs-scrub.sh   # may take several hours depending on disk size
+```
+
+### Automating with crontab
+
+To automate all BTRFS operations, prepare the log folder and activate the prepared crontab configuration:
 
 ```fish
 mkdir -p $HOME/logs
+cd $HOME/scripts
+sudo crontab simba-crontab.txt
+```
+
+Finally, review the crontab entries and update the healthchecks.io ping URL as needed:
+
+```fish
 sudo crontab -e
 ```
 
