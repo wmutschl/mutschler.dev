@@ -659,23 +659,97 @@ Finally, review the crontab entries and update the healthchecks.io ping URL as n
 sudo crontab -e
 ```
 
-Add the following lines to the crontab (need to adapt the URLs to the healthchecks.io base urls).
 
+## GPG Agent Forwarding
+
+To use my GPG keys stored on my Mac (YubiKey) remotely, I forward the GPG agent over SSH.
+On the **Mac**, I create an entry in `~/.ssh/config` for the SSH connection using the Tailscale IP:
 ```
-# Ping if server is up
-* * * * *   curl -fsS --retry 5 -o /dev/null https://hc-ping.com/XXX
+Host simba-tailscale
+   User wmutschl
+   HostName 100.105.169.114
+   Port 22
+   IdentityFile ~/.ssh/id_macbook
+   RemoteForward /run/user/1000/gnupg/S.gpg-agent /Users/wmutschl/.gnupg/S.gpg-agent.extra
+```
+The important part is the `RemoteForward` line, which forwards the GPG agent over SSH.
 
-# BTRFS snapshots and backups with BTRBK
-0 * * * *    /home/wmutschl/scripts/btrfs-btrbk.sh               >> /home/wmutschl/logs/btrfs-btrbk.log                  2>&1
+On the **remote server**, we need to enable socket unlinking in `/etc/ssh/sshd_config`:
 
-# BTRFS maintenance: balance
-15 3 * * SUN /home/wmutschl/scripts/btrfs-balance.sh             >> /home/wmutschl/logs/btrfs-balance.log                2>&1
+```fish
+echo "StreamLocalBindUnlink yes" | sudo tee -a /etc/ssh/sshd_config
+sudo systemctl enable ssh
+sudo systemctl start ssh
+```
 
-# BTRFS maintenance: scrub
-15 23 1 * *  /home/wmutschl/scripts/btrfs-scrub.sh               >> /home/wmutschl/logs/btrfs-scrub.log                  2>&1
+Next, we install the necessary packages:
+
+```fish
+sudo apt install -y gpg scdaemon gnupg-agent pcscd gnupg2
+```
+
+Fetch my public key from GitHub:
+```fish
+cd $HOME/.gnupg
+curl https://github.com/wmutschl.gpg > $HOME/.gnupg/public.asc
+```
+
+Import the public key and give it trust level 5:
+```fish
+gpg --import public.asc
+export KEYID=91E724BF17A73F6D
+gpg --edit-key $KEYID
+  trust
+  5
+  y
+  quit
+```
+
+Let's test this.
+First, disconnect all connections to the server.
+Second, **on the MAC** create an encrypted file and copy it to the server:
+
+```fish
+cd $HOME/.gnupg
+export KEYID=91E724BF17A73F6D
+echo "This is an encrypted message" | gpg --encrypt --armor --recipient $KEYID -o encrypted.txt # this should ask you for the pin of your YubiKey
+gpg --decrypt --armor encrypted.txt
+# gpg: encrypted with rsa4096 key, ID 16B5237D55638B96, created 2019-12-09
+#       "Willi Mutschler <willi@mutschler.eu>"
+# This is an encrypted message
+scp encrypted.txt simba-tailscale:.gnupg/encrypted.txt
 ```
 
 
+Third, reconnect using verbose mode to check whether the socket is forwarded correctly:
+```fish
+ssh simba-tailscale -v
+# ...
+# debug1: Remote connections from /run/user/1000/gnupg/S.gpg-agent:-2 forwarded to local address /Users/wmutschl/.gnupg/S.gpg-agent.extra:-2
+# ...
+# debug1: Remote: /home/wmutschl/.ssh/authorized_keys:1: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+# debug1: Remote: /home/wmutschl/.ssh/authorized_keys:1: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+# debug1: remote forward success for: listen /run/user/1000/gnupg/S.gpg-agent:-2, connect /Users/wmutschl/.gnupg/S.gpg-agent.extra:-2
+# ...
+```
+If you see the above, then the socket is forwarded correctly.
+
+Fourth, **on the server** decrypt the file:
+```fish
+gpg --decrypt --armor .gnupg/encrypted.txt # this should ask you for the pin of your YubiKey
+# debug1: client_input_channel_open: ctype forwarded-streamlocal@openssh.com rchan 2 win 2097152 max 32768
+# debug1: client_request_forwarded_streamlocal: request: /run/user/1000/gnupg/S.gpg-agent
+# debug1: connect_next: start for host /Users/wmutschl/.gnupg/S.gpg-agent.extra ([unix]:/Users/wmutschl/.gnupg/S.gpg-agent.extra)
+# debug1: connect_next: connect host /Users/wmutschl/.gnupg/S.gpg-agent.extra ([unix]:/Users/wmutschl/.gnupg/S.gpg-agent.extra) in progress, fd=7
+# debug1: channel 1: new forwarded-streamlocal@openssh.com [forwarded-streamlocal] (inactive timeout: 0)
+# debug1: confirm forwarded-streamlocal@openssh.com
+# debug1: channel 1: connected to /Users/wmutschl/.gnupg/S.gpg-agent.extra port -2
+# gpg: encrypted with rsa4096 key, ID 16B5237D55638B96, created 2019-12-09
+#       "Willi Mutschler <willi@mutschler.eu>"
+# gpg: problem with fast path key listing: Forbidden - ignored
+# This is an encrypted message
+```
+If you see the content of the encrypted message, then everything is working correctly. Don't worry about the `fast path key listening` warning.
 
 ## Apps
 
