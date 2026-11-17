@@ -934,7 +934,7 @@ MacBook Pro
   - `Remote Login`: Activate `Allow full disk access for remote users`, Allow access for `Only these users` *Administrators*
 - `Startup Disk`: Nothing to do.
 - `Time Machine`: Check the list of disks and the `Options`.
-  - I add two external disks, one at the office and one at home, and also a NAS which is on a Dell Thinclient and can be used as a Time Machine target.
+  - I add two external disks, one at the office and one at home, and also a NAS which is on a Dell Wyse 5070 Thin Client and can be used as a Time Machine target.
   - I do snapshots `Automatically Every Hour` snapshots (they alternate between the local disk and online NAS) and also activate `Back up on battery power`.
   - I am excluding the following folders: `~/FinalCutRaw`, `~/Movies`, `~/Music/Music`, `~/Virtual Machines.localized`
 - `Device Management`: Nothing to do.
