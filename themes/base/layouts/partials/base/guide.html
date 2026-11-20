@@ -1,0 +1,26 @@
+{{- /*
+  Curated facts about a guide from data/catalog.yaml, merged with its platform.
+  Returns a dict (empty dict if the page is not in the catalog):
+    platform (id), platformName, kind (install | post-install | hardware | notes), kindName,
+    release (e.g. "Pop!_OS 24.04"), short (short title), status (current | previous | notes),
+    note (why it is previous), successor (content file name), successorPage (page or false)
+  Usage: {{ $g := partial "base/guide.html" . }} {{ $g.short | default .Title }}
+*/ -}}
+{{- $key := "" -}}
+{{- with .File }}{{ $key = .ContentBaseName }}{{ end -}}
+{{- $cat := site.Data.catalog -}}
+{{- $g := index $cat.guides $key -}}
+{{- $out := dict -}}
+{{- with $g -}}
+  {{- $platformName := "" -}}
+  {{- range $cat.platforms }}{{ if eq .id $g.platform }}{{ $platformName = .name }}{{ end }}{{ end -}}
+  {{- $out = merge $g (dict "platformName" $platformName "kindName" (index $cat.kinds $g.kind)) -}}
+  {{- $succ := false -}}
+  {{- with $g.successor -}}
+    {{- range site.RegularPages -}}
+      {{- if and .File (eq .File.ContentBaseName $g.successor) }}{{ $succ = . }}{{ end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $out = merge $out (dict "successorPage" $succ) -}}
+{{- end -}}
+{{- return $out -}}

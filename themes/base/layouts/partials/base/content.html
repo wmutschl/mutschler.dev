@@ -1,0 +1,13 @@
+{{- /*
+  Returns the page's rendered content with two legacy blocks removed, so each design can present them natively:
+  1. the italic "Please feel free to raise any comments or issues on the website's Github repository…" intro
+  2. the red "Buy Me A Coffee" image badge
+  Layouts that use this MUST themselves offer (a) a "report an issue / suggest an edit on GitHub" link
+  (see partial base/links.html) and (b) a "Buy me a coffee" support link.
+  Usage: {{ partial "base/content.html" . }}
+*/ -}}
+{{- $c := string .Content -}}
+{{- $c = replaceRE `<a href="https://www\.buymeacoffee\.com/mutschler"[^>]*>\s*<img[^>]*>\s*</a>` "" $c -}}
+{{- $c = replaceRE `<em><strong>Please feel free to raise any comments or issues[\s\S]*?</strong></em>` "" $c -}}
+{{- $c = replaceRE `<p>\s*</p>` "" $c -}}
+{{- return ($c | safeHTML) -}}

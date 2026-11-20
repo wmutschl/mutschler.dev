@@ -1,0 +1,25 @@
+{{- /* Search index: /index.json */ -}}
+{{- $items := slice -}}
+{{- range where site.RegularPages "Section" "in" (slice "linux" "apple" "stuff") -}}
+  {{- $g := partial "base/guide.html" . -}}
+  {{- $heads := slice -}}
+  {{- /* drop fenced code first, so "## comment" lines inside shell scripts are not taken for headings */ -}}
+  {{- $raw := replaceRE "(?ms)^[ \t]*```.*?^[ \t]*```[^\n]*$" "" .RawContent -}}
+  {{- range findRE `(?m)^#{2,3} .+$` $raw -}}
+    {{- $heads = $heads | append (replaceRE `^#{2,3} ` "" . | markdownify | plainify | htmlUnescape) -}}
+  {{- end -}}
+  {{- $items = $items | append (dict
+    "title" .Title
+    "short" ($g.short | default .Title)
+    "url" .RelPermalink
+    "section" .Section
+    "platform" ($g.platformName | default "")
+    "status" ($g.status | default "")
+    "summary" (.Summary | plainify | htmlUnescape)
+    "tags" (.Params.tags | default slice)
+    "headings" $heads
+    "date" (.Date.Format "2006-01-02")
+    "updated" (.Lastmod.Format "2006-01-02")
+  ) -}}
+{{- end -}}
+{{- $items | jsonify -}}

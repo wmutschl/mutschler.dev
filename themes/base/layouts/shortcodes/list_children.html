@@ -1,0 +1,9 @@
+{{- /* {{< list_children >}}: list the pages of the current section, newest first. */ -}}
+<ul class="children">
+{{- range .Page.Pages.ByDate.Reverse }}
+  <li class="children__item">
+    <a class="children__link" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+    {{- with .Summary }}<p class="children__summary">{{ . | plainify | truncate 220 }}</p>{{ end }}
+  </li>
+{{- end }}
+</ul>

@@ -1,0 +1,98 @@
+# Curated catalogue of the guides, used only by the redesign prototypes.
+# Keys under `guides` are the content file names without ".md". Nothing here changes the content.
+#
+# status:
+#   current  – written for a release that is still supported (or the newest guide of its kind)
+#   previous – superseded by a newer guide, or written for a release that has reached end of life
+#   notes    – background notes and essays that do not age with a release
+# These are proposals for Willi to confirm.
+
+platforms:
+  - { id: pop-os,       name: "Pop!_OS" }
+  - { id: ubuntu,       name: "Ubuntu" }
+  - { id: debian,       name: "Debian" }
+  - { id: fedora,       name: "Fedora" }
+  - { id: elementary,   name: "elementary OS" }
+  - { id: home-server,  name: "Dell Wyse home server" }
+  - { id: raspberry-pi, name: "Raspberry Pi" }
+  - { id: macos,        name: "macOS" }
+  - { id: notes,        name: "Snapshots and backups" }
+
+kinds:
+  install: "Installation"
+  post-install: "After installation"
+  hardware: "Hardware"
+  notes: "Notes"
+
+guides:
+  # --- Pop!_OS ---
+  pop-os-btrfs-24-04:
+    { platform: pop-os, kind: install, status: current, release: "Pop!_OS 24.04", short: "Install Pop!_OS 24.04 with BTRFS, LUKS and Timeshift" }
+  pop-os-post-install:
+    { platform: pop-os, kind: post-install, status: current, release: "Pop!_OS 24.04", short: "Pop!_OS: things to do after installation" }
+  pop-os-btrfs-22-04:
+    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 22.04", short: "Install Pop!_OS 22.04 with BTRFS, LUKS and Timeshift", successor: pop-os-btrfs-24-04, note: "Superseded by the guide for Pop!_OS 24.04" }
+  pop-os-btrfs-21-10:
+    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 21.10", short: "Install Pop!_OS 21.10 with BTRFS, LUKS and BTRBK (draft)", successor: pop-os-btrfs-24-04, note: "An unfinished draft; Pop!_OS 21.10 reached end of life in 2022" }
+  pop-os-btrfs-21-04:
+    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 21.04", short: "Install Pop!_OS 21.04 with BTRFS, LUKS and Timeshift", successor: pop-os-btrfs-24-04, note: "Pop!_OS 21.04 is no longer supported" }
+  pop-os-btrfs-20-04:
+    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 20.04", short: "Install Pop!_OS 20.04 with BTRFS, LUKS and Timeshift", successor: pop-os-btrfs-24-04, note: "Pop!_OS 20.04 has reached end of life" }
+  pop-os-btrfs-raid1-20-04:
+    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 20.04", short: "Install Pop!_OS 20.04 on a BTRFS RAID1 with LUKS and Timeshift", successor: pop-os-btrfs-24-04, note: "Pop!_OS 20.04 has reached end of life" }
+
+  # --- Ubuntu ---
+  ubuntu-post-install:
+    { platform: ubuntu, kind: post-install, status: current, release: "Ubuntu Desktop", short: "Ubuntu Desktop: things to do after installation" }
+  ubuntu-btrfs-20-04:
+    { platform: ubuntu, kind: install, status: previous, release: "Ubuntu 20.04", short: "Install Ubuntu 20.04 with BTRFS, LUKS and Timeshift", note: "Standard support for Ubuntu 20.04 ended in May 2025" }
+  ubuntu-btrfs-raid1-20-04:
+    { platform: ubuntu, kind: install, status: previous, release: "Ubuntu 20.04", short: "Install Ubuntu 20.04 on a BTRFS RAID1 with LUKS and Timeshift", note: "Standard support for Ubuntu 20.04 ended in May 2025" }
+
+  # --- Debian ---
+  debian-btrfs-trixie:
+    { platform: debian, kind: install, status: current, release: "Debian 13 Trixie", short: "Install Debian 13 with BTRFS, LUKS and Timeshift" }
+  debian-post-install:
+    { platform: debian, kind: post-install, status: current, release: "Debian 13 Trixie", short: "Debian 13: things to do after installation" }
+
+  # --- Fedora ---
+  fedora-btrfs-35:
+    { platform: fedora, kind: install, status: previous, release: "Fedora 35", short: "Install Fedora 35 with BTRFS snapshots and BTRBK backups", note: "Fedora 35 reached end of life in December 2022" }
+  fedora-btrfs-33:
+    { platform: fedora, kind: install, status: previous, release: "Fedora 33", short: "Install Fedora 33 with BTRFS, LUKS and Timeshift", successor: fedora-btrfs-35, note: "Fedora 33 reached end of life in November 2021" }
+  fedora-post-install:
+    { platform: fedora, kind: post-install, status: previous, release: "Fedora 35", short: "Fedora Workstation: things to do after installation", note: "Written for Fedora 35, which reached end of life in December 2022" }
+
+  # --- elementary OS ---
+  elementary-os-6-1:
+    { platform: elementary, kind: install, status: previous, release: "elementary OS 6.1 Jólnir", short: "Install elementary OS 6.1 with BTRFS, LUKS and Timeshift", note: "elementary OS 6.1 has reached end of life" }
+  elementary-os-post-install:
+    { platform: elementary, kind: post-install, status: previous, release: "elementary OS 6.1 Jólnir", short: "elementary OS: things to do after installation", note: "Written for elementary OS 6.1, which has reached end of life" }
+
+  # --- Dell Wyse 5070 home server ---
+  wyse-hardware:
+    { platform: home-server, kind: hardware, status: current, release: "Dell Wyse 5070", short: "Dell Wyse 5070: RAM, SSD, BIOS update and BIOS settings" }
+  wyse-ubuntu-nextcloud-aio:
+    { platform: home-server, kind: install, status: current, release: "Ubuntu Server 26.04 LTS", short: "Dell Wyse 5070: Ubuntu Server 26.04, BTRFS and Nextcloud AIO" }
+
+  # --- Raspberry Pi ---
+  raspi-home-assistant-os:
+    { platform: raspberry-pi, kind: install, status: current, release: "Home Assistant OS", short: "Home Assistant OS on a Raspberry Pi 4: install and restore" }
+  raspi-btrfs:
+    { platform: raspberry-pi, kind: install, status: previous, release: "Ubuntu Server 20.10", short: "Ubuntu Server 20.10 on a Raspberry Pi 4 with USB boot, LUKS and BTRFS", note: "Ubuntu 20.10 reached end of life in July 2021" }
+  raspi-post-install:
+    { platform: raspberry-pi, kind: post-install, status: previous, release: "Ubuntu Server 20.10", short: "Ubuntu Server on a Raspberry Pi: things to do after installation", note: "Written for Ubuntu Server 20.10, which reached end of life in July 2021" }
+
+  # --- macOS ---
+  macos-post-install:
+    { platform: macos, kind: post-install, status: current, release: "macOS Sequoia", short: "macOS: things to do after installation" }
+
+  # --- Notes on snapshots and backups ---
+  btrfs:
+    { platform: notes, kind: notes, status: notes, release: "", short: "Why I (still) like btrfs" }
+  timeshift:
+    { platform: notes, kind: notes, status: notes, release: "", short: "Timeshift: my experience and projects" }
+  backup:
+    { platform: notes, kind: notes, status: notes, release: "", short: "My backup strategy" }
+  backup_old:
+    { platform: notes, kind: notes, status: previous, release: "2022", short: "My backup strategy (2022)", successor: backup, note: "It describes my backups of 2022" }

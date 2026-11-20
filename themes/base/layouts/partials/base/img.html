@@ -1,0 +1,23 @@
+{{- /*
+  Responsive image from an image resource.
+  Usage: partial "base/img.html" (dict "img" $resource "alt" "…" "class" "…" "sizes" "…" "widths" (slice 480 960 1440) "eager" false)
+  Produces WebP in several widths (never upscaled) with width/height set to avoid layout shift.
+*/ -}}
+{{- $img := .img -}}
+{{- $widths := .widths | default (slice 480 800 1200 1600) -}}
+{{- $sizes := .sizes | default "100vw" -}}
+{{- $set := slice -}}
+{{- $last := false -}}
+{{- range $widths -}}
+  {{- if le . $img.Width -}}
+    {{- $r := $img.Resize (printf "%dx webp q78" .) -}}
+    {{- $set = $set | append (printf "%s %dw" $r.RelPermalink $r.Width) -}}
+    {{- $last = $r -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $last -}}
+  {{- $last = $img.Resize (printf "%dx webp q78" $img.Width) -}}
+  {{- $set = slice (printf "%s %dw" $last.RelPermalink $last.Width) -}}
+{{- end -}}
+<img{{ with .class }} class="{{ . }}"{{ end }} src="{{ $last.RelPermalink }}" srcset="{{ delimit $set ", " }}" sizes="{{ $sizes }}" width="{{ $last.Width }}" height="{{ $last.Height }}" alt="{{ .alt }}"{{ if .eager }} fetchpriority="high"{{ else }} loading="lazy"{{ end }} decoding="async">
+{{- /* trailing */ -}}

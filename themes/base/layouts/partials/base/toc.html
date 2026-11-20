@@ -1,0 +1,5 @@
+{{- /* The page's table of contents (h2–h3) as a nested <ul>, without Hugo's <nav id="TableOfContents"> wrapper, so it can appear twice on a page without duplicate ids. */ -}}
+{{- $toc := .TableOfContents -}}
+{{- $toc = replaceRE `^\s*<nav id="TableOfContents">` "" $toc -}}
+{{- $toc = replaceRE `</nav>\s*$` "" $toc -}}
+{{- $toc | safeHTML -}}

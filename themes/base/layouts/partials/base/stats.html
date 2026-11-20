@@ -1,0 +1,25 @@
+{{- /*
+  Facts computed from a page (nothing invented):
+  words, minutes (reading time), commands (number of rendered code blocks), sections (number of rendered <h2>),
+  video (YouTube ID or ""), published (time), updated (time, from git), updatedDiffers (bool).
+  Counting rendered elements (not "## " or ``` in the Markdown) keeps "## comment" lines inside code fences and the
+  Mermaid diagram in stuff/backup.md out of the numbers. (Bug found by the prototype builders.)
+  Usage: {{ $s := partial "base/stats.html" . }}
+*/ -}}
+{{- $raw := .RawContent -}}
+{{- $html := string .Content -}}
+{{- $video := "" -}}
+{{- with findRESubmatch `\{\{<\s*youtube\s+([A-Za-z0-9_-]{6,})\s*>\}\}` $raw 1 -}}
+  {{- $video = index (index . 0) 1 -}}
+{{- end -}}
+{{- $updatedDiffers := and (not .Lastmod.IsZero) (ne (.Lastmod.Format "2006-01-02") (.Date.Format "2006-01-02")) -}}
+{{- return (dict
+  "words" .WordCount
+  "minutes" .ReadingTime
+  "commands" (len (findRE `<div class="codeblock"` $html))
+  "sections" (len (findRE `<h2[ >]` $html))
+  "video" $video
+  "published" .Date
+  "updated" .Lastmod
+  "updatedDiffers" $updatedDiffers
+) -}}

@@ -1,0 +1,17 @@
+{{- /*
+  Privacy-friendly YouTube embed: {{< youtube ID >}}
+  Renders a link first; base.js swaps in a youtube-nocookie.com iframe only after a click,
+  so no request goes to Google until the reader asks for the video.
+  An empty ID (elementary-os-6-1.md has one) renders nothing.
+*/ -}}
+{{- $id := .Get "id" | default (.Get 0) | default "" -}}
+{{- $id = trim $id " \t" -}}
+{{- with $id -}}
+<figure class="video" data-video-id="{{ . }}">
+  <a class="video__open" href="https://www.youtube.com/watch?v={{ . }}" target="_blank" rel="noopener">
+    <span class="video__play" aria-hidden="true"></span>
+    <span class="video__label">Play the video</span>
+    <span class="video__note">Loads the player from YouTube</span>
+  </a>
+</figure>
+{{- end -}}

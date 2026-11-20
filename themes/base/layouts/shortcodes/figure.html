@@ -1,0 +1,23 @@
+{{- /*
+  {{< figure src="dell-wyse-5070.jpg" id="…" alt="…" caption="Markdown caption" >}}
+  Images live in assets/media/ (Wowchemy convention). Falls back to page resources, then to a plain URL.
+*/ -}}
+{{- $src := .Get "src" -}}
+{{- $caption := .Get "caption" -}}
+{{- $alt := .Get "alt" | default ($caption | markdownify | plainify) -}}
+{{- $id := .Get "id" -}}
+{{- $img := false -}}
+{{- if not (or (hasPrefix $src "http") (hasPrefix $src "/")) -}}
+  {{- $img = .Page.Resources.GetMatch $src -}}
+  {{- if not $img }}{{ $img = resources.Get (printf "media/%s" $src) }}{{ end -}}
+{{- end -}}
+<figure class="figure"{{ with $id }} id="{{ . }}"{{ end }}>
+  {{- if $img -}}
+    {{- partial "base/img.html" (dict "img" $img "alt" $alt "class" "figure__img" "sizes" "(min-width: 64rem) 52rem, 100vw") -}}
+  {{- else -}}
+    <img class="figure__img" src="{{ $src | relURL }}" alt="{{ $alt }}" loading="lazy" decoding="async">
+  {{- end -}}
+  {{- with $caption }}
+  <figcaption class="figure__caption">{{ . | markdownify }}</figcaption>
+  {{- end }}
+</figure>

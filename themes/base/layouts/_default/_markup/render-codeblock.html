@@ -1,0 +1,18 @@
+{{- /*
+  Every fenced code block. Most fences in the guides carry no language (plain commands/output);
+  the rest are sh, bash or fish. data-lang is empty when no language was given.
+  base.js adds a copy button (.codeblock__copy) to every .codeblock.
+  Hugo passes .Inner without its final newline, and Chroma's fish lexer only recognises a comment that ends in a
+  newline, so the last "# output" line of a fish block was lexed as a command. Highlighting with the newline
+  restored fixes that without adding a blank line. (Fix found by the Handbook prototype.)
+*/ -}}
+{{- $lang := .Type | default "" -}}
+{{- $html := "" -}}
+{{- if and $lang (not (hasSuffix .Inner "\n")) -}}
+  {{- $html = highlight (print .Inner "\n") $lang .Options -}}
+{{- else -}}
+  {{- $html = (transform.HighlightCodeBlock .).Wrapped -}}
+{{- end -}}
+<div class="codeblock" data-lang="{{ $lang }}">
+{{ $html }}
+</div>

@@ -1,0 +1,9 @@
+{{ define "main" }}
+<h1>{{ site.Title }}</h1>
+<ul>
+  {{ range where site.RegularPages "Section" "in" (slice "linux" "apple" "stuff") }}
+  {{ $g := partial "base/guide.html" . }}
+  <li><a href="{{ .RelPermalink }}">{{ $g.short | default .Title }}</a> ({{ $g.status }}, {{ $g.platformName }})</li>
+  {{ end }}
+</ul>
+{{ end }}

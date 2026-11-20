@@ -1,0 +1,8 @@
+{{- /*
+  Returns the author profile page (content/authors/Willi Mutschler/_index.md) or nil.
+  Useful fields: .Title, .Params.role (contains <br/>), .Params.bio, .Params.social (icon/link/label), .Params.email, .Content (about text).
+  Usage: {{ with partial "base/author.html" . }} … {{ end }}
+*/ -}}
+{{- $p := site.GetPage "/authors/Willi Mutschler" -}}
+{{- if not $p }}{{ $p = site.GetPage "/authors/willi-mutschler" }}{{ end -}}
+{{- return $p -}}

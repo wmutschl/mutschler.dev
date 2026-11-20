@@ -1,0 +1,12 @@
+{{- /*
+  Inline table of contents: {{< toc hide_on="xl" >}}
+  The guides place it near the top. hide_on="xl" means: hide it where the layout already shows
+  a table of contents beside the text (wide screens). Designs decide what "xl" means in CSS
+  via .toc-inline--hide-xl. Inside is Hugo's <nav id="TableOfContents"> (a shortcode only gets a
+  placeholder for the TOC, so it cannot be post-processed here). Layouts that show a second TOC
+  should use partial "base/toc.html", which drops that id.
+*/ -}}
+{{- $hide := .Get "hide_on" -}}
+<div class="toc-inline{{ with $hide }} toc-inline--hide-{{ . }}{{ end }}">
+  {{ .Page.TableOfContents }}
+</div>

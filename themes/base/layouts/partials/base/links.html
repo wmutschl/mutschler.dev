@@ -1,0 +1,21 @@
+{{- /*
+  Returns a dict of useful links for a page:
+  source (view the Markdown on GitHub), edit (edit on GitHub), issues (new issue), coffee, youtube, github, gitlab, email, rss.
+  Usage: {{ $l := partial "base/links.html" . }} <a href="{{ $l.edit }}">…</a>
+*/ -}}
+{{- $repo := site.Params.repo | default "https://github.com/wmutschl/mutschler.dev" -}}
+{{- $path := "" -}}
+{{- with .File }}{{ $path = .Path }}{{ end -}}
+{{- $d := dict
+  "repo" $repo
+  "source" (cond (ne $path "") (printf "%s/blob/main/content/%s" $repo $path) $repo)
+  "edit" (cond (ne $path "") (printf "%s/edit/main/content/%s" $repo $path) $repo)
+  "issues" (printf "%s/issues/new?title=%s" $repo (urlquery (printf "Feedback: %s" .Title)))
+  "coffee" (site.Params.coffee | default "https://buymeacoffee.com/mutschler")
+  "youtube" (site.Params.youtube | default "https://www.youtube.com/c/wmutschl")
+  "github" (site.Params.github | default "https://github.com/wmutschl")
+  "gitlab" (site.Params.gitlab | default "https://gitlab.com/wmutschl")
+  "email" (site.Params.email | default "willi@mutschler.dev")
+  "rss" ("index.xml" | relURL)
+-}}
+{{- return $d -}}

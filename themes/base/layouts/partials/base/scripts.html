@@ -1,0 +1,14 @@
+{{- /*
+  Shared behaviour: copy buttons on code blocks, click-to-load YouTube, search API (window.siteSearch).
+  Mermaid is loaded only on pages that contain a ```mermaid block.
+  Usage: put {{ partial "base/scripts.html" . }} right before </body>.
+*/ -}}
+{{- $js := resources.Get "js/base.js" | js.Build (dict "minify" hugo.IsProduction "target" "es2018") | fingerprint -}}
+<script src="{{ $js.RelPermalink }}" defer data-search-index="{{ "index.json" | relURL }}"></script>
+{{- if and .IsPage (strings.Contains .RawContent "```mermaid") }}
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs";
+  const dark = document.documentElement.dataset.theme === "dark" || (!document.documentElement.dataset.theme && matchMedia("(prefers-color-scheme: dark)").matches);
+  mermaid.initialize({ startOnLoad: true, theme: dark ? "dark" : "neutral", securityLevel: "strict" });
+</script>
+{{- end }}

@@ -1,0 +1,13 @@
+{{- /*
+  Callout box used in the guides: {{< callout note >}} … {{< /callout >}}
+  Types in use: note (41×), warning (15×). Inner content is Markdown (may contain code fences).
+  Designs may override this file in their own theme.
+*/ -}}
+{{- $type := .Get 0 | default "note" -}}
+{{- $labels := dict "note" "Note" "warning" "Warning" "tip" "Tip" "important" "Important" -}}
+<aside class="callout callout--{{ $type }}" data-callout="{{ $type }}">
+  <span class="callout__label">{{ index $labels $type | default (title $type) }}</span>
+  <div class="callout__body">
+    {{- .Inner | .Page.RenderString (dict "display" "block") -}}
+  </div>
+</aside>
