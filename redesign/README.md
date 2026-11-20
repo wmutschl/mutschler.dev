@@ -61,6 +61,23 @@ The Copy button copies only what you can run: commands, file contents and explan
 
 **The markup**, still valid shell, so a pasted block still runs: `# ` explanation (unchanged), `#> ` output, `#~ ` output described in words. File content written with `<<EOF` or shown with `cat FILE` is found automatically; a fence that shows a whole file names it, e.g. ```` ```json {file="Tailscale policy file (excerpt)"} ````. In the Nextcloud guide 443 `#` lines got a `>` or `~` (two independent reviewers per part agreed on 536 of 537 lines; a later audit of 65 lines found none wrong); nothing else changed, and git holds the guides as you committed them. The hardware guide got `codeRoles: true` in its front matter. Note: if these two guides were published with the current Wowchemy site, the `#>` would show as it is written; the markup is meant for the Handbook.
 
+**Now in every guide** (20 November 2026). The other 24 guides with listings got the same markup, checked the same way (two labelers per part, one from rule-based proposals, one blind; they agreed on 3,354 of 3,365 lines): 3,225 output lines got `#>`, 8 descriptions `#~`, 44 listings that show a whole file now carry its name (`/etc/fstab`, `~/.bashrc`, `/lib/systemd/system/btrbk.timer`) and a fitting language, 11 that show only output a label ("Output of systemctl list-timers"), 20 listings without a language got one, and, as you chose, 12 fish listings with bash-only syntax are now sh (commands unchanged). The line roles are on for every page, so the hardware guide no longer needs `codeRoles: true`. Your own `(initramfs) cryptsetup …` line in the Raspberry Pi guide lost its prompt, because Copy would have pasted it. Undoing the markup gives your guides back byte for byte.
+
+**Writing new listings:**
+
+```text
+# Explanation for the reader               stays "#": text in the listing
+command --flag
+#> what the command prints                  output: boxed, never copied
+#~ what it should print, in your words      described output
+sudo nano /etc/fstab
+#> UUID=…  /  btrfs  defaults  0  0          the file as it should look: boxed, labelled /etc/fstab
+gpg --edit-key $KEYID
+  trust                                      input to the program: indent it under the program
+```
+
+A listing that is a whole file gets its name: ```` ```ini {file="/etc/systemd/system/foo.service"} ````; one that is only output gets a label: ```` ```text {output="Output of systemctl list-timers"} ````. Heredocs (`sudo tee FILE <<EOF`) and `cat FILE` are labelled automatically.
+
 Details: `themes/handbook/DESIGN.md`, section 20.
 
 **Also in this round:** the notes' blue wash is half as strong (`#F5F9FD`, dark mode `#1B2329`), and the review of the white paper fixed white bands at the ends of tables inside notes, a printed Caution tab that came out blank, photos staying dimmed in print after choosing dark mode, a footnote set twice in the margin, and two smaller things (DESIGN.md, section 19).
@@ -72,6 +89,8 @@ Details: `themes/handbook/DESIGN.md`, section 20.
 - Chapter 8, line 717: the second `cat /etc/fstab` leaves out the three `# … was on /dev/sdaN during curtin installation` lines that are still in the file.
 - Chapter 8, line 856: `timedatectl status` is the only check in its block without output or a description.
 - Chapter 8: a whitespace-only output line at 1090, an empty last line in the block ending at 1624, and trailing spaces on some output lines.
+- macOS, elementary OS and Fedora post-install guides: one listing each shows the bash and the fish way to start ssh-agent on two lines (`eval "$(ssh-agent -s)"`, `eval (ssh-agent -c)`); copied whole, it fails in either shell.
+- Fedora post-install guide: `exit` after `matlab` is typed at MATLAB's prompt; indented under `matlab` it would get no `$` in the Terminal setting.
 
 ## What to look at
 

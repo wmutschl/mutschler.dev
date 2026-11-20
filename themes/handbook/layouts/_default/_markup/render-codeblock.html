@@ -11,23 +11,29 @@
   flag per stretch of plain text; eight passes cover every listing in the guides.
   ```mermaid fences keep their own hook (render-codeblock-mermaid.html in themes/base).
 
-  Line roles (round 7, DESIGN.md 20). A page that uses the markup below in its own shell fences (sh, bash, shell,
-  zsh, fish), or sets codeRoles: true, gets a role class on every line of those listings. handbook.css sets them as
-  panels by default (Willi's choice of 20 November 2026): explanations as text after their "#", output in white
-  boxes, files written labelled. params.code = "session" sets them as a terminal session instead: commands after a
-  "$", output from the left edge, explanations in italics. Listings of other pages render as before:
+  Line roles (round 7, DESIGN.md 20). The shell listings (sh, bash, shell, zsh, fish) of every page get a role class
+  on every line while params.codeRoles is true (the Handbook's config: all guides use the markup below); a page can
+  turn them off with codeRoles: false in its front matter. Without the param, a page gets them with codeRoles: true
+  or by using #> or #~ in one of its own shell fences. handbook.css sets them as panels by default (Willi's choice of
+  20 November 2026): explanations as text after their "#", output in white boxes, files written labelled.
+  params.code = "session" sets them as a terminal session instead: commands after a "$", output from the left edge,
+  explanations in italics. Listings without roles render as before:
     # text       an explanation                                                     r-com
     #> text      output, as the terminal prints it                                  r-out
     #~ text      the output described in words                                      r-exp
     <<EOF … EOF  the body of a heredoc: a file being written (labelled with the     r-here, r-file for a file
                  tee, > or >> target, data-mode="append" for tee -a and >>) or a
                  script fed to a program (no label)
-    cat FILE     its output is that file's content, labelled with FILE              r-out r-file
+    cat FILE     its output is that file's content, labelled with FILE; so is the   r-out r-file
+                 output written after nano FILE (or vi, vim, micro, gedit …): the
+                 file as it should look
     other lines  commands (r-cmd); a line that goes on with the command before it   r-cont
                  gets r-cont: after a trailing \, |, ||, &&, do, then, else, { or (,
                  inside a string left open on an earlier line, inside do…done,
                  if…fi, case…esac or { … }, and after a heredoc whose start line went
-                 on with && or |; heredoc end lines are r-cont too
+                 on with && or |; heredoc end lines are r-cont too; so is input to an
+                 interactive program: a line indented deeper than the command before
+                 it, outside those, or after the program's prompt ("gpg/card> fetch")
   Every marker is a shell comment, so a pasted block still runs. "#>" and "#~" are highlighted as "#" (only on
   output lines, never inside a file's body); the hook wraps the "#" of each explanation and output line in span.pfx:
   the CSS hides it on output, where it stays in the copied text, and sets it in the code face before an explanation.
@@ -38,11 +44,15 @@
 */ -}}
 {{- $lang := .Type | default "" -}}
 {{- $inner := .Inner -}}
-{{- /* opt-in, worked out once per page: codeRoles in the front matter (Hugo reads it lowercase) or a #> / #~ line in
-  one of the page's own shell fences */ -}}
+{{- /* roles on or off, worked out once per page: codeRoles in the front matter, then params.codeRoles, then a #> / #~
+  line in one of the page's own shell fences (Hugo reads the keys lowercase) */ -}}
 {{- if not (.Page.Scratch.Get "codeRolesKnown") -}}
-  {{- $on := .Page.Params.coderoles | default false -}}
-  {{- if not $on -}}
+  {{- $on := false -}}
+  {{- if isset .Page.Params "coderoles" -}}
+    {{- $on = .Page.Params.coderoles -}}
+  {{- else if site.Params.coderoles -}}
+    {{- $on = true -}}
+  {{- else -}}
     {{- range findRE "(?ms)^[ \\t]*```(?:sh|bash|shell|zsh|fish)\\b[^\\n]*\\n.*?^[ \\t]*```" .Page.RawContent -}}
       {{- if findRE `(?m)^[ \t]*#[>~]` . 1 }}{{ $on = true }}{{ end -}}
     {{- end -}}
@@ -67,6 +77,7 @@
   {{- $inS := false -}}
   {{- $inD := false -}}
   {{- $depth := 0 -}}
+  {{- $cmdInd := -1 -}}
   {{- $src := slice -}}
   {{- range $l := split $inner "\n" -}}
     {{- $t := trim $l " \t" -}}
@@ -104,12 +115,22 @@
         {{- if $contBS }}{{ $cont = false }}{{ $contBS = false }}{{ end -}}
       {{- else -}}
         {{- $isCont = or $cont (gt $depth 0) -}}
+        {{- /* input to an interactive program (gpg --edit-key, parted) is written indented under the program, or
+          after the program's own prompt ("gpg/card> fetch"): it goes on with that command, without a prompt */ -}}
+        {{- if not $isCont -}}
+          {{- $ind := sub (len $l) (len (strings.TrimLeft " \t" $l)) -}}
+          {{- if or (and (ge $cmdInd 0) (gt $ind $cmdInd)) (findRE `^[\w./-]+> ` $t 1) -}}
+            {{- $isCont = true -}}
+          {{- else -}}
+            {{- $cmdInd = $ind -}}
+          {{- end -}}
+        {{- end -}}
       {{- end -}}
       {{- if eq $role "cmd" -}}
         {{- if $isCont }}{{ $cmdText = print $cmdText " " $l }}{{ else }}{{ $cmdText = $l }}{{ end -}}
         {{- if not $isCont -}}
           {{- $catPath = "" -}}
-          {{- with findRESubmatch `^(?:sudo\s+)?cat\s+(?:-[A-Za-z]+\s+)*("[^"]+"|'[^']+'|[^\s|<>;&'"]+)$` (replaceRE `\s+#.*$` "" $t) 1 -}}
+          {{- with findRESubmatch `^(?:sudo\s+(?:-[A-Za-z]+\s+)*)?(?:cat|nano|vi|vim|nvim|micro|emacs|gedit|gnome-text-editor|kate|mousepad|xed|pluma|sudoedit)\s+(?:[-+][A-Za-z0-9-]*\s+)*("[^"]+"|'[^']+'|[^\s|<>;&'"]+)$` (replaceRE `\s+#.*$` "" $t) 1 -}}
             {{- $catPath = index (index . 0) 1 | replaceRE `^["']|["']$` "" -}}
           {{- end -}}
         {{- end -}}

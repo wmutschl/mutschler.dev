@@ -44,3 +44,5 @@ titleCaseStyle = "none"
   # Listings with line roles (#> output, #~ described output; themes/handbook/DESIGN.md 20): "panels" sets
   # explanations as text and output in boxes, "session" sets them as a terminal session.
   code = "panels"
+  # Line roles for the shell listings of every page (all guides use the markup); a page can set codeRoles: false.
+  codeRoles = true

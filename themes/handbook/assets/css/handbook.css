@@ -1626,6 +1626,19 @@ svg[id^="mermaid"] .edgeLabel rect { fill: var(--paper) !important; opacity: 1 !
    language ("sh"; Willi kept it) */
 .codeblock[data-file]::before { content: attr(data-file); }
 .codeblock[data-output]::before { content: attr(data-output); }
+/* a long name stops before the Copy button. A path loses its start, so that the file's own name stays in view
+   ("…/scripts/btrfs-balance.sh"): right-to-left overflow, with a left-to-right mark at both ends that keeps the
+   characters in their order; any other name loses its end */
+.codeblock:is([data-file], [data-output])::before {
+  max-width: calc(100% - 6.5rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.codeblock:is([data-file^="/"], [data-file^="~"], [data-file^="$"], [data-file^="."])::before {
+  content: "\200E" attr(data-file) "\200E";
+  direction: rtl;
+}
 /* a comment at the end of a command ("# should print nothing") is an explanation too */
 :root:is(.code-session, .code-panels) .codeblock[data-roles] .r-cmd .c1 { font-style: italic; }
 
