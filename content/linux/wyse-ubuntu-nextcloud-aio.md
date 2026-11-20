@@ -1044,7 +1044,26 @@ sudo ss -lntup
 
 Then confirm from the Mac that a new SSH connection still gets through.
 In the `ss` output, `sshd` on port 22 is the only service listening beyond loopback; the UDP sockets on ports 68 and 546 belong to the DHCP clients for IPv4 and IPv6.
-[Section 7.5](#75-backup-share-for-home-assistant) adds the only other rule, SMB from my Raspberry Pi.
+[Section 7.5](#75-backup-share-for-home-assistant) adds the only other allow rule, SMB from my Raspberry Pi.
+
+With `Logging: on (low)`, UFW writes a `[UFW BLOCK]` line to the kernel log for every packet that the default policy drops.
+On a FRITZ!Box network, most of these come from the router itself: IGMP membership queries about every two minutes, and its mesh discovery on UDP port 53805, which looks for other FRITZ! devices ([AVM](https://en.fritz.com/service/knowledge-base/dok/FRITZ-Box-7690/249_Firewall-reports-attacks-on-TCP-port-80-or-53805-or-unsolicited-packets-of-type-0x88e1)).
+Two deny rules drop them just as before, only without the log lines, because at `low` UFW logs only the packets that fall through to the default policy:
+
+```sh
+sudo ufw deny in on enp1s0 from 192.168.178.1 to 224.0.0.1 proto igmp comment 'IGMP queries from the router'
+sudo ufw deny in on enp1s0 to any port 53805 proto udp comment 'FRITZ mesh discovery'
+sudo ufw status verbose
+# To                         Action      From
+# --                         ------      ----
+# 22/tcp on enp1s0           ALLOW IN    192.168.178.0/24
+# 224.0.0.1/igmp on enp1s0   DENY IN     192.168.178.1/igmp         # IGMP queries from the router
+# 53805/udp on enp1s0        DENY IN     Anywhere                   # FRITZ mesh discovery
+# 53805/udp (v6) on enp1s0   DENY IN     Anywhere (v6)              # FRITZ mesh discovery
+```
+
+What is left in the log then deserves a look, and the kernel's ring buffer, which `dmesg` reads, no longer runs over within hours.
+The other big source of such lines, the port-mapping requests of the Nextcloud sidecar, is switched off in its compose file ([section 9.2](#92-configure-the-deployment-on-the-wyse)).
 
 UFW only has to cover the LAN: Funnel provides the public HTTPS endpoint, so nothing is forwarded on the router.
 However, two kinds of traffic bypass UFW entirely:
@@ -1413,9 +1432,11 @@ cd ~/scripts/Dell-Wyse-Thin-Client-5070
 sudo install -D -m 0644 etc/btrbk/btrbk.conf /etc/btrbk/btrbk.conf
 sudo install -D -m 0644 etc/samba/smb.conf /etc/samba/smb.conf
 sudo install -D -m 0644 etc/smartd.conf /etc/smartd.conf
+sudo install -m 0644 etc/udev/rules.d/60-dell-wyse-hdd1-write-cache.rules /etc/udev/rules.d/
 sudo install -m 0644 etc/systemd/system/dell-wyse-* /etc/systemd/system/
 sudo install -m 0755 usr/local/sbin/dell-wyse-* /usr/local/sbin/
 sudo systemctl daemon-reload
+sudo udevadm control --reload
 
 # Create the settings file from its template, but never overwrite an existing one
 [ -e /etc/dell-wyse/host.env ] ||
@@ -1429,7 +1450,9 @@ sudo systemctl restart smbd
 |---|---|
 | `/usr/local/sbin/dell-wyse-hc-ping`, `dell-wyse-fail@.service` | Success and failure pings to healthchecks.io ([7.1](#71-alerts-to-healthchecksio)) |
 | `dell-wyse-alive.timer` | Uptime ping ([7.1](#71-alerts-to-healthchecksio)) |
+| `/etc/udev/rules.d/60-dell-wyse-hdd1-write-cache.rules` | Cache flushes for HDD 1, whose USB bridge hides the drive's write cache ([7.2.3](#723-unlock-and-mount-the-hdds-at-boot)) |
 | `/etc/btrbk/btrbk.conf`, `dell-wyse-btrbk-snapshot.timer`, `dell-wyse-btrbk-send.timer` | Snapshots and send/receive ([7.3](#73-hourly-snapshots-and-daily-sendreceive-with-btrbk)) |
+| `/usr/local/sbin/dell-wyse-btrbk-progress` | Progress of a running send to HDD 1, and the size of the next one ([11.1](#111-catch-up-on-missed-daily-sends)) |
 | `dell-wyse-scrub.timer`, `/etc/smartd.conf`, `/usr/local/sbin/dell-wyse-smartd-alert` | Disk health ([7.4](#74-disk-health-monthly-scrub-and-smart-monitoring)) |
 | `/etc/samba/smb.conf`, `dell-wyse-ha-backup-check.timer` and its script | Home Assistant share and its daily check ([7.5](#75-backup-share-for-home-assistant)) |
 | `dell-wyse-offsite.timer`, `/usr/local/sbin/dell-wyse-offsite` | Off-site mirror on the Storage Box ([7.6](#76-off-site-mirror-on-a-hetzner-storage-box)) |
@@ -1479,6 +1502,7 @@ A run that never happens, because the Wyse is off, a disk is missing or a timer 
    | `dell-wyse-smartd` | 365 days | Any; it only receives failures |
 
    The longest run, a send after an import, can overrun its grace time once; that alert is expected.
+   So is the alert from `dell-wyse-btrbk-snapshot` while such a send runs, because the send holds up the hourly snapshots ([section 7.3](#73-hourly-snapshots-and-daily-sendreceive-with-btrbk)).
    The first off-site upload takes days, but its check appears only when that run ends ([section 7.6](#76-off-site-mirror-on-a-hetzner-storage-box), step 6).
 
 Failure pings carry log lines to healthchecks.io: unit names, paths and error messages, nothing from the files themselves.
@@ -1513,22 +1537,23 @@ for d in /sys/block/sd?; do readlink -f $d | tr / '\n' | grep -E '^[0-9]+-[0-9.]
 `2-1.x` is the rear hub and `2-6.x` the front one; both should show 5000M in `lsusb -t`.
 Seen from the back of the Wyse, the rear ports map like this:
 
-| Rear port | Address |
-|---|---|
-| Top left | `2-1.1` |
-| Top right | `2-1.2` |
-| Bottom left | `2-1.3` |
-| Bottom right | `2-1.4` |
+| Rear port | USB | Address |
+|---|---|---|
+| Top left | 3.0 | `2-1.1` |
+| Top right | 3.0 | `2-1.2` |
+| Bottom left | 3.0 | `2-1.3` |
+| Bottom right | 3.0 | `2-1.4` |
 
 The front ports, from top to bottom:
 
-| Front port | Address |
-|---|---|
-| USB-C | `2-2` (USB 3, directly on the controller, no hub) |
-| Blue USB-A | `2-6.2` (USB 3) |
-| Upper black USB-A | `1-3` (USB 2 only) |
-| Lower black USB-A | `1-4` (USB 2 only) |
+| Front port | USB | Address |
+|---|---|---|
+| USB-C | 3.0 | `2-2` (directly on the controller, no hub) |
+| Blue USB-A | 3.0 | `2-6.2` |
+| Upper black USB-A | 2.0 only | `1-3` |
+| Lower black USB-A | 2.0 only | `1-4` |
 
+The BIOS shows the same under **System Configuration → Front USB Configuration** and **Rear USB Configuration**: an asterisk marks all four rear ports and the two upper front ports, **Top** and **Top Medium**, as USB 3.0-capable.
 A USB 3 device in a black port runs at 480M, under bus 1 in `lsusb -t`.
 The USB-C port would also work for a disk, through a USB-C cable or adapter, and shares nothing with the other ports.
 A disk at the back is still less likely to be knocked loose than one hanging off an adapter in front, so the layout above stays my recommendation.
@@ -1754,12 +1779,15 @@ HDD 2's line in the repository's `smartd.conf` names the old disk by its by-id p
 Then copy the Borg repository back from the Storage Box ([section 7.7](#77-restore-from-the-storage-box)).
 
 **New HDD 1:** point the existing `wyse-btrbk` line in `/etc/crypttab` at the new disk's LUKS UUID, then mount it.
+HDD 1's udev rule, explained after this note, names the old disk by its bridge's serial: put the new disk's values into it in the repository and copy it again, or delete it from `/etc/udev/rules.d` if the new disk reports its write cache itself.
 The next daily send copies everything again in full.
 
 ```sh
 luks_uuid=$(sudo cryptsetup luksUUID "$HDD1"-part1)
 [ -n "$luks_uuid" ] && sudo sed -i -E "s|^(wyse-btrbk[[:space:]]+)UUID=[^[:space:]]+|\1UUID=$luks_uuid|" /etc/crypttab
 grep '^wyse-btrbk ' /etc/crypttab
+sudo udevadm control --reload
+sudo udevadm trigger --action=add --settle --subsystem-match=scsi_disk
 sudo systemctl daemon-reload
 sudo systemctl start mnt-btrbk.mount
 sudo install -d -m 0700 /mnt/btrbk/wyse
@@ -1779,6 +1807,14 @@ HDD 1's drive supports TRIM, but the WD Elements' USB bridge rejects it (`WRITE 
 The immutable flag on the empty mount points makes every write fail while a disk is missing.
 That matters because the root filesystem is BTRFS too: without it, BTRBK would happily receive its snapshots onto the SSD.
 
+The WD Elements' bridge also hides the drive's write cache.
+The kernel logs `No Caching mode page found` and `Assuming drive cache: write through` for HDD 1 (`journalctl -k -b | grep 'drive cache'`) and then never sends it a cache flush, although the drive's own write cache is on, as `sudo smartctl -g wcache "$HDD1"` shows.
+BTRFS relies on these flushes to keep its commits consistent across a power cut.
+The udev rule copied at the start of [section 7](#7-backup-disks-snapshots-alerts-and-the-home-assistant-share) corrects only the kernel's view and writes nothing to the drive.
+It matches my WD Elements by its bridge's USB IDs and serial.
+For another disk that logs the same two lines, take these values from `udevadm info -a -n "$HDD1"`, put them into the rule in the repository and copy it again; a disk without these lines needs no rule.
+HDD 1's LUKS mapping takes the setting over when it is opened, so the block below applies the rule before it unlocks HDD 1.
+
 ```sh
 sudo install -d -m 0755 /mnt/btrbk /mnt/backup
 sudo chattr +i /mnt/btrbk /mnt/backup
@@ -1792,6 +1828,8 @@ sudo tee -a /etc/fstab >/dev/null <<'FSTAB'
 /dev/mapper/wyse-btrbk  /mnt/btrbk   btrfs  defaults,noatime,compress=zstd:3,nofail,x-systemd.device-timeout=20s  0 0
 LABEL=wyse-borg         /mnt/backup  btrfs  defaults,noatime,nofail,x-systemd.device-timeout=10s                  0 0
 FSTAB
+# Apply HDD 1's udev rule, in case the disk was attached before the rule was installed
+sudo udevadm trigger --action=add --settle --subsystem-match=scsi_disk
 sudo systemctl daemon-reload
 sudo systemctl start mnt-btrbk.mount mnt-backup.mount
 
@@ -1803,6 +1841,9 @@ findmnt /mnt/btrbk
 findmnt /mnt/backup
 # TARGET      SOURCE    FSTYPE OPTIONS
 # /mnt/backup /dev/sdc1 btrfs  rw,noatime,space_cache=v2,subvolid=5,subvol=/
+# HDD 1's LUKS mapping passes cache flushes on to the disk
+cat "/sys/block/$(basename "$(readlink -f /dev/mapper/wyse-btrbk)")/queue/write_cache"
+# write back
 
 sudo install -d -m 0700 /mnt/btrbk/wyse
 ```
@@ -1834,35 +1875,46 @@ After a restore or an import, the next daily send carries the new data once, whi
 {{< callout note >}}
 **Hung-task warnings from HDD 1 during large sends.**
 The WD Elements used as HDD 1 here, a 2.5″ WD60NDZW, is a drive-managed SMR disk: once its internal cache fills, scattered writes slow to a crawl.
-A send that carries a lot of new data, especially many small files such as freshly pulled Docker images, is exactly that.
-The Wyse's RAM buffers gigabytes of it, and at the end of each subvolume `btrfs receive` sets the copy read-only, which forces a transaction commit that has to wait for all of it to reach the disk.
-If that takes longer than two minutes, the kernel logs messages like these, which `sudo dmesg --level=err` shows:
+A send that carries a lot of new data, especially many small files such as freshly pulled Docker images or a large upload to Nextcloud, is exactly that.
+The Wyse's RAM buffers gigabytes of it, and every transaction commit then waits until its metadata has reached the disk, which can take half an hour or longer.
+Everything else on this filesystem queues up behind it: `btrfs receive` waits for every metadata block it has to read from the disk, and the kernel's writeback workers wait for the locks it holds meanwhile.
+Whenever a task waits for more than two minutes, the kernel logs a warning with a call trace, for example:
 
 ```text
-INFO: task btrfs-transacti:7587 blocked for more than 122 seconds.
-INFO: task btrfs:376545 blocked for more than 245 seconds.
+INFO: task btrfs-transacti:70941 blocked for more than 122 seconds.
+INFO: task btrfs:736623 blocked for more than 122 seconds.
+INFO: task kworker/u16:9:736341 <writer> blocked on an rw-semaphore likely owned by task btrfs:736623 <writer>
 ```
 
-The call traces show `btrfs_btree_wait_writeback_range` and `btrfs_ioctl_subvol_setflags`.
+The traces show the transaction thread in `btrfs_write_and_wait_transaction`, the writeback workers in `btrfs_tree_lock_nested`, and `btrfs receive` in a `rename` or, at the end of each subvolume, in `btrfs_ioctl_subvol_setflags`, which sets the copy read-only.
 This is a slow disk, not a failing one, as long as all of these hold:
 
 * `dell-wyse-btrbk-send.service` still finishes successfully, and `sudo btrbk list latest` shows today's copies on HDD 1.
 * `sudo btrfs device stats --check /mnt/btrbk` reports zero errors.
-* The kernel log shows no USB resets or `I/O error` lines for the disk: `journalctl -k -b | grep -iE 'reset|I/O error'`.
+* The kernel log shows no USB resets, disconnects or `I/O error` lines for the disk: `journalctl -k -b | grep -iE 'reset|disconnect|I/O error'`.
 * `sudo smartctl -a` on HDD 1 shows no reallocated, pending or CRC errors.
 
-The messages don't name the filesystem.
-Each mounted BTRFS has its own `btrfs-transaction` kernel thread, started when it was mounted, so `ps -o pid,lstart,comm -C btrfs-transaction` next to the mount times in `journalctl -b | grep 'first mount'` tells you which disk the PID belongs to.
+Read the warnings with `journalctl -k -b -p err`, not with `dmesg`: the journal keeps the whole boot, while the kernel's ring buffer only holds the latest messages.
+Leave out `-p err` to see the call traces.
+The kernel prints only 10 of these warnings per boot (`kernel.hung_task_warnings`), so on a long send they cover just its beginning, and afterwards it stays silent even about a real hang.
+`cat /proc/sys/kernel/hung_task_detect_count` counts every detection since the boot, `sudo sysctl kernel.hung_task_warnings=10` allows ten more, and `grep . /sys/fs/btrfs/*/commit_stats` shows how long the commits took (`max_commit_ms`).
+
+The warnings don't name the filesystem.
+The writeback workers come closest: their report includes a line like `Workqueue: writeback wb_workfn (flush-btrfs-4)`, `ls -l /sys/fs/btrfs/*/bdi` shows which filesystem UUID `btrfs-4` belongs to, and `findmnt -t btrfs -o TARGET,UUID` where it is mounted.
+Each mounted BTRFS also has its own `btrfs-transaction` kernel thread, started when it was mounted, so `ps -o pid,lstart,comm -C btrfs-transaction` next to the mount times in `journalctl -b | grep 'first mount'` tells you which disk the PID belongs to.
 To keep each nightly send short, upload or import large amounts of data in chunks of a few dozen GB per day rather than all at once.
 {{< /callout >}}
 
 Two timers split the work.
 `dell-wyse-btrbk-snapshot` runs `btrbk snapshot` hourly, which creates and prunes snapshots on the SSD and only reads HDD 1 to find the latest snapshot/backup pair it must keep.
 While HDD 1 is not mounted, BTRBK keeps every snapshot, so that the send can later catch up on the missed days, and the hourly job fails and alerts until HDD 1 is back.
+After a boot, the timer runs the job once right away to make up for the hours the Wyse was off, and systemd mounts HDD 1 first, if it is attached, so that this run doesn't send a false alert while HDD 1 is still being unlocked.
 `dell-wyse-btrbk-send` runs `btrbk resume` daily.
 It sends every snapshot that HDD 1's retention still needs, incrementally, including days missed while the disk was detached.
 BTRBK always keeps the latest snapshot pair it needs for the next incremental send.
 A shared `flock` makes the two wait for each other instead of failing.
+A long send, such as the one after an import, therefore holds up the hourly snapshots, so there are none for the hours it takes.
+`dell-wyse-btrbk-snapshot` then alerts because its ping is overdue; that alert is expected and clears with the first snapshot run after the send.
 The send timer first fires at 01:30, so the second command runs the send once right away.
 It finds today's copies already on HDD 1, finishes in seconds and creates the check `dell-wyse-btrbk-send`:
 
@@ -1981,7 +2033,10 @@ sudo ufw status verbose
 # To                         Action      From
 # --                         ------      ----
 # 22/tcp on enp1s0           ALLOW IN    192.168.178.0/24          
+# 224.0.0.1/igmp on enp1s0   DENY IN     192.168.178.1/igmp         # IGMP queries from the router
+# 53805/udp on enp1s0        DENY IN     Anywhere                   # FRITZ mesh discovery
 # 445/tcp on enp1s0          ALLOW IN    192.168.178.50 
+# 53805/udp (v6) on enp1s0   DENY IN     Anywhere (v6)              # FRITZ mesh discovery
 
 sudo ss -lntup | grep -E ':(139|445) '
 # tcp   LISTEN 0      50                                  127.0.0.1:445       0.0.0.0:*    users:(("smbd",pid=8739,fd=31))                        
@@ -2366,6 +2421,7 @@ What they configure:
 
 * **Sidecar:** containerboot logs in with the OAuth secret only if the node has no saved state (`TS_AUTH_ONCE=true`); otherwise it would mint a new single-use key on every restart.
   It advertises `tag:nextcloud`, disables the upload of client logs (`TS_NO_LOGS_NO_SUPPORT=true`) and runs in userspace mode without extra privileges.
+  Port mapping is off (`TS_DISABLE_PORTMAPPER=1`): the container's default gateway is the Docker bridge, that is the host, not the router, so NAT-PMP, PCP and UPnP requests could never succeed and would only leave a `[UFW BLOCK]` line in the host's kernel log every 20–26 seconds.
   It loads the file named in `TAILSCALE_SERVE_CONFIG`, `nextcloud-funnel.json` by default, with `${TS_CERT_DOMAIN}` replaced by the node's own name, and re-applies it whenever it changes.
 * **Serve/Funnel:** 443 proxies to `http://nextcloud-aio-apache:11000` and is public through Funnel (`AllowFunnel` true).
   8080 proxies to the mastercontainer and is tailnet-only (`AllowFunnel` false).
@@ -2920,6 +2976,8 @@ sudo bash -c '. /etc/dell-wyse/host.env; rsync -rc --delete --dry-run --itemize-
 
 * **Ubuntu:** security updates, including ESM, install automatically.
   Livepatch covers urgent kernel fixes until the next reboot; still reboot in a maintenance window when `/var/run/reboot-required` appears.
+  Run `dell-wyse-reboot-check` first: it lists what a reboot would cut off, such as a BTRBK send, AIO's daily run or a Home Assistant upload, asks you to stop the containers in AIO, and checks that the new kernel's initrd still lets you unlock over SSH.
+  It exits 0 only when nothing is in the way, so `dell-wyse-reboot-check && sudo systemctl reboot` is safe; after the unlock, start the containers again in AIO ([section 11.3](#113-reboot-the-wyse)).
 * **Boot chain:** every reboot waits for the SSH unlock, which runs from other machines at home or over Tailscale ([section 5.7](#57-unlocking-the-system-disk-over-ssh)).
   After changing your SSH keys, update `/etc/dracut-sshd/authorized_keys` and rebuild the initrd ([section 5.7](#57-unlocking-the-system-disk-over-ssh)).
   Check [dracut-sshd's releases](https://github.com/gsauthof/dracut-sshd/tags) once a year.
@@ -2942,3 +3000,139 @@ sudo bash -c '. /etc/dell-wyse/host.env; rsync -rc --delete --dry-run --itemize-
 healthchecks.io watches the backups and SMART, but open its dashboard now and then.
 Avoid automatic volume-pruning scripts.
 If the logs grow excessively, a journald drop-in can set a compact journal limit, while retaining enough history to investigate failures.
+
+## 11 Miscellaneous commands
+
+### 11.1 Catch up on missed daily sends
+
+If HDD 1 was detached at 01:30 or the night's send failed, start the daily send by hand rather than waiting for the next night.
+It is the timer's own job, with the same lock, the same low priority and the same ping or failure alert to healthchecks.io:
+
+```sh
+sudo systemctl start --no-block dell-wyse-btrbk-send.service
+sudo journalctl -fu dell-wyse-btrbk-send
+```
+
+Without `--no-block`, `systemctl start` returns only when the send is done, which can take hours.
+Ctrl-C ends only `journalctl`, not the send.
+The journal stays quiet until BTRBK prints its summary at the end, which lists every copy it sent.
+Meanwhile, `dell-wyse-btrbk-progress` in a second SSH session shows the size of the running send, how much of it has arrived, the rate and the expected end.
+Without a running send, it estimates how much the next send of `@nextcloud`, or of the subvolume you name, will carry and how long it will take.
+It asks for sudo itself.
+
+`btrbk resume` sends only the snapshots that HDD 1's retention keeps ([section 7.3](#73-hourly-snapshots-and-daily-sendreceive-with-btrbk)): the first snapshot after midnight of every day that is missing on HDD 1.
+If HDD 1 already has today's copies, the job finishes within seconds without sending anything, however much has changed since midnight.
+To send the current state anyway, use [section 11.2](#112-send-the-current-state-to-hdd-1).
+
+### 11.2 Send the current state to HDD 1
+
+After a large upload, or before a risky change, you can send the current state to HDD 1 right away instead of with the next nightly send.
+Take fresh snapshots, see how much the send will carry, and check in a dry run that BTRBK picks the new snapshots:
+
+```sh
+sudo systemctl start dell-wyse-btrbk-snapshot.service
+dell-wyse-btrbk-progress
+sudo btrbk -n --override target_preserve_min=latest resume
+```
+
+The snapshot job waits while a send holds the shared lock.
+In the dry run's summary, every subvolume should get a `>>>` line with the time of the new snapshots, such as `>>> /mnt/btrbk/wyse/@nextcloud.20261120T1512`.
+Then start the send in the background, with the same lock and the same low priority as the timer's job, and follow it:
+
+```sh
+sudo systemd-run --unit=dell-wyse-btrbk-send-now -p Nice=10 -p IOSchedulingClass=idle \
+  /usr/bin/flock /run/lock/btrbk-timers.lock /usr/bin/btrbk --override target_preserve_min=latest resume
+sudo journalctl -fu dell-wyse-btrbk-send-now
+```
+
+* **The override** applies to this command only.
+  It makes BTRBK treat the newest snapshot as one that HDD 1 must keep, so `resume` sends it, incrementally from the newest copy there.
+  The next send that puts a newer copy on HDD 1, usually the next nightly one, deletes this extra copy again.
+* **`systemd-run`** keeps the send running when the SSH session ends.
+  The shared lock makes the hourly snapshots wait instead of failing, just as during the nightly send, and a long send brings the overdue snapshot alert and the hung-task warnings described in [section 7.3](#73-hourly-snapshots-and-daily-sendreceive-with-btrbk).
+* **No alerts:** a send started this way pings no check and sends no failure alert.
+  When it is done, its journal ends with BTRBK's summary, and `sudo btrbk list latest` shows the time of the new snapshots in the column `TARGET_SUBVOLUME`.
+  A failed run stays in `systemctl --failed` and keeps its unit name taken until `sudo systemctl reset-failed dell-wyse-btrbk-send-now`.
+
+Before a risky change, take the snapshots as in [section 10.3](#103-snapshots-around-risky-changes), with the Nextcloud containers stopped, and wait for the send to finish before you start the change.
+
+### 11.3 Reboot the Wyse
+
+A reboot at the wrong moment cuts off a backup job, and one with a broken initrd leaves the Wyse locked, because every boot waits for the SSH unlock ([section 5.7](#57-unlocking-the-system-disk-over-ssh)).
+`dell-wyse-reboot-check` looks for both; it asks for sudo itself.
+Each check prints a line that starts with `[ ok ]`, with `[BUSY]` for something in the way of the reboot, or with `[note]` for a hint that does not block it.
+Run it first while Nextcloud is still up:
+
+```sh
+dell-wyse-reboot-check
+```
+
+Once the only BUSY line left is "Nextcloud is running", stop the containers in the AIO interface,[^1] which you reach through Nextcloud's **Administration settings → Overview** ([section 9.6](#96-later-logins-to-the-aio-interface)).
+AIO stops them one after another, starting with Apache, and gives the database up to 30 minutes to shut down; in a plain shutdown, Docker would stop them all at once.
+Then reboot through the check, which exits 0 only when no line says BUSY:
+
+```sh
+dell-wyse-reboot-check && sudo systemctl reboot
+```
+
+About half a minute later, unlock the SSD from the Mac:
+
+```sh
+ssh -t dell-wyse-unlock systemd-tty-ask-password-agent
+```
+
+Then start the containers again in the AIO interface.[^1]
+They stay stopped across the reboot, because AIO creates them with the restart policy `unless-stopped`.
+While Apache is stopped, the AIO interface accepts its passphrase directly, at the tailnet URL on port 8080.
+Finally, check that the new kernel runs, that both HDDs are mounted and that no unit failed:
+
+```sh
+uname -r
+findmnt /mnt/btrbk
+findmnt /mnt/backup
+systemctl --failed
+```
+
+What to do about a BUSY line:
+
+* **A send, the off-site mirror, a scrub or a Home Assistant upload:** wait until it is done.
+  `dell-wyse-btrbk-progress` estimates when a send ends ([section 11.1](#111-catch-up-on-missed-daily-sends)).
+  A reboot during HA's upload would leave a truncated backup on the share.
+* **AIO's daily run** stops the containers, runs the Borg backup and starts the containers again; with automatic updates, it first updates the mastercontainer and pulls new images.
+  Wait until it has started them, then stop them again.
+  AIO marks the run with the file `daily_backup_running` in its volume; if a reboot cuts the run off anyway, AIO starts it again as soon as the mastercontainer is back.
+* **`occ`** in the Nextcloud container is an upgrade, a file scan or a repair; let it finish before you stop the containers.
+  The check ignores AIO's task-processing worker (`occ taskprocessing:worker`), which runs all the time and restarts every five minutes.
+* **Unfinished packages** are left by an install that broke off, such as a kernel update; finish them with `sudo dpkg --configure -a`.
+* **The initrd** line names what the new kernel's initrd lacks for the SSH unlock.
+  Rebuild it with the command shown and run the check again; if the line stays, do not reboot, and go through [section 5.7](#57-unlocking-the-system-disk-over-ssh) again.
+
+The notes do not block the reboot, but some need a step afterwards:
+
+* **Kernel:** GRUB starts the newest installed kernel, so the check tests that kernel's initrd, not the running kernel's.
+* **AIO's daily backup** starts only at the exact minute set in AIO, in UTC ([section 10.1](#101-aio-borg-backup-to-hdd-2)), and AIO skips the day if the Wyse is down or still locked at that minute.
+  If it was, click **Create backup** in AIO's backup section before you start the containers again.
+* **Timers** that fire soon are no problem: they are persistent, so a job that the reboot delays runs right after the boot.
+  The hourly snapshot job runs then as well, to make up for the missed hours ([section 7.3](#73-hourly-snapshots-and-daily-sendreceive-with-btrbk)).
+* **SMART self-test:** the reboot aborts it, which does no harm, but `smartd` runs the next one only at its scheduled time ([section 7.4](#74-disk-health-monthly-scrub-and-smart-monitoring)).
+  Start it again with `sudo smartctl -t short DISK` or `-t long`.
+* **Stale Borg lock:** a lock that no borg process holds, left over from a backup that was cut off.
+  The reboot does not change it, but the off-site mirror waits four hours for it, then skips the night and alerts ([section 7.6](#76-off-site-mirror-on-a-hetzner-storage-box)).
+  Remove it with `sudo borg break-lock /mnt/backup/borg`, with Borg installed as in [section 10.5](#105-restore-drills).
+* **`/etc/fstab`:** a broken line without `nofail` ends the boot in emergency mode, which has no SSH.
+  `findmnt --verify` ignores `nofail`, though, so while HDD 2 is detached, its line is reported as an error too; that one is harmless.
+* **Failed units** lose their failed state at the reboot; look at them first.
+
+[^1]: Instead of the interface, you can use AIO's own script in the mastercontainer ([AIO's documentation](https://github.com/nextcloud/all-in-one#how-to-stopstartupdate-containers-or-trigger-the-daily-backup-from-a-script-externally)).
+    The first command stops the containers, and the second starts them again after the unlock, without updating them:
+
+    ```sh
+    sudo docker exec --env STOP_CONTAINERS=1 nextcloud-aio-mastercontainer /daily-backup.sh
+    sudo docker exec --env START_CONTAINERS=1 nextcloud-aio-mastercontainer /daily-backup.sh
+    ```
+
+    Despite its name, the script makes no backup without `DAILY_BACKUP=1`.
+    It stops the containers in the same order as the interface, but gives the Nextcloud container up to ten minutes to shut down instead of ten seconds.
+    Leave out the `-it` that AIO's documentation uses, because with `-t` a Ctrl-C cuts the script off.
+    A run cut off halfway leaves the marker `daily_backup_running` behind: the check then reports AIO's daily run as in progress, and when the mastercontainer starts again, AIO begins its daily run right away.
+    Running the script again to its end removes the marker.
