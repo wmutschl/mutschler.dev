@@ -36,7 +36,7 @@ Even though I am quite fond with btrfs for now, there are still some caveats tha
 - advanced features like RAID need careful consideration. I do have very good experience with btrfs in a RAID 1 setting both on my Dell precision 7520 workstation and my KVM server.
 - The installers of Ubuntu, Linux Mint, Pop!_OS or ElementaryOS need manual adustment of configuration files and mount options are usually not set optimally for using btrfs on SSD or NVMe.
 
-So I have written several [installation guides](../install-guides) and made some [YouTube](https://www.youtube.com/playlist?list=PLiN_C6lGtCc-KbqCP1XuWgMp4ky634v0X) videos on my installation steps to install Pop!_OS, Ubuntu or Manjaro with btrfs inside an encrypted luks partition and automatic system snapshots with Timeshift.
+So I have written several [installation guides](/linux/) and made some [YouTube](https://www.youtube.com/playlist?list=PLiN_C6lGtCc-KbqCP1XuWgMp4ky634v0X) videos on my installation steps to install Pop!_OS, Ubuntu or Manjaro with btrfs inside an encrypted luks partition and automatic system snapshots with Timeshift.
 
 
 ## Some caveats [THIS PART IS ONLY NOTES AND THIS NEEDS TO UPDATE THIS PART]

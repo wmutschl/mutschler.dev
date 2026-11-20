@@ -27,9 +27,9 @@ Since a couple of months, I am exclusively using btrfs as my filesystem on all m
    - [grub-btrfs](https://github.com/Antynea/grub-btrfs) which will automatically create GRUB entries for all your btrfs snapshots
 - If you need RAID1, follow this guide: [Ubuntu 20.04 btrfs-luks-raid1](../ubuntu-btrfs-raid1-20-04)
 
-With this setup you basically get the same comfort of Ubuntu's 20.04's ZFS and *zsys* initiative, but with much more flexibility and comfort due to the awesome [Timeshift](https://github.com/teejee2008/timeshift) program, which saved my bacon quite a few times. This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](../../install-guides).
+With this setup you basically get the same comfort of Ubuntu's 20.04's ZFS and *zsys* initiative, but with much more flexibility and comfort due to the awesome [Timeshift](https://github.com/teejee2008/timeshift) program, which saved my bacon quite a few times. This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](/linux/).
 
-**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](../../timeshift/).**
+**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](/linux/timeshift/).**
 
 
 ## Step 0: General remarks
@@ -37,10 +37,10 @@ With this setup you basically get the same comfort of Ubuntu's 20.04's ZFS and *
 
 So, let's spin up a virtual machine with 4 cores, 8 GB RAM, and a 64GB disk using e.g. my fork of the awesome bash script [quickemu](https://github.com/wmutschl/quickemu). I can confirm that the installation works equally well on my Dell XPS 13 9360, my Dell Precision 7520 and on my KVM server.
 
-This tutorial is made with [Ubuntu 20.04 Focal Fossa](http://releases.ubuntu.com/focal/) copied to an installation media (usually a USB Flash device but may be a DVD or the ISO file attached to a virtual machine hypervisor). Other versions of Ubuntu or distributions that use the Ubiquity installer (like Linux Mint) also work, see my other [installation guides](../../install-guides).
+This tutorial is made with [Ubuntu 20.04 Focal Fossa](http://releases.ubuntu.com/focal/) copied to an installation media (usually a USB Flash device but may be a DVD or the ISO file attached to a virtual machine hypervisor). Other versions of Ubuntu or distributions that use the Ubiquity installer (like Linux Mint) also work, see my other [installation guides](/linux/).
 
 ## Step 1: Boot the install, check UEFI mode and open an interactive root shell
-Since most modern PCs have UEFI, I will cover only the UEFI installation (see the [References](../../references/#btrfs-installation-guides) on how to deal with Legacy installs). So, boot the installation medium in UEFI mode, choose your language and click `Try Ubuntu`. Once the Live Desktop environment has started we need to use a Terminal shell command-line to issue a series of commands to prepare the target device before executing the installer itself. As I have a German Keyboard, I first go to `Settings -- Region & Language` and set my keyboard layout.
+Since most modern PCs have UEFI, I will cover only the UEFI installation. So, boot the installation medium in UEFI mode, choose your language and click `Try Ubuntu`. Once the Live Desktop environment has started we need to use a Terminal shell command-line to issue a series of commands to prepare the target device before executing the installer itself. As I have a German Keyboard, I first go to `Settings -- Region & Language` and set my keyboard layout.
 
 Then, open a terminal (<kbd>CTRL</kbd>+<kbd>ALT</kbd>+<kbd>T</kbd>) and run the following command:
 ```bash
@@ -645,4 +645,4 @@ sudo apt install rolldice
 ```
 
 **FINISHED! CONGRATULATIONS AND THANKS FOR STICKING THROUGH!**
-**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](../../timeshift/).**
+**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](/linux/timeshift/).**

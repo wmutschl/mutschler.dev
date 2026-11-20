@@ -27,13 +27,13 @@ I am exclusively using btrfs as my filesystem on all my systems, see [Why I (sti
    - [Timeshift](https://github.com/teejee2008/timeshift) which will regularly take (almost instant) snapshots of the system
    - [timeshift-autosnap-apt](https://github.com/wmutschl/timeshift-autosnap-apt) which will automatically run Timeshift on any apt operation and also keep a backup of your EFI partition inside the snapshot
 
-With this setup you basically get the same comfort of Ubuntu's ZFS and *zsys* initiative, but with much more flexibility and comfort due to the awesome [Timeshift](https://github.com/teejee2008/timeshift) program, which saved my bacon quite a few times. This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](../../install-guides).
+With this setup you basically get the same comfort of Ubuntu's ZFS and *zsys* initiative, but with much more flexibility and comfort due to the awesome [Timeshift](https://github.com/teejee2008/timeshift) program, which saved my bacon quite a few times. This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](/linux/).
 
-**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](../../timeshift).**
+**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](/linux/timeshift/).**
 
 
 ## Step 0: General remarks
-This tutorial is made with Pop!_OS 21.04 from https://system76.com/pop copied to an installation media (usually a USB Flash device but may be a DVD or the ISO file attached to a virtual machine hypervisor). Other versions of Pop!_OS and other distributions that use Systemd boot manager might also work, but sometimes require additional steps (see my other [installation guides](../../install-guides)).
+This tutorial is made with Pop!_OS 21.04 from https://system76.com/pop copied to an installation media (usually a USB Flash device but may be a DVD or the ISO file attached to a virtual machine hypervisor). Other versions of Pop!_OS and other distributions that use Systemd boot manager might also work, but sometimes require additional steps (see my other [installation guides](/linux/)).
 
 **I strongly advise to try the following installation steps in a virtual machine first before doing anything like that on real hardware!**
 For instance, you can spin up a virtual machine with 4 cores, 8 GB RAM, and a 64GB disk using e.g. my fork of the awesome bash script [quickemu](https://github.com/wmutschl/quickemu). 
@@ -64,7 +64,7 @@ lsblk
 # └─sdb3    8:19   1 1011.5M  0 part /var/crash
 # nvme0n1 259:0    0  476.9G  0 disk
 ```
-In my case `sda` is an internal SSD that I use for [my backup strategy](../../backup/#5-dell-precision-7520-fedora), whereas `sdb` is the flash drive that contains the installation files. So, for me the installation target device is called `nvme0n1`.
+In my case `sda` is an internal SSD that I use for [my backup strategy](/stuff/backup/#dell-precision-7520-linux), whereas `sdb` is the flash drive that contains the installation files. So, for me the installation target device is called `nvme0n1`.
 
 We'll now create a disk table and add four partitions on `nvme0n1`:
 
@@ -501,4 +501,4 @@ Now, if you run `sudo apt install|remove|upgrade|dist-upgrade`, *timeshift-autos
 
 **Check out my [Pop!_OS post-installation steps](../pop-os-post-install).**
 
-**If you ever need to rollback your system, checkout my [Recovery and system rollback with Timeshift](../../timeshift).**
+**If you ever need to rollback your system, checkout my [Recovery and system rollback with Timeshift](/linux/timeshift/).**

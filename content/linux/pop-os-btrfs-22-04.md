@@ -27,11 +27,11 @@ I am exclusively using btrfs as my filesystem on all my Linux systems, see [Why 
   * [timeshift](https://github.com/teejee2008/timeshift) which will regularly take (almost instant) snapshots of the system
   * [timeshift-autosnap-apt](https://github.com/wmutschl/timeshift-autosnap-apt) which creates btrfs snapshot with timeshift on any system update with apt
 
-This setup works similarly well on other distributions, for which I also have [installation guides (with optional RAID1)](../../install-guides).
+This setup works similarly well on other distributions, for which I also have [installation guides (with optional RAID1)](/linux/).
 
 ## Step 0: General remarks
 
-This tutorial is made with Pop!_OS 22.04 from [System76](https://system76.com/pop) copied to an installation media (usually a USB Flash device). Other versions of Pop!_OS and other distributions that use the systemd boot manager might also work, but sometimes require additional steps (see my other [installation guides](../../install-guides)).
+This tutorial is made with Pop!_OS 22.04 from [System76](https://system76.com/pop) copied to an installation media (usually a USB Flash device). Other versions of Pop!_OS and other distributions that use the systemd boot manager might also work, but sometimes require additional steps (see my other [installation guides](/linux/)).
 
 **I strongly advise to try the following installation steps in a virtual machine first before doing anything like that on real hardware!** For instance, you can spin up a virtual machine using e.g. the awesome [quickemu](https://github.com/quickemu-project/quickemu) project.
 

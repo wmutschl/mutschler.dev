@@ -4,7 +4,7 @@ summary: In the following I will go through my post installation steps on Ubuntu
 header:
   image: "Ubuntu_25.10.png"
   caption: "Image credit: [**By Canonical Limited - Free software screenshot, GPL, https://commons.wikimedia.org/w/index.php?curid=176484298**](https://en.wikipedia.org/wiki/Ubuntu#/media/File:Ubuntu_25.10_default_desktop_-_English.png)"
-tags: ["linux", "pop-os", "install guide", "post install"]
+tags: ["linux", "ubuntu", "install guide", "post install"]
 date: 2026-01-13
 type: book
 ---

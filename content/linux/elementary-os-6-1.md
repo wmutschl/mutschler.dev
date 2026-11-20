@@ -31,11 +31,11 @@ In this guide I will show how to install Elementary OS 6.1 Jólnir with the foll
   * [timeshift](https://github.com/teejee2008/timeshift) which will regularly take (almost instant) snapshots of the system
   * [timeshift-autosnap-apt](https://github.com/wmutschl/timeshift-autosnap-apt) which creates btrfs snapshot with timeshift on any system update with apt
 
-This setup works similarly well on other distributions, for which I also have [installation guides (with optional RAID1)](../../install-guides).
+This setup works similarly well on other distributions, for which I also have [installation guides (with optional RAID1)](/linux/).
 
 ## Step 0: General remarks
 
-This tutorial is made with Elementary OS 6.1 Jólnir from [elementary.io](https://elementary.io) copied to an installation media (usually a USB Flash device); checkout [Ventoy](https://www.ventoy.net) for a neat way to organize all kinds of iso files on just one USB Flash device or USB SSD. Other versions of Elementary OS and other distributions that use the same installer (i.e. POP!_OS) might also work, but sometimes require additional steps (see my other [installation guides](../../install-guides)).
+This tutorial is made with Elementary OS 6.1 Jólnir from [elementary.io](https://elementary.io) copied to an installation media (usually a USB Flash device); checkout [Ventoy](https://www.ventoy.net) for a neat way to organize all kinds of iso files on just one USB Flash device or USB SSD. Other versions of Elementary OS and other distributions that use the same installer (i.e. POP!_OS) might also work, but sometimes require additional steps (see my other [installation guides](/linux/)).
 
 **I strongly advise to try the following installation steps in a virtual machine first before doing anything like that on real hardware!** For instance, you can spin up a virtual machine using e.g. the awesome [quickemu](https://github.com/quickemu-project/quickemu) project.
 

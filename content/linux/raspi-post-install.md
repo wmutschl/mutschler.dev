@@ -395,7 +395,7 @@ reboot now
 ```
 
 ### Option B: Create pseudo filesystem for docker images
-Alternatively, you can create an image file `docker-volume.img` with a pseudo ext4 filesystem for docker. These steps are similar to creating a [swapfile on btrfs](../-20-04/#option-b-swapfile) as we need to be careful to not mess up snapshots and compression. So we'll put the file in the top-level btrfs root. If you are running a RAID1 system, though, you should probably go with Option A.
+Alternatively, you can create an image file `docker-volume.img` with a pseudo ext4 filesystem for docker. These steps are similar to creating a [swapfile on btrfs](/linux/ubuntu-btrfs-20-04/#option-b-swapfile) as we need to be careful to not mess up snapshots and compression. So we'll put the file in the top-level btrfs root. If you are running a RAID1 system, though, you should probably go with Option A.
 
 So, open an interactive root shell and run the following commands:
 ```sh

@@ -23,11 +23,11 @@ I am exclusively using btrfs as my filesystem on all my Linux systems, see [Why 
   - the btrfs logical volume contains a subvolume `@` for `/` and a subvolume `@home` for `/home`. Note that the Pop!_OS installer does not create any subvolumes on btrfs, so we need to do this manually.
 - automatic system snapshots and easy rollback similar to *zsys* using [BTRBK](https://github.com/digint/btrbk) which will regularly take (almost instant) snapshots of the system and (optionally) also on any apt operation
 
-This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](../../install-guides).
+This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](/linux/).
 
 
 ## Step 0: General remarks
-This tutorial is made with Pop!_OS 21.10 from https://system76.com/pop copied to an installation media (usually a USB Flash device but may be a DVD or the ISO file attached to a virtual machine hypervisor). Other versions of Pop!_OS and other distributions that use Systemd boot manager might also work, but sometimes require additional steps (see my other [installation guides](../../install-guides)).
+This tutorial is made with Pop!_OS 21.10 from https://system76.com/pop copied to an installation media (usually a USB Flash device but may be a DVD or the ISO file attached to a virtual machine hypervisor). Other versions of Pop!_OS and other distributions that use Systemd boot manager might also work, but sometimes require additional steps (see my other [installation guides](/linux/)).
 
 **I strongly advise to try the following installation steps in a virtual machine first before doing anything like that on real hardware!**
 For instance, you can spin up a virtual machine with 4 cores, 8 GB RAM, and a 64GB disk using e.g. the awesome [quickemu](https://github.com/quickemu-project/quickemu) project. 
@@ -70,7 +70,7 @@ sudo parted /dev/nvme0n1 unit MiB print
 #  3      4596MiB    484288MiB  479692MiB
 #  4      484288MiB  488384MiB  4096MiB    linux-swap(v1)           swap
 ```
-In my case `sda` is an internal SSD that I use for [my backup strategy](../../backup/#5-dell-precision-7520-linux), whereas `sdb` is the flash drive that contains the installation files. So, for me the installation target device is called `nvme0n1` and it has 4 partitions:
+In my case `sda` is an internal SSD that I use for [my backup strategy](/stuff/backup/#dell-precision-7520-linux), whereas `sdb` is the flash drive that contains the installation files. So, for me the installation target device is called `nvme0n1` and it has 4 partitions:
 
 1. a 498 MiB FAT32 EFI partition for the systemd bootloader
 1. a 4096 MiB FAT32 partition for the Pop!_OS recovery system
@@ -487,7 +487,7 @@ ls /btrfs_pool
 
 ### Step 5b: install and configure BTRBK
 Install BTRBK from the repos:
-```s
+```sh
 sudo apt install -y btrbk
 ```
 Next I create the following configuration file:
@@ -820,4 +820,4 @@ Now, if you run `sudo apt install|remove|upgrade|dist-upgrade`, *btrbk* will cre
 
 **Check out my [Pop!_OS post-installation steps](../pop-os-post-install).**
 
-**If you ever need to rollback your system, checkout my [Recovery and system rollback](../../timeshift).**
+**If you ever need to rollback your system, checkout my [Recovery and system rollback](/linux/timeshift/).**

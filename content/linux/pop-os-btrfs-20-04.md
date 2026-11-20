@@ -27,9 +27,9 @@ Since a couple of months, I am exclusively using btrfs as my filesystem on all m
    - [timeshift-autosnap-apt](https://github.com/wmutschl/timeshift-autosnap-apt) which will automatically run Timeshift on any apt operation and also keep a backup of your EFI partition inside the snapshot
 - If you need RAID1, follow this guide: [Pop!_OS 20.04 btrfs-luks-raid1](../pop-os-btrfs-raid1-20-04)
 
-With this setup you basically get the same comfort of Ubuntu's 20.04's ZFS and *zsys* initiative, but with much more flexibility and comfort due to the awesome [Timeshift](https://github.com/teejee2008/timeshift) program, which saved my bacon quite a few times. This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](../../install-guides).
+With this setup you basically get the same comfort of Ubuntu's 20.04's ZFS and *zsys* initiative, but with much more flexibility and comfort due to the awesome [Timeshift](https://github.com/teejee2008/timeshift) program, which saved my bacon quite a few times. This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](/linux/).
 
-**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](../../timeshift).**
+**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](/linux/timeshift/).**
 
 
 ## Step 0: General remarks
@@ -37,10 +37,10 @@ With this setup you basically get the same comfort of Ubuntu's 20.04's ZFS and *
 
 So, let's spin up a virtual machine with 4 cores, 8 GB RAM, and a 64GB disk using e.g. my fork of the awesome bash script [quickemu](https://github.com/wmutschl/quickemu). I can confirm that the installation works equally well on my Dell XPS 13 9360 and my Dell Precision 7520. 
 
-This tutorial is made with Pop!_OS 20.04 from https://system76.com/pop copied to an installation media (usually a USB Flash device but may be a DVD or the ISO file attached to a virtual machine hypervisor). Other versions of Pop!_OS and other distributions that use Systemd boot manager should also work, see my other [installation guides](../../install-guides).
+This tutorial is made with Pop!_OS 20.04 from https://system76.com/pop copied to an installation media (usually a USB Flash device but may be a DVD or the ISO file attached to a virtual machine hypervisor). Other versions of Pop!_OS and other distributions that use Systemd boot manager should also work, see my other [installation guides](/linux/).
 
 ## Step 1: Boot the install, check UEFI mode and open an interactive root shell
-Since most modern PCs have UEFI, I will cover only the UEFI installation (see the [References](../../references/#btrfs-installation-guides) on how to deal with Legacy installs). So, boot the installation medium in UEFI mode and choose `Try or install Pop!_OS`. Once the Live Desktop environment has started choose your language, region, and keyboard layout, then hit `Try Demo Mode`. Open a terminal (<kbd>META</kbd> + <kbd>T</kbd>) and run the following command:
+Since most modern PCs have UEFI, I will cover only the UEFI installation. So, boot the installation medium in UEFI mode and choose `Try or install Pop!_OS`. Once the Live Desktop environment has started choose your language, region, and keyboard layout, then hit `Try Demo Mode`. Open a terminal (<kbd>META</kbd> + <kbd>T</kbd>) and run the following command:
 ```bash
 mount | grep efivars
 # efivarfs on /sys/firmware/efi/efivars type efivarfs (rw,nosuid,nodev,noexec,relatime)
@@ -612,4 +612,4 @@ sudo apt install -y rolldice
 
 **FINISHED! CONGRATULATIONS AND THANKS FOR STICKING THROUGH!**
 
-**If you ever need to rollback your system, checkout my [Recovery and system rollback with Timeshift](../../timeshift).**
+**If you ever need to rollback your system, checkout my [Recovery and system rollback with Timeshift](/linux/timeshift/).**

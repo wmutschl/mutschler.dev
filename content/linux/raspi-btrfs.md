@@ -22,7 +22,7 @@ Since 2020, I am exclusively using btrfs as filesystem on all my systems, see: [
    - [Timeshift](https://github.com/teejee2008/timeshift) which will regularly take (almost instant) snapshots of the system
    - [timeshift-autosnap-apt](https://github.com/wmutschl/timeshift-autosnap-apt) which will automatically run Timeshift on any apt operation and also keep a backup of your boot partition inside the snapshot   
 
-With this setup you basically get the same comfort of Ubuntu's 20.10's ZFS and *zsys* initiative, but with much more flexibility and comfort due to the awesome [Timeshift](https://github.com/teejee2008/timeshift) program, which saved my bacon quite a few times. This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](../../install-guides).
+With this setup you basically get the same comfort of Ubuntu's 20.10's ZFS and *zsys* initiative, but with much more flexibility and comfort due to the awesome [Timeshift](https://github.com/teejee2008/timeshift) program, which saved my bacon quite a few times. This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](/linux/).
 
 This tutorial is most likely not the fastest way to achieve this, but it works for me and once everything is set up, you never have to go through it again (unless you get another Raspberry Pi of course;-) ).
 
@@ -657,7 +657,7 @@ Now as everything is up and running from `/dev/mapper/crypt_raspi` on `/dev/sda3
 
 *If you want more, check out my [Raspberry Pi post installation steps](../raspi-post-install)*
 
-*If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](../../timeshift/).*
+*If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](/linux/timeshift/).*
 
 
 ## Troubleshooting

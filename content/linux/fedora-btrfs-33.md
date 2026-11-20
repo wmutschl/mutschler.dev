@@ -25,9 +25,9 @@ So, in this guide I will show how to install Fedora 33 with the following struct
    - [timeshift-autosnap-dnf](https://github.com/wmutschl/timeshift-autosnap-dnf) which will automatically run Timeshift on any dnf operation and also keep a backup of your EFI partition inside the snapshot (NOT YET)
    - [grub-btrfs](https://github.com/Antynea/grub-btrfs) which will automatically create GRUB entries for all your btrfs snapshots
 
-With this setup you basically get the same comfort of Ubuntu's 20.04's ZFS and *zsys* initiative, but with much more flexibility and comfort due to the awesome [Timeshift](https://github.com/teejee2008/timeshift) program, which saved my bacon quite a few times. This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](../../install-guides).
+With this setup you basically get the same comfort of Ubuntu's 20.04's ZFS and *zsys* initiative, but with much more flexibility and comfort due to the awesome [Timeshift](https://github.com/teejee2008/timeshift) program, which saved my bacon quite a few times. This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](/linux/).
 
-**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](../../timeshift).**
+**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](/linux/timeshift/).**
 
 
 ## Step 0: General remarks

@@ -26,9 +26,9 @@ Since a couple of months, I am exclusively using btrfs as my filesystem on all m
    - [grub-btrfs](https://github.com/Antynea/grub-btrfs) which will automatically create GRUB entries for all your btrfs snapshots
 - If you don't need RAID1, follow this guide: [Ubuntu 20.04 btrfs-luks](../ubuntu-btrfs-20-04)
 
-With this setup you basically get the same comfort of Ubuntu's 20.04's ZFS and *zsys* initiative, but with much more flexibility and comfort due to the awesome [Timeshift](https://github.com/teejee2008/timeshift) program, which saved my bacon quite a few times. This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](../../install-guides).
+With this setup you basically get the same comfort of Ubuntu's 20.04's ZFS and *zsys* initiative, but with much more flexibility and comfort due to the awesome [Timeshift](https://github.com/teejee2008/timeshift) program, which saved my bacon quite a few times. This setup works similarly well on other distributions, for which I also have [installation guides with optional RAID1](/linux/).
 
-**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](../../timeshift/).**
+**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](/linux/timeshift/).**
 In the video, I also show what to do if your RAID1 is broken.
 
 ## Step 0: General remarks
@@ -36,10 +36,10 @@ In the video, I also show what to do if your RAID1 is broken.
 
 So, let's spin up a virtual machine with 4 cores, 8 GB RAM, and two 64GB disk using e.g. my fork of the awesome bash script [quickemu](https://github.com/wmutschl/quickemu) to automatically create 2 disks. I can confirm that the installation works equally well on my Dell Precision 7520 (RAID1 between a SSD and NVME) and on my KVM server (RAID1 between two HDD).
 
-This tutorial is made with [Ubuntu 20.04 Focal Fossa](http://releases.ubuntu.com/focal/) copied to an installation media (usually a USB Flash device but may be a DVD or the ISO file attached to a virtual machine hypervisor). Other versions of Ubuntu or distributions that use the Ubiquity installer (like Linux Mint) also work, see my other [installation guides](../../install-guides).
+This tutorial is made with [Ubuntu 20.04 Focal Fossa](http://releases.ubuntu.com/focal/) copied to an installation media (usually a USB Flash device but may be a DVD or the ISO file attached to a virtual machine hypervisor). Other versions of Ubuntu or distributions that use the Ubiquity installer (like Linux Mint) also work, see my other [installation guides](/linux/).
 
 ## Step 1: Boot the install, check UEFI mode and open an interactive root shell
-Since most modern PCs have UEFI, I will cover only the UEFI installation (see the [References](../../references/#btrfs-installation-guides) on how to deal with Legacy installs). So, boot the installation medium in UEFI mode, choose your language and click `Try Ubuntu`. Once the Live Desktop environment has started we need to use a Terminal shell command-line to issue a series of commands to prepare the target device before executing the installer itself. As I have a German Keyboard, I first go to `Settings -- Region & Language` and set my keyboard layout.
+Since most modern PCs have UEFI, I will cover only the UEFI installation. So, boot the installation medium in UEFI mode, choose your language and click `Try Ubuntu`. Once the Live Desktop environment has started we need to use a Terminal shell command-line to issue a series of commands to prepare the target device before executing the installer itself. As I have a German Keyboard, I first go to `Settings -- Region & Language` and set my keyboard layout.
 
 Then, open a terminal (<kbd>CTRL</kbd>+<kbd>ALT</kbd>+<kbd>T</kbd>) and run the following command:
 ```bash
@@ -807,7 +807,7 @@ sudo apt install rolldice
 ```
 
 **FINISHED! CONGRATULATIONS AND THANKS FOR STICKING THROUGH!**
-**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](../../timeshift/).**
+**If you ever need to rollback your system, checkout [Recovery and system rollback with Timeshift](/linux/timeshift/).**
 
 
 ### Step 10 (WIP): Keep efi partitions in sync
@@ -822,7 +822,7 @@ Note that if you use timeshift-autosnap-apt you always have a backup of your efi
 
 ### Emergency scenario: RAID1 is broken
 #### [WIP] efi is broken
-see Repair bootloader in the [References](../../references/#btrfs-installation-guides)....
+see the chroot method in my [Timeshift notes](/linux/timeshift/#last-resort-chroot-method) to get into the system and repair the bootloader.
 
 #### vda is broken
 Let's assume `vda` is broken (to this end I shutdown the virtual machine and add an empty `vda`). Now we need to open the "EFI BOOT MANAGER IN BIOS" and select to boot from the EFI partition on `vda`. The system will not boot, but we have our recovery system on `vdb`, so let's boot into it. Then, we need to chroot in degraded mode into the system, change PARTUUID in the fstab, and remove the bad drive from the crypttab:
