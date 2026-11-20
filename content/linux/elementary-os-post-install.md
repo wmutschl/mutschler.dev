@@ -201,7 +201,7 @@ set -Ua fish_user_paths /home/$USER/.local/bin
 Also I make sure that it is in my $PATH also on bash:
 ```bash
 bash -c 'echo $PATH'
-#/home/wmutschl/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+#>/home/wmutschl/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 ```
 If it isn't then I make the necessary changes in my `/home/$USER/.bashrc` file.
 
@@ -272,7 +272,7 @@ Connect your machine to your Tailscale network and authenticate in your browser:
 sudo tailscale up
 ```
 That's it, check your ip:
-```
+```bash
 tailscale ip -4
 ```
 I also chose (in the browser) to disable key expiry to prevent the need to periodically re-authenticate.
@@ -434,20 +434,20 @@ For this I need to install several packages:
 sudo apt install -y yubikey-manager yubikey-personalization # some common packages
 # Insert the yubikey
 ykman info # your key should be recognized
-# Device type: YubiKey 5 NFC
-# Serial number: 
-# Firmware version:
-# Form factor:
-# Enabled USB interfaces: OTP+FIDO+CCID
-# NFC interface is enabled.
-# 
-# Applications	USB    	NFC     
-# OTP     	Enabled	Enabled 	
-# FIDO U2F	Enabled	Enabled 	
-# OpenPGP 	Enabled	Enabled 	
-# PIV     	Enabled	Enabled
-# OATH    	Enabled	Enabled 	
-# FIDO2   	Enabled	Enabled 	
+#> Device type: YubiKey 5 NFC
+#> Serial number: 
+#> Firmware version:
+#> Form factor:
+#> Enabled USB interfaces: OTP+FIDO+CCID
+#> NFC interface is enabled.
+#> 
+#> Applications	USB    	NFC     
+#> OTP     	Enabled	Enabled 	
+#> FIDO U2F	Enabled	Enabled 	
+#> OpenPGP 	Enabled	Enabled 	
+#> PIV     	Enabled	Enabled
+#> OATH    	Enabled	Enabled 	
+#> FIDO2   	Enabled	Enabled 	
 
 sudo apt install -y libpam-u2f # second-factor for sudo commands
 sudo apt install -y yubikey-luks  # second-factor for luks
@@ -482,9 +482,9 @@ gpg --edit-key $KEYID
   quit
 echo "This is an encrypted message" | gpg --encrypt --armor --recipient $KEYID -o encrypted.txt
 gpg --decrypt --armor encrypted.txt
-# gpg: encrypted with 4096-bit RSA key, ID XYZ, create 2019-12-09
-#        "Willi Mutschler <willi@mutschler.eu>"
-# This is encrypted
+#> gpg: encrypted with 4096-bit RSA key, ID XYZ, create 2019-12-09
+#>        "Willi Mutschler <willi@mutschler.eu>"
+#> This is encrypted
 ```
 If this did not trigger to enter the Personal Key on your Yubikey, then try to run `echo 'reader-port Yubico YubiKey' >> ~/.gnupg/scdaemon.conf`, reboot and try again. Also check the above references and enable pcscd.
 
@@ -533,19 +533,19 @@ sudo sed -i "s|luks|$CRYPTKEY|" /etc/crypttab
 Your crypttab should look similar to this:
 ```bash
 cat /etc/crypttab
-# data UUID=aa371a41-81f4-4f12-800e-8830a9afa8c8 none luks,keyscript=/usr/share/yubikey-luks/ykluks-keyscript,discard
+#> data UUID=aa371a41-81f4-4f12-800e-8830a9afa8c8 none luks,keyscript=/usr/share/yubikey-luks/ykluks-keyscript,discard
 ```
 Lastly, update the initramfs:
 ```bash
 sudo update-initramfs -u -k all
-# update-initramfs: Generating /boot/initrd.img-5.13.0-51-generic
-# I: The initramfs will attempt to resume from /dev/dm-2
-# I: (/dev/mapper/data-swap)
-# I: Set the RESUME variable to override this.
-# update-initramfs: Generating /boot/initrd.img-5.13.0-43-generic
-# I: The initramfs will attempt to resume from /dev/dm-2
-# I: (/dev/mapper/data-swap)
-# I: Set the RESUME variable to override this.
+#> update-initramfs: Generating /boot/initrd.img-5.13.0-51-generic
+#> I: The initramfs will attempt to resume from /dev/dm-2
+#> I: (/dev/mapper/data-swap)
+#> I: Set the RESUME variable to override this.
+#> update-initramfs: Generating /boot/initrd.img-5.13.0-43-generic
+#> I: The initramfs will attempt to resume from /dev/dm-2
+#> I: (/dev/mapper/data-swap)
+#> I: Set the RESUME variable to override this.
 ```
 Reboot and check whether the prompt has changed to "Please insert yubikey and press enter or enter a valid passphrase". So I typically do two reboots to check whether I can either use your Yubikey (with the new passphrase you selected above) or the original luks passphrase. 
 

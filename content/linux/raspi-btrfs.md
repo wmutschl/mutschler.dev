@@ -49,19 +49,19 @@ In short, instead of selecting the SD card I am simply choosing my external USB 
 By default the partition scheme looks like this (my external USB drive is named *sdb*, look for *system-boot* and *writable* in the `blkid` output):
 ```sh
 sudo blkid
-# /dev/sdb1: LABEL_FATBOOT="system-boot" LABEL="system-boot" UUID="2EC5-A982" BLOCK_SIZE="512" TYPE="vfat" PARTUUID="254a9658-01"
-# /dev/sdb2: LABEL="writable" UUID="c21fdada-1423-4a06-be66-0b9c02860d1d" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="254a9658-02"
+#> /dev/sdb1: LABEL_FATBOOT="system-boot" LABEL="system-boot" UUID="2EC5-A982" BLOCK_SIZE="512" TYPE="vfat" PARTUUID="254a9658-01"
+#> /dev/sdb2: LABEL="writable" UUID="c21fdada-1423-4a06-be66-0b9c02860d1d" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="254a9658-02"
 
 sudo parted /dev/sdb print
-# Model: LaCie P9227 Slim (scsi)
-# Disk /dev/sdb: 2000GB
-# Sector size (logical/physical): 512B/4096B
-# Partition Table: msdos
-# Disk Flags: 
-# 
-# Number  Start   End     Size    Type     File system  Flags
- # 1      1049kB  269MB   268MB   primary  fat32        boot, lba
- # 2      269MB   3348MB  3079MB  primary  ext4
+#> Model: LaCie P9227 Slim (scsi)
+#> Disk /dev/sdb: 2000GB
+#> Sector size (logical/physical): 512B/4096B
+#> Partition Table: msdos
+#> Disk Flags: 
+#> 
+#> Number  Start   End     Size    Type     File system  Flags
+ #> 1      1049kB  269MB   268MB   primary  fat32        boot, lba
+ #> 2      269MB   3348MB  3079MB  primary  ext4
 ```
 If you would now boot from the drive, the second partition would expand on first boot to take over all space. One would then need to manually shrink it and move files around. To make life a bit easier, we will leave some space after the second partition and create a third partition which will actually contain our LUKS encrypted root btrfs filesystem and re-use the second partition for something else (e.g. [encrypted swap](../ubuntu-btrfs-20-04/#encrypted-swap) or an [encrypted dedicated docker image partition](../raspi-post-install/#option-a-create-dedicated-encrypted-docker-image-partition)) later on. With btrfs I do not need any other partitions for e.g. `/home`, as we will use subvolumes instead. 
 
@@ -70,16 +70,16 @@ Let's use `parted` for this (feel free to use `gparted` accordingly):
 ```bash
 sudo parted /dev/sdb mkpart primary 5000MiB 100%
 sudo parted /dev/sdb print
-# Model: LaCie P9227 Slim (scsi)
-# Disk /dev/sdb: 2000GB
-# Sector size (logical/physical): 512B/4096B
-# Partition Table: msdos
-# Disk Flags: 
-# 
-# Number  Start   End     Size    Type     File system  Flags
-#  1      1049kB  269MB   268MB   primary  fat32        boot, lba
-#  2      269MB   3348MB  3079MB  primary  ext4
-#  3      5243MB  2000GB  1995GB  primary
+#> Model: LaCie P9227 Slim (scsi)
+#> Disk /dev/sdb: 2000GB
+#> Sector size (logical/physical): 512B/4096B
+#> Partition Table: msdos
+#> Disk Flags: 
+#> 
+#> Number  Start   End     Size    Type     File system  Flags
+#>  1      1049kB  269MB   268MB   primary  fat32        boot, lba
+#>  2      269MB   3348MB  3079MB  primary  ext4
+#>  3      5243MB  2000GB  1995GB  primary
 ```
 Note that the third partition starts at 5243MB, so my second partition will have a size of 5243MB-268MB=4975MB once the second partition gets extended on first boot.
 
@@ -87,46 +87,46 @@ Note that the third partition starts at 5243MB, so my second partition will have
 The Raspberry Pi 4 doesn't have hardware-accelerated AES support, so encryption is usually not very fast. [Google's Adiantum algorithm performs better on ARM](https://security.googleblog.com/2019/02/introducing-adiantum-encryption-for.html) so we use it for our LUKS partition:
 ```sh
 sudo cryptsetup luksFormat --type=luks2 -c xchacha20,aes-adiantum-plain64 /dev/sdb3
-# WARNING!
-# ========
-# This will overwrite data on /dev/sdb3 irrevocably.
-# Are you sure? (Type uppercase yes): YES
-# Enter passphrase for /dev/sdb3: 
-# Verify passphrase:
+#> WARNING!
+#> ========
+#> This will overwrite data on /dev/sdb3 irrevocably.
+#> Are you sure? (Type uppercase yes): YES
+#> Enter passphrase for /dev/sdb3: 
+#> Verify passphrase:
 ```
 Use a very good password here. Now map the encrypted partition to a device called `crypt_raspi`, which will be our root filesystem:
 
 ```bash
 sudo cryptsetup luksOpen /dev/sdb3 crypt_raspi
-# Enter passphrase for /dev/sdb3:
+#> Enter passphrase for /dev/sdb3:
 ls /dev/mapper/
-# control ... crypt_raspi
+#> control ... crypt_raspi
 ```
 
 Now let's format `crypt_raspi` with the btrfs filesystem:
 
 ```bash
 sudo mkfs.btrfs /dev/mapper/crypt_raspi
-# btrfs-progs v5.9 
-# See http://btrfs.wiki.kernel.org for more information.
-# 
-# Label:              (null)
-# UUID:               b220ee50-3511-4cfe-8988-fa2d4dedf677
-# Node size:          16384
-# Sector size:        4096
-# Filesystem size:    1.81TiB
-# Block group profiles:
-#   Data:             single            8.00MiB
-#   Metadata:         DUP               1.00GiB
-#   System:           DUP               8.00MiB
-# SSD detected:       no
-# Incompat features:  extref, skinny-metadata
-# Runtime features:   
-# Checksum:           crc32c
-# Number of devices:  1
-# Devices:
-#    ID        SIZE  PATH
-#     1     1.81TiB  /dev/mapper/crypt_raspi
+#> btrfs-progs v5.9 
+#> See http://btrfs.wiki.kernel.org for more information.
+#> 
+#> Label:              (null)
+#> UUID:               b220ee50-3511-4cfe-8988-fa2d4dedf677
+#> Node size:          16384
+#> Sector size:        4096
+#> Filesystem size:    1.81TiB
+#> Block group profiles:
+#>   Data:             single            8.00MiB
+#>   Metadata:         DUP               1.00GiB
+#>   System:           DUP               8.00MiB
+#> SSD detected:       no
+#> Incompat features:  extref, skinny-metadata
+#> Runtime features:   
+#> Checksum:           crc32c
+#> Number of devices:  1
+#> Devices:
+#>    ID        SIZE  PATH
+#>     1     1.81TiB  /dev/mapper/crypt_raspi
 
 sudo cryptsetup luksClose crypt_raspi
 ```
@@ -139,29 +139,29 @@ In all the following steps I will focus on the SSH way as I am connecting my Pi 
 ```sh
 arp -na | grep -i "b8:27:eb"
 arp -na | grep -i "dc:a6:32"
-# ? (192.168.178.50) at dc:a6:32:d3:da:c2 [ether] on enp12s0u1u2
+#> ? (192.168.178.50) at dc:a6:32:d3:da:c2 [ether] on enp12s0u1u2
 ```
 Note that the first boot might take a couple of minutes before the Pi's SSH server is up and running. Now let's SSH into it and change the default password `ubuntu` to one of your choice:
 
 ```sh
 ssh ubuntu@192.168.178.50
-# The authenticity of host '192.168.178.50 (192.168.178.50)' can't be established.
-# ECDSA key fingerprint is SHA256:JrZAxm31CLs4ECU8BK9KsctGZciwO5xpcU7VdKDI/G8.
-# Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-# Warning: Permanently added '192.168.178.50' (ECDSA) to the list of known hosts.
-# ubuntu@192.168.178.50's password: 
-# You are required to change your password immediately (administrator enforced)
-# Welcome to Ubuntu 20.10 (GNU/Linux 5.8.0-1006-raspi aarch64)
-# .....
-# .....
-# WARNING: Your password has expired.
-# You must change your password now and login again!
-# Changing password for ubuntu.
-# Current password: 
-# New password: 
-# Retype new password: 
-# passwd: password updated successfully
-# Connection to 192.168.178.50 closed.
+#> The authenticity of host '192.168.178.50 (192.168.178.50)' can't be established.
+#> ECDSA key fingerprint is SHA256:JrZAxm31CLs4ECU8BK9KsctGZciwO5xpcU7VdKDI/G8.
+#> Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+#> Warning: Permanently added '192.168.178.50' (ECDSA) to the list of known hosts.
+#> ubuntu@192.168.178.50's password: 
+#> You are required to change your password immediately (administrator enforced)
+#> Welcome to Ubuntu 20.10 (GNU/Linux 5.8.0-1006-raspi aarch64)
+#> .....
+#> .....
+#> WARNING: Your password has expired.
+#> You must change your password now and login again!
+#> Changing password for ubuntu.
+#> Current password: 
+#> New password: 
+#> Retype new password: 
+#> passwd: password updated successfully
+#> Connection to 192.168.178.50 closed.
 ```
 Reconnect using your newly created password:
 ```sh
@@ -186,21 +186,21 @@ and remove the USB drive from your Pi.
 Plug the USB drive back into your computer. You might get prompts from your file manager to mount the LUKS partition, cancel these prompts. Find out the name of your USB drive (look at `LABEL_FATBOOT="system-boot"` and `LABEL="writable"`), for me it is again `sdb`, and have a look at the partition table:
 ```sh
 sudo blkid
-# /dev/sdb1: LABEL_FATBOOT="system-boot" LABEL="system-boot" UUID="2EC5-A982" BLOCK_SIZE="512" TYPE="vfat" PARTUUID="254a9658-01"
-# /dev/sdb2: LABEL="writable" UUID="c21fdada-1423-4a06-be66-0b9c02860d1d" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="254a9658-02"
-# /dev/sdb3: UUID="cd2b99fd-11c1-423f-b07b-44f704da1599" TYPE="crypto_LUKS" PTTYPE="atari" PARTUUID="254a9658-03"
+#> /dev/sdb1: LABEL_FATBOOT="system-boot" LABEL="system-boot" UUID="2EC5-A982" BLOCK_SIZE="512" TYPE="vfat" PARTUUID="254a9658-01"
+#> /dev/sdb2: LABEL="writable" UUID="c21fdada-1423-4a06-be66-0b9c02860d1d" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="254a9658-02"
+#> /dev/sdb3: UUID="cd2b99fd-11c1-423f-b07b-44f704da1599" TYPE="crypto_LUKS" PTTYPE="atari" PARTUUID="254a9658-03"
 
 sudo parted /dev/sdb print
-# Model: LaCie P9227 Slim (scsi)
-# Disk /dev/sdb: 2000GB
-# Sector size (logical/physical): 512B/4096B
-# Partition Table: msdos
-# Disk Flags: 
-# 
-# Number  Start   End     Size    Type     File system  Flags
-#  1      1049kB  269MB   268MB   primary  fat32        boot, lba
-#  2      269MB   5243MB  4973MB  primary  ext4
-#  3      5243MB  2000GB  1995GB  primary
+#> Model: LaCie P9227 Slim (scsi)
+#> Disk /dev/sdb: 2000GB
+#> Sector size (logical/physical): 512B/4096B
+#> Partition Table: msdos
+#> Disk Flags: 
+#> 
+#> Number  Start   End     Size    Type     File system  Flags
+#>  1      1049kB  269MB   268MB   primary  fat32        boot, lba
+#>  2      269MB   5243MB  4973MB  primary  ext4
+#>  3      5243MB  2000GB  1995GB  primary
 ```
 Note that the second partition `sdb2` has been resized and contains the ext4 filesystem with the system files (the Pi's `/` and `/home` directories); whereas `sdb3` contains our btrfs-luks partition with the remaining space.
 
@@ -208,7 +208,7 @@ Now, let's map the btrfs-luks partition to a device called `crypt_raspi` and mou
 ```sh
 sudo mkdir -p /mnt/btrfs
 sudo cryptsetup luksOpen /dev/sdb3 crypt_raspi
-# Enter passphrase for /dev/sdb3:
+#> Enter passphrase for /dev/sdb3:
 sudo mount /dev/mapper/crypt_raspi /mnt/btrfs
 
 sudo mkdir -p /mnt/ext4
@@ -239,15 +239,15 @@ Unplug the USB drive from your computer.
 Plug the USB drive back into your Pi, boot it and SSH into your Pi. Find out the name of your drive (usually `sda`):
 ```sh
 sudo blkid
-# /dev/sda2: LABEL="writable" UUID="c21fdada-1423-4a06-be66-0b9c02860d1d" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="254a9658-02"
-# /dev/loop0: TYPE="squashfs"
-# /dev/loop1: TYPE="squashfs"
-# /dev/loop2: TYPE="squashfs"
-# /dev/loop3: TYPE="squashfs"
-# /dev/loop4: TYPE="squashfs"
-# /dev/loop5: TYPE="squashfs"
-# /dev/sda1: LABEL_FATBOOT="system-boot" LABEL="system-boot" UUID="2EC5-A982" BLOCK_SIZE="512" TYPE="vfat" PARTUUID="254a9658-01"
-# /dev/sda3: UUID="cd2b99fd-11c1-423f-b07b-44f704da1599" TYPE="crypto_LUKS" PTTYPE="atari" PARTUUID="254a9658-03"
+#> /dev/sda2: LABEL="writable" UUID="c21fdada-1423-4a06-be66-0b9c02860d1d" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="254a9658-02"
+#> /dev/loop0: TYPE="squashfs"
+#> /dev/loop1: TYPE="squashfs"
+#> /dev/loop2: TYPE="squashfs"
+#> /dev/loop3: TYPE="squashfs"
+#> /dev/loop4: TYPE="squashfs"
+#> /dev/loop5: TYPE="squashfs"
+#> /dev/sda1: LABEL_FATBOOT="system-boot" LABEL="system-boot" UUID="2EC5-A982" BLOCK_SIZE="512" TYPE="vfat" PARTUUID="254a9658-01"
+#> /dev/sda3: UUID="cd2b99fd-11c1-423f-b07b-44f704da1599" TYPE="crypto_LUKS" PTTYPE="atari" PARTUUID="254a9658-03"
 ```
 
 Unlock your LUKS partition, map it to `crypt_raspi` and mount the `@` subvolume to `/mnt`:
@@ -277,23 +277,23 @@ echo "/dev/mapper/crypt_raspi  /home           btrfs   defaults,subvol=@home   0
 Either way, your fstab should look like this:
 ```sh
 cat /etc/fstab
-# LABEL=system-boot       /boot/firmware  vfat    defaults        0       1
-# /dev/mapper/crypt_raspi  /               btrfs   defaults,subvol=@       0       0
-# /dev/mapper/crypt_raspi  /home           btrfs   defaults,subvol=@home   0       0
+#> LABEL=system-boot       /boot/firmware  vfat    defaults        0       1
+#> /dev/mapper/crypt_raspi  /               btrfs   defaults,subvol=@       0       0
+#> /dev/mapper/crypt_raspi  /home           btrfs   defaults,subvol=@home   0       0
 
 ```
 Now we can mount everything:
 ```sh
 mount -av
-# /boot/firmware           : successfully mounted
-# /                        : ignored
-# /home                    : successfully mounted
+#> /boot/firmware           : successfully mounted
+#> /                        : ignored
+#> /home                    : successfully mounted
 ```
 We need to tell the system where our `crypt_raspi` resides, so edit the `/etc/crypttab` file:
 ```sh
 echo "crypt_raspi  /dev/sda3   none   luks" >> /etc/crypttab
 cat /etc/crypttab
-# crypt_raspi  /dev/sda3   none   luks
+#> crypt_raspi  /dev/sda3   none   luks
 ```
 
 Lastly, we need to change the kernel parameters in `/boot/firmware/cmdline.txt`:
@@ -312,7 +312,7 @@ sed -i "s|ext4|btrfs|" /boot/firmware/cmdline.txt
 sed -i "s|quiet splash|cryptdevice=/dev/sda3:sdcard|" /boot/firmware/cmdline.txt
 
 cat /boot/firmware/cmdline.txt
-#dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/mapper/crypt_raspi rootflags=subvol=@ rootfstype=btrfs elevator=deadline rootwait fixrtc cryptdevice=/dev/sda3:crypt_raspi
+#>dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/mapper/crypt_raspi rootflags=subvol=@ rootfstype=btrfs elevator=deadline rootwait fixrtc cryptdevice=/dev/sda3:crypt_raspi
 ```
 Very importantly, make the initramfs image aware of these changes:
 ```sh
@@ -332,7 +332,7 @@ ssh-keygen -t rsa -f ~/.ssh/id_dropbear -C dropbear # do this only once
 
 # WRITE DOWN OR COPY YOUR PUBLIC KEY IN THE CLIPBOARD
 cat ~/.ssh/id_dropbear.pub
-# ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHZ8L+RCQnqmXTqhfqKmpM8F/E4edFhLgclpbqi9V5dKTuuaFFkkLsRrPbWkYGxQPpYqNUcVsbOisnJKIL5WRV9TvXBqcIhT84BwDdrFEnP9DoTj6eidHUU7AOjfqJ1E0plX5j+yixKK6jW5A4CHDHPcCq3iFmprZOMkrTP2WctzNu9qfe6mP2+9CFN5MWFsEiU137865LVLMwApp9BM4eTX9k+TZi7wD7AagfYEP+GTFTGwA7+OwjBbl4jZlRnD31uRcMour+qjd7VKhEB1m9L26fWzj/lT83Sj/SCHekbpO3Yvv2LKUlnd8dW4y/Eo883ZWx5A6C5IwWDF/ruOR/ dropbear
+#> ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHZ8L+RCQnqmXTqhfqKmpM8F/E4edFhLgclpbqi9V5dKTuuaFFkkLsRrPbWkYGxQPpYqNUcVsbOisnJKIL5WRV9TvXBqcIhT84BwDdrFEnP9DoTj6eidHUU7AOjfqJ1E0plX5j+yixKK6jW5A4CHDHPcCq3iFmprZOMkrTP2WctzNu9qfe6mP2+9CFN5MWFsEiU137865LVLMwApp9BM4eTX9k+TZi7wD7AagfYEP+GTFTGwA7+OwjBbl4jZlRnD31uRcMour+qjd7VKhEB1m9L26fWzj/lT83Sj/SCHekbpO3Yvv2LKUlnd8dW4y/Eo883ZWx5A6C5IwWDF/ruOR/ dropbear
 ```
 Note that ed25519 keys are not supported. 
 
@@ -354,7 +354,7 @@ Note that `no-port-forwarding,no-agent-forwarding,no-x11-forwarding,command="/bi
 sed -i 's|#DROPBEAR_OPTIONS=|DROPBEAR_OPTIONS="-p 4444"|' /etc/dropbear-initramfs/config
 
 cat /etc/dropbear-initramfs/config
-# DROPBEAR_OPTIONS="-p 4444"
+#> DROPBEAR_OPTIONS="-p 4444"
 ```
 Don't forget to update the initramfs:
 ```sh
@@ -370,7 +370,7 @@ sudo reboot now
 ```
 
 If you have a display connected, you should see 
-```sh
+```text {output="Boot messages on the Pi's display"}
 Please unlock disk crypt_raspi:
 # ...
 # some other output
@@ -381,8 +381,8 @@ Begin: Starting dropbear:
 Now from your computer use the dedicated SSH identity to access the Dropbear SSH server:
 ```sh
 ssh -i ~/.ssh/id_dropbear root@192.168.178.50 -p4444
-# Please unlock disk crypt_raspi:
-# Connection to 192.168.178.50 closed.
+#> Please unlock disk crypt_raspi:
+#> Connection to 192.168.178.50 closed.
 ```
 If something goes wrong, simply connect a USB keyboard to your Pi and carefully type in your LUKS passphrase and hit Enter. This will also unlock your LUKS partition and boot into your system.
 
@@ -393,30 +393,30 @@ Once the Pi booted and you entered your LUKS passphrase either remotely or direc
 
 ```sh
 sudo cat /etc/crypttab
-# crypt_raspi  /dev/sda3   none   luks
+#> crypt_raspi  /dev/sda3   none   luks
 
 sudo cat /etc/fstab
-# LABEL=system-boot        /boot/firmware  vfat    defaults                0       1
-# /dev/mapper/crypt_raspi  /               btrfs   defaults,subvol=@       0       0
-# /dev/mapper/crypt_raspi  /home           btrfs   defaults,subvol=@home   0       0
+#> LABEL=system-boot        /boot/firmware  vfat    defaults                0       1
+#> /dev/mapper/crypt_raspi  /               btrfs   defaults,subvol=@       0       0
+#> /dev/mapper/crypt_raspi  /home           btrfs   defaults,subvol=@home   0       0
 
 sudo mount -av
-# /boot/firmware           : already mounted
-# /                        : ignored
-# /home                    : already mounted
+#> /boot/firmware           : already mounted
+#> /                        : ignored
+#> /home                    : already mounted
 
 sudo mount -v | grep /dev/mapper
-# /dev/mapper/crypt_raspi on / type btrfs (rw,relatime,space_cache,subvolid=257,subvol=/@)
-# /dev/mapper/crypt_raspi on /home type btrfs (rw,relatime,space_cache,subvolid=258,subvol=/@home)
+#> /dev/mapper/crypt_raspi on / type btrfs (rw,relatime,space_cache,subvolid=257,subvol=/@)
+#> /dev/mapper/crypt_raspi on /home type btrfs (rw,relatime,space_cache,subvolid=258,subvol=/@home)
 
 sudo btrfs filesystem show /
-# Label: none  uuid: 0ba938bc-9f6a-4b2f-b978-c10b3528d17c677
-#         Total devices 1 FS bytes used 2.47GiB
-#         devid    1 size 1.81TiB used 5.02GiB path /dev/mapper/crypt_raspi
+#> Label: none  uuid: 0ba938bc-9f6a-4b2f-b978-c10b3528d17c677
+#>         Total devices 1 FS bytes used 2.47GiB
+#>         devid    1 size 1.81TiB used 5.02GiB path /dev/mapper/crypt_raspi
 
 sudo btrfs subvolume list /
-# ID 257 gen 57 top level 5 path @
-# ID 258 gen 51 top level 5 path @home
+#> ID 257 gen 57 top level 5 path @
+#> ID 258 gen 51 top level 5 path @home
 ```
 Look's good. Let's check again for updates and reboot one more time:
 
@@ -444,10 +444,10 @@ I have found that there is *some* general agreement to use the following mount o
 So add these options to your btrfs subvolume mount points in your fstab:
 ```sh
 sudo nano /etc/fstab
-# LABEL=system-boot        /boot/firmware  vfat    defaults                                                             0       1
-# /dev/mapper/crypt_raspi  /               btrfs   defaults,noatime,space_cache,commit=120,compress=zstd,subvol=@       0       0
-# /dev/mapper/crypt_raspi  /home           btrfs   defaults,noatime,space_cache,commit=120,compress=zstd,subvol=@home   0       0
-# /dev/mapper/crypt_raspi  /btr_pool       btrfs   defaults,noatime,space_cache,commit=120,compress=zstd,subvolid=5     0       0
+#> LABEL=system-boot        /boot/firmware  vfat    defaults                                                             0       1
+#> /dev/mapper/crypt_raspi  /               btrfs   defaults,noatime,space_cache,commit=120,compress=zstd,subvol=@       0       0
+#> /dev/mapper/crypt_raspi  /home           btrfs   defaults,noatime,space_cache,commit=120,compress=zstd,subvol=@home   0       0
+#> /dev/mapper/crypt_raspi  /btr_pool       btrfs   defaults,noatime,space_cache,commit=120,compress=zstd,subvolid=5     0       0
 sudo mkdir -p /btr_pool
 sudo mount -a
 ```
@@ -461,7 +461,7 @@ If you are using a SSD, don't forget to **additionally** add the following mount
 Moreover, to use the discard support in btrfs we need to pass it on in `/etc/crypttab`:
 ```sh
 sudo nano /etc/crypttab
-# crypt_raspi /dev/sda3 none luks,discard
+#> crypt_raspi /dev/sda3 none luks,discard
 ```
 As [both fstrim and discard=async mount option can peacefully co-exist](https://www.phoronix.com/scan.php?page=news_item&px=Fedora-Btrfs-Opts-Discard-Comp), I also enable `fstrim.timer`:
 ```sh
@@ -473,9 +473,9 @@ Reboot and see which mount options are active:
 
 ```sh
 sudo mount -v | grep /dev/mapper
-# /dev/mapper/crypt_raspi on / type btrfs (rw,noatime,compress=zstd:3,space_cache,commit=120,subvolid=256,subvol=/@)
-# /dev/mapper/crypt_raspi on /btr_pool type btrfs (rw,noatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/)
-# /dev/mapper/crypt_raspi on /home type btrfs (rw,noatime,compress=zstd:3,space_cache,commit=120,subvolid=258,subvol=/@home)
+#> /dev/mapper/crypt_raspi on / type btrfs (rw,noatime,compress=zstd:3,space_cache,commit=120,subvolid=256,subvol=/@)
+#> /dev/mapper/crypt_raspi on /btr_pool type btrfs (rw,noatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/)
+#> /dev/mapper/crypt_raspi on /home type btrfs (rw,noatime,compress=zstd:3,space_cache,commit=120,subvolid=258,subvol=/@home)
 ```
 
 ## Step 12: Install Timeshift and Timeshift-autosnap-apt
@@ -484,20 +484,20 @@ sudo mount -v | grep /dev/mapper
 ```bash
 sudo apt install timeshift
 sudo timeshift --btrfs
-# First run mode (config file not found)
-# Selected default snapshot type: BTRFS
-# App config loaded: /etc/timeshift.json
-# Mounted '/dev/dm-0 (sda3)' at '/run/timeshift/backup'
-# Selected default snapshot device: /dev/dm-0
-# App config saved: /etc/timeshift.json
+#> First run mode (config file not found)
+#> Selected default snapshot type: BTRFS
+#> App config loaded: /etc/timeshift.json
+#> Mounted '/dev/dm-0 (sda3)' at '/run/timeshift/backup'
+#> Selected default snapshot device: /dev/dm-0
+#> App config saved: /etc/timeshift.json
 
 echo $(blkid -s UUID -o value /dev/mapper/crypt_raspi)
-# 0ba938bc-9f6a-4b2f-b978-c10b3528d17c
+#> 0ba938bc-9f6a-4b2f-b978-c10b3528d17c
 echo $(blkid -s UUID -o value /dev/sda3)
-# cd2b99fd-11c1-423f-b07b-44f704da1599
+#> cd2b99fd-11c1-423f-b07b-44f704da1599
 ```
 Let's edit the configuration file (`/etc/timeshift.json`) of Timeshift. For this, use the UUID of `/dev/mapper/crypt_raspi` for `backup_device_uuid` and of `/dev/sda3` for `parent_device_uuid` (actually as we ran Timeshift with the `--btrfs` flag this should be autodetected). Mine looks like this:
-```json
+```json {file="/etc/timeshift.json"}
 {
   "backup_device_uuid" : "0ba938bc-9f6a-4b2f-b978-c10b3528d17c",
   "parent_device_uuid" : "cd2b99fd-11c1-423f-b07b-44f704da1599",
@@ -530,69 +530,69 @@ Let's edit the configuration file (`/etc/timeshift.json`) of Timeshift. For this
 You can create your first snapshot now:
 ```sh
 sudo timeshift --create --comments "First snapshot"
-# Using system disk as snapshot device for creating snapshots in BTRFS mode
-# 
-# /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/
-# 
-# Creating new backup...(BTRFS)
-# Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
-# Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-51-54
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-51-54/@
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-51-54/@home
-# Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-51-54/info.json
-# BTRFS Snapshot saved successfully (0s)
-# Tagged snapshot '2021-01-11_12-51-54': ondemand
-# ------------------------------------------------------------------------------
-# E: ERROR: can't list qgroups: quotas not enabled
-# 
-# E: btrfs returned an error: 256
-# E: Failed to query subvolume quota
-# Enabled subvolume quota support
-# Added cron task: /etc/cron.d/timeshift-hourly
+#> Using system disk as snapshot device for creating snapshots in BTRFS mode
+#> 
+#> /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/
+#> 
+#> Creating new backup...(BTRFS)
+#> Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
+#> Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-51-54
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-51-54/@
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-51-54/@home
+#> Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-51-54/info.json
+#> BTRFS Snapshot saved successfully (0s)
+#> Tagged snapshot '2021-01-11_12-51-54': ondemand
+#> ------------------------------------------------------------------------------
+#> E: ERROR: can't list qgroups: quotas not enabled
+#> 
+#> E: btrfs returned an error: 256
+#> E: Failed to query subvolume quota
+#> Enabled subvolume quota support
+#> Added cron task: /etc/cron.d/timeshift-hourly
 
 sudo timeshift --list
-# /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/
-# 
-# Device : /dev/dm-0 (sda3)
-# UUID   : 0ba938bc-9f6a-4b2f-b978-c10b3528d17c
-# Path   : /run/timeshift/backup
-# Mode   : BTRFS
-# Status : OK
-# 1 snapshots, 2.0 TB free
-# 
-# Num     Name                 Tags  Description     
-# ------------------------------------------------------------------------------
-# 0    >  2021-01-11_12-51-54  O     First snapshot 
+#> /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/
+#> 
+#> Device : /dev/dm-0 (sda3)
+#> UUID   : 0ba938bc-9f6a-4b2f-b978-c10b3528d17c
+#> Path   : /run/timeshift/backup
+#> Mode   : BTRFS
+#> Status : OK
+#> 1 snapshots, 2.0 TB free
+#> 
+#> Num     Name                 Tags  Description     
+#> ------------------------------------------------------------------------------
+#> 0    >  2021-01-11_12-51-54  O     First snapshot 
 
 sudo timeshift --create --comments "Second snapshot"
-# Using system disk as snapshot device for creating snapshots in BTRFS mode
-# 
-# /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/
-# 
-# Creating new backup...(BTRFS)
-# Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
-# Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-54-13
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-54-13/@
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-54-13/@home
-# Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-54-13/info.json
-# BTRFS Snapshot saved successfully (0s)
-# Tagged snapshot '2021-01-11_12-54-13': ondemand
-# ------------------------------------------------------------------------------
+#> Using system disk as snapshot device for creating snapshots in BTRFS mode
+#> 
+#> /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/
+#> 
+#> Creating new backup...(BTRFS)
+#> Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
+#> Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-54-13
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-54-13/@
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-54-13/@home
+#> Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_12-54-13/info.json
+#> BTRFS Snapshot saved successfully (0s)
+#> Tagged snapshot '2021-01-11_12-54-13': ondemand
+#> ------------------------------------------------------------------------------
 
 sudo timeshift --list
-# /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/
-# 
-# Device : /dev/dm-0 (sda3)
-# UUID   : 0ba938bc-9f6a-4b2f-b978-c10b3528d17c
-# Path   : /run/timeshift/backup
-# Mode   : BTRFS
-# Status : OK
-# 2 snapshots, 2.0 TB free
-# 
-# Num     Name                 Tags  Description      
-# ------------------------------------------------------------------------------
-# 0    >  2021-01-11_12-51-54  O     First snapshot   
-# 1    >  2021-01-11_12-54-13  O     Second snapshot 
+#> /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/
+#> 
+#> Device : /dev/dm-0 (sda3)
+#> UUID   : 0ba938bc-9f6a-4b2f-b978-c10b3528d17c
+#> Path   : /run/timeshift/backup
+#> Mode   : BTRFS
+#> Status : OK
+#> 2 snapshots, 2.0 TB free
+#> 
+#> Num     Name                 Tags  Description      
+#> ------------------------------------------------------------------------------
+#> 0    >  2021-01-11_12-51-54  O     First snapshot   
+#> 1    >  2021-01-11_12-54-13  O     Second snapshot 
 ```
 Note that the cron job and btrfs quotas are enabled on first run, so don't worry about the `qgroups: quotas not enabled` error. Timeshift will now check every hour if snapshots (“hourly”, “daily”, “weekly”, “monthly”, “boot”) need to be created or deleted. Note that “boot” snapshots will not be created directly but about 10 minutes after a system startup. I also include the `@home` subvolume (which is not selected by default). Note that when you restore a snapshot you can always choose whether or not you also want to restore @home (which in most cases you don't want to).
 
@@ -616,36 +616,36 @@ sudo nano /etc/timeshift-autosnap-apt.conf
 For example, as we don’t have a dedicated `/boot/efi` partition, we should set `snapshotEFI=false` in the configuration file. Check if everything is working:
 ```sh
 sudo timeshift-autosnap-apt
-# Rsyncing /boot into the filesystem before the call to timeshift.
-# Using system disk as snapshot device for creating snapshots in BTRFS mode
-# 
-# /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/
-# 
-# Creating new backup...(BTRFS)
-# Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
-# Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_13-00-39
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_13-00-39/@
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_13-00-39/@home
-# Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_13-00-39/info.json
-# BTRFS Snapshot saved successfully (9s)
-# Tagged snapshot '2021-01-11_13-00-39': ondemand
-# ------------------------------------------------------------------------------
+#> Rsyncing /boot into the filesystem before the call to timeshift.
+#> Using system disk as snapshot device for creating snapshots in BTRFS mode
+#> 
+#> /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/
+#> 
+#> Creating new backup...(BTRFS)
+#> Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
+#> Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_13-00-39
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_13-00-39/@
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_13-00-39/@home
+#> Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-01-11_13-00-39/info.json
+#> BTRFS Snapshot saved successfully (9s)
+#> Tagged snapshot '2021-01-11_13-00-39': ondemand
+#> ------------------------------------------------------------------------------
 
 sudo timeshift --list
-# /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/
-# 
-# Device : /dev/dm-0 (sda3)
-# UUID   : 0ba938bc-9f6a-4b2f-b978-c10b3528d17c
-# Path   : /run/timeshift/backup
-# Mode   : BTRFS
-# Status : OK
-# 3 snapshots, 2.0 TB free
-# 
-# Num     Name                 Tags       Description                                            
-# ------------------------------------------------------------------------------
-# 0    >  2021-01-11_12-51-54  O H D W M  First snapshot                                         
-# 1    >  2021-01-11_12-54-13  O          Second snapshot                                        
-# 2    >  2021-01-11_13-00-39  O          {timeshift-autosnap-apt} {created before call to APT} 
+#> /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,space_cache,commit=120,subvolid=5,subvol=/
+#> 
+#> Device : /dev/dm-0 (sda3)
+#> UUID   : 0ba938bc-9f6a-4b2f-b978-c10b3528d17c
+#> Path   : /run/timeshift/backup
+#> Mode   : BTRFS
+#> Status : OK
+#> 3 snapshots, 2.0 TB free
+#> 
+#> Num     Name                 Tags       Description                                            
+#> ------------------------------------------------------------------------------
+#> 0    >  2021-01-11_12-51-54  O H D W M  First snapshot                                         
+#> 1    >  2021-01-11_12-54-13  O          Second snapshot                                        
+#> 2    >  2021-01-11_13-00-39  O          {timeshift-autosnap-apt} {created before call to APT} 
 ```
 Now, if you run any `sudo apt install|remove|upgrade|dist-upgrade` command, *Timeshift-autosnap-apt* will create a snapshot of your system with *Timeshift*.
 
@@ -668,8 +668,9 @@ If the Raspberry Pi fails to boot and enters `(initramfs)`, this is usally due t
 
 So, decrypt your LUKS partition directly from initramfs:
 ```sh
-(initramfs) cryptsetup luksOpen /dev/sda3 crypt_raspi
-# Continue booting...   (initramfs) exit
+cryptsetup luksOpen /dev/sda3 crypt_raspi
+# Continue booting
+exit
 ```
 If your passphrase is wrong, double-check whether your passphrase is compatible with the US Layout of the keyboard!
 

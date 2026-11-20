@@ -312,18 +312,18 @@ The files below are in the configuration folder of Home Assistant, which is `/ho
 
 1. Create a check on healthchecks.io, e.g. with a period of 1 minute and a grace time of 5 minutes, and copy its ping URL.
 2. Add the ping URL to `secrets.yaml`, so it stays out of the configuration files:
-   ```yaml
+   ```yaml {file="secrets.yaml"}
    healthchecks_ping_url: "https://hc-ping.com/<uuid-of-the-check>"
    ```
 3. Enable packages in `configuration.yaml`; if there is a `homeassistant:` section already, add the `packages:` line to it:
-   ```yaml
+   ```yaml {file="configuration.yaml"}
    homeassistant:
      packages: !include_dir_named packages
    ```
    Studio Code Server underlines `packages` with a *patternWarning*.
    That's a false positive of its Home Assistant extension; the line is exactly what the [documentation](https://www.home-assistant.io/docs/configuration/packages/) says.
 4. Create the file `packages/healthchecks.yaml` (with `.yaml`, because `!include_dir_named` silently skips `.yml` files) with the content of my [healthchecks.yaml](https://github.com/wmutschl/scripts/blob/main/Raspberry-Pi-4-Model-B/homeassistant/packages/healthchecks.yaml):
-   ```yaml
+   ```yaml {file="packages/healthchecks.yaml"}
    rest_command:
      healthchecks_ping:
        url: !secret healthchecks_ping_url
@@ -360,9 +360,9 @@ This is the path for a dead SD card, a move to other hardware, or a fresh start 
   ```sh
   # list the newest backups (dell-wyse is my home server)
   ssh -t dell-wyse 'sudo ls -t /srv/ha-backups | head -n 3'
-  # automatic_backup_2026_11_2_2026-11-17_15.12_27439464.tar
-  # automatic_backup_2026_11_1_2026-11-17_12.49_48712075.tar
-  # automatic_backup_2026_11_1_2026-11-17_05.42_26004763.tar
+  #> automatic_backup_2026_11_2_2026-11-17_15.12_27439464.tar
+  #> automatic_backup_2026_11_1_2026-11-17_12.49_48712075.tar
+  #> automatic_backup_2026_11_1_2026-11-17_05.42_26004763.tar
 
   # copy the newest one to the Mac; use the name from your list
   ssh -t dell-wyse 'sudo install -m 0600 -o "$(id -u)" -g "$(id -g)" /srv/ha-backups/automatic_backup_2026_11_2_2026-11-17_15.12_27439464.tar ~/'
@@ -417,10 +417,10 @@ The restore replaces the throwaway account and all settings, including the netwo
   To see which backups are encrypted where, run this in the terminal:
   ```sh
   ha backups --raw-json | jq -r '.data.backups | sort_by(.date)[] | "\(.date[:16])  \(.name):  " + ([.location_attributes | to_entries[] | "\(.key) \(if .value.protected then "encrypted" else "NOT encrypted" end)"] | join(", "))'
-  # 2026-11-14T14:38  Migration_To_Pi:  .local NOT encrypted
-  # 2026-11-15T04:24  Automatic backup 2026.11.1:  .local encrypted
-  # ...
-  # 2026-11-17T04:42  Automatic backup 2026.11.1:  .local encrypted, dell_wyse encrypted
+  #> 2026-11-14T14:38  Migration_To_Pi:  .local NOT encrypted
+  #> 2026-11-15T04:24  Automatic backup 2026.11.1:  .local encrypted
+  #> ...
+  #> 2026-11-17T04:42  Automatic backup 2026.11.1:  .local encrypted, dell_wyse encrypted
   ```
 * healthchecks.io receives pings again.
 * Finally, create a manual backup and check that it lands on the share.
@@ -440,7 +440,7 @@ Compare this with the latest version in the [changelog of Koenkk/Z-Stack-firmwar
 3. In the web terminal, check that `coordinator_backup.json` exists and is recent:
    ```sh
    stat -c '%y' /homeassistant/zigbee2mqtt/coordinator_backup.json
-   # 2026-11-15 12:14:33.621662213 +0100
+   #> 2026-11-15 12:14:33.621662213 +0100
    ```
 
 ### Stop Zigbee2MQTT

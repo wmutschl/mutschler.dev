@@ -196,7 +196,7 @@ To make fish the default shell one needs to first include it into `/etc/shells`:
 ```sh
 echo "/opt/homebrew/bin/fish" | sudo tee -a /etc/shells
 cat /etc/shells
-# /opt/homebrew/bin/fish
+#> /opt/homebrew/bin/fish
 ```
 And then change the shell:
 ```sh
@@ -233,7 +233,7 @@ zsh -c "echo $PATH"
 
 ### Dracula Theme for Terminal
 I like the [Dracula Theme] for the Terminal, which can be easily installed using Homebrew:
-```
+```sh
 brew tap dracula/install
 brew install --cask dracula-terminal
 ```
@@ -266,7 +266,7 @@ touch ~/.ssh/config
 nano ~/.ssh/config
 ```
 Make sure that it includes the following lines:
-```sh
+```sshconfig {file="~/.ssh/config"}
 Host *
   AddKeysToAgent yes
   UseKeychain yes
@@ -296,56 +296,56 @@ find ~/.gnupg -type d -exec chmod 700 {} \;
 Now insert the first Yubikey and check whether it is recognized:
 ```sh
 ykman info # your key should be recognized
-# Device type: YubiKey 5C NFC
-# Serial number: 19926994
-# Firmware version: 5.4.3
-# Form factor: Keychain (USB-C)
-# Enabled USB interfaces: OTP, FIDO, CCID
-# NFC transport is enabled
-# 
-# Applications	USB    	NFC    
-# Yubico OTP  	Enabled	Enabled
-# FIDO U2F    	Enabled	Enabled
-# FIDO2       	Enabled	Enabled
-# OATH        	Enabled	Enabled
-# PIV         	Enabled	Enabled
-# OpenPGP     	Enabled	Enabled
-# YubiHSM Auth	Enabled	Enabled
+#> Device type: YubiKey 5C NFC
+#> Serial number: 19926994
+#> Firmware version: 5.4.3
+#> Form factor: Keychain (USB-C)
+#> Enabled USB interfaces: OTP, FIDO, CCID
+#> NFC transport is enabled
+#> 
+#> Applications	USB    	NFC    
+#> Yubico OTP  	Enabled	Enabled
+#> FIDO U2F    	Enabled	Enabled
+#> FIDO2       	Enabled	Enabled
+#> OATH        	Enabled	Enabled
+#> PIV         	Enabled	Enabled
+#> OpenPGP     	Enabled	Enabled
+#> YubiHSM Auth	Enabled	Enabled
 ```
 Do the same for the backup Yubikey.
 Make sure that OpenPGP and PIV are enabled on both Yubikeys as shown above.
 Next, check whether the GPG card on both Yubikeys is readable by gpg:
 ```sh
 gpg --card-status
-# gpg: keybox '/Users/wmutschl/.gnupg/pubring.kbx' created
-# Reader ...........: Yubico YubiKey OTP FIDO CCID
-# Application ID ...: D2760001240100000006199269940000
-# Application type .: OpenPGP
-# Version ..........: 3.4
-# Manufacturer .....: Yubico
-# Serial number ....: 19926994
-# Name of cardholder: Willi Mutschler
-# Language prefs ...: en
-# Salutation .......: 
-# URL of public key : https://github.com/wmutschl.gpg
-# Login data .......: wmutschl
-# Signature PIN ....: not forced
-# Key attributes ...: rsa4096 rsa4096 rsa4096
-# Max. PIN lengths .: 127 127 127
-# PIN retry counter : 3 0 3
-# Signature counter : 884
-# KDF setting ......: off
-# UIF setting ......: Sign=off Decrypt=off Auth=off
-# Signature key ....: C13E 5D55 8A9F 4AFE AE08  6186 91E7 24BF 17A7 3F6D
-#     created ....: 2019-12-09 08:36:41
-# Encryption key....: 5D12 A11E 39A6 1ED2 E0F9  9F23 16B5 237D 5563 8B96
-#       created ....: 2019-12-09 08:36:41
-# Authentication key: E1B6 6FC6 852C 0FC1 9917  D825 8CFE 5D68 CC28 71C3
-#       created ....: 2019-12-09 08:38:21
-# General key info..: [none]
+#> gpg: keybox '/Users/wmutschl/.gnupg/pubring.kbx' created
+#> Reader ...........: Yubico YubiKey OTP FIDO CCID
+#> Application ID ...: D2760001240100000006199269940000
+#> Application type .: OpenPGP
+#> Version ..........: 3.4
+#> Manufacturer .....: Yubico
+#> Serial number ....: 19926994
+#> Name of cardholder: Willi Mutschler
+#> Language prefs ...: en
+#> Salutation .......: 
+#> URL of public key : https://github.com/wmutschl.gpg
+#> Login data .......: wmutschl
+#> Signature PIN ....: not forced
+#> Key attributes ...: rsa4096 rsa4096 rsa4096
+#> Max. PIN lengths .: 127 127 127
+#> PIN retry counter : 3 0 3
+#> Signature counter : 884
+#> KDF setting ......: off
+#> UIF setting ......: Sign=off Decrypt=off Auth=off
+#> Signature key ....: C13E 5D55 8A9F 4AFE AE08  6186 91E7 24BF 17A7 3F6D
+#>     created ....: 2019-12-09 08:36:41
+#> Encryption key....: 5D12 A11E 39A6 1ED2 E0F9  9F23 16B5 237D 5563 8B96
+#>       created ....: 2019-12-09 08:36:41
+#> Authentication key: E1B6 6FC6 852C 0FC1 9917  D825 8CFE 5D68 CC28 71C3
+#>       created ....: 2019-12-09 08:38:21
+#> General key info..: [none]
 ```
 My public key is stored in a file `$HOME/.gnupg/public.asc` which I either copy from backup or download from GitHub:
-```
+```sh
 curl https://github.com/wmutschl.gpg > $HOME/.gnupg/public.asc
 ```
 Next I import it and give it trust level 5:
@@ -360,7 +360,7 @@ gpg --edit-key $KEYID
   quit
 ```
 Let's test this:
-```
+```sh
 echo "This is an encrypted message" | gpg --encrypt --armor --recipient $KEYID -o encrypted_MAC.txt
 gpg --decrypt --armor encrypted_MAC.txt
 ```
@@ -370,8 +370,8 @@ This should ask you for the User Pin and you should be able to decrypt the messa
 I make the following changes to my GPG agent configuration:
 ```sh
 nano ~/.gnupg/gpg-agent.conf
-# use-standard-socket
-# pinentry-program /opt/homebrew/bin/pinentry-mac
+#> use-standard-socket
+#> pinentry-program /opt/homebrew/bin/pinentry-mac
 ```
 
 ### GPG agent forwarding
@@ -379,7 +379,7 @@ To use my GPG keys on my servers via forwarding the Yubikeys, I follow [this gui
 Particularly, I add `StreamLocalBindUnlink yes` to `sshd_config` and run `gpgconf --create-socketdir` on the remote server.
 
 My `$HOME/.gnupg/gpg-agent.conf` is:
-```
+```text {file="~/.gnupg/gpg-agent.conf"}
 use-standard-socket
 pinentry-program /opt/homebrew/bin/pinentry-mac
 #extra-socket $HOME/.gnupg/S.gpg-agent.extra
@@ -387,7 +387,7 @@ pinentry-program /opt/homebrew/bin/pinentry-mac
 And I add `    RemoteForward /home/<user>/.gnupg/S.gpg-agent /Users/<user>/.gnupg/S.gpg-agent.extra` to each entry in my `.ssh/config` file.
 
 Test it:
-```
+```sh
 echo "test" | gpg --encrypt -r $MYKEYID > output
 gpg --decrypt output
 

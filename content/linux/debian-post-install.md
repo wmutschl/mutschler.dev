@@ -46,7 +46,7 @@ nano /etc/apt/sources.list
 
 Ensure the file contains the following:
 
-```
+```text {file="/etc/apt/sources.list"}
 deb http://deb.debian.org/debian/ trixie main contrib non-free non-free-firmware
 deb-src http://deb.debian.org/debian/ trixie main contrib non-free non-free-firmware
 
@@ -80,14 +80,14 @@ First, use the detection tool to identify your GPU and the recommended driver:
 
 ```fish
 nvidia-detector
-# nvidia-driver-580
+#> nvidia-driver-580
 ```
 
 Install the latest driver:
-```
+```fish
 sudo apt search nvidia-driver-
-# nvidia-driver-580/noble,now 580.82.09-1pop1~1759962949~24.04~eb2851e amd64 [installed]
-# NVIDIA driver metapackage
+#> nvidia-driver-580/noble,now 580.82.09-1pop1~1759962949~24.04~eb2851e amd64 [installed]
+#> NVIDIA driver metapackage
 
 sudo apt install nvidia-driver-580 nvidia-utils-580
 ```
@@ -95,26 +95,26 @@ Reboot to apply the changes.
 Then check if the driver is working:
 ```sh
 nvidia-smi
-# Wed Dec 17 13:21:08 2025
-# +-----------------------------------------------------------------------------------------+
-# | NVIDIA-SMI 580.82.09              Driver Version: 580.82.09      CUDA Version: 13.0     |
-# +-----------------------------------------+------------------------+----------------------+
-# | GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
-# | Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
-# |                                         |                        |               MIG M. |
-# |=========================================+========================+======================|
-# |   0  Quadro P620                    Off |   00000000:42:00.0 Off |                  N/A |
-# | 34%   29C    P8            N/A  /  N/A  |       3MiB /   2048MiB |      0%      Default |
-# |                                         |                        |                  N/A |
-# +-----------------------------------------+------------------------+----------------------+
-#
-# +-----------------------------------------------------------------------------------------+
-# | Processes:                                                                              |
-# |  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
-# |        ID   ID                                                               Usage      |
-# |=========================================================================================|
-# |  No running processes found                                                             |
-# +-----------------------------------------------------------------------------------------+
+#> Wed Dec 17 13:21:08 2025
+#> +-----------------------------------------------------------------------------------------+
+#> | NVIDIA-SMI 580.82.09              Driver Version: 580.82.09      CUDA Version: 13.0     |
+#> +-----------------------------------------+------------------------+----------------------+
+#> | GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+#> | Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+#> |                                         |                        |               MIG M. |
+#> |=========================================+========================+======================|
+#> |   0  Quadro P620                    Off |   00000000:42:00.0 Off |                  N/A |
+#> | 34%   29C    P8            N/A  /  N/A  |       3MiB /   2048MiB |      0%      Default |
+#> |                                         |                        |                  N/A |
+#> +-----------------------------------------+------------------------+----------------------+
+#>
+#> +-----------------------------------------------------------------------------------------+
+#> | Processes:                                                                              |
+#> |  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+#> |        ID   ID                                                               Usage      |
+#> |=========================================================================================|
+#> |  No running processes found                                                             |
+#> +-----------------------------------------------------------------------------------------+
 ```
 
 
@@ -124,7 +124,7 @@ On AMD systems with IOMMU, you may encounter IO_PAGE_FAULT errors in the kernel 
 
 ```fish
 dmesg --level=emerg,err,warn
-# [  812.086690] ahci 0000:02:00.0: AMD-Vi: Event logged [IO_PAGE_FAULT domain=0x0043 address=0xecdd5004 flags=0x0070]
+#> [  812.086690] ahci 0000:02:00.0: AMD-Vi: Event logged [IO_PAGE_FAULT domain=0x0043 address=0xecdd5004 flags=0x0070]
 ```
 
 This [video](https://www.youtube.com/watch?v=wJN3e8Usmzw) explains the problem and solution. To fix it, add kernel parameters to GRUB:
@@ -135,7 +135,7 @@ nano /etc/default/grub
 
 Find the line `GRUB_CMDLINE_LINUX_DEFAULT` and add the parameters:
 
-```
+```bash {file="/etc/default/grub"}
 GRUB_CMDLINE_LINUX_DEFAULT="quiet amd_iommu=on iommu=pt"
 ```
 
@@ -150,19 +150,19 @@ reboot
 
 ```fish
 dmesg --level=emerg,err
-# [   46.898361] sd 23:0:0:0: Wrong diagnostic page; asked for 1 got 124
-# [   46.898368] sd 23:0:0:0: Failed to get diagnostic page 0x1
-# [   46.898372] sd 23:0:0:0: Failed to bind enclosure -19
+#> [   46.898361] sd 23:0:0:0: Wrong diagnostic page; asked for 1 got 124
+#> [   46.898368] sd 23:0:0:0: Failed to get diagnostic page 0x1
+#> [   46.898372] sd 23:0:0:0: Failed to bind enclosure -19
 
 ls -l /sys/class/scsi_device/23:0:0:0/device/block
-# total 0
-# drwxr-xr-x 12 root root 0 Dec 17 13:15 sdh/
+#> total 0
+#> drwxr-xr-x 12 root root 0 Dec 17 13:15 sdh/
 
 lsblk -o NAME,MODEL,SERIAL,TRAN,HCTL,SIZE,TYPE,MOUNTPOINTS
-# sdh              USB DISK           18073111001162                   usb    23:0:0:0    29.3G disk
-# ├─sdh1                                                                                   2.9G part
-# ├─sdh2                                                                                     4M part
-# └─sdh3                                                                                  26.4G part  /media/wmutschl/writable
+#> sdh              USB DISK           18073111001162                   usb    23:0:0:0    29.3G disk
+#> ├─sdh1                                                                                   2.9G part
+#> ├─sdh2                                                                                     4M part
+#> └─sdh3                                                                                  26.4G part  /media/wmutschl/writable
 ```
 This is just a usb stick that is always plugged in, so it's not a problem.
 
@@ -188,11 +188,11 @@ You can also run TRIM manually:
 
 ```fish
 fstrim -av
-# /btrfs_docker: 607.6 GiB (652451688448 bytes) trimmed on /dev/mapper/crypt_docker
-# /boot/efi: 965.3 MiB (1012170752 bytes) trimmed on /dev/sdc1
-# /boot: 779.4 MiB (817225728 bytes) trimmed on /dev/sdc2
-# /var/lib/docker: 80 GiB (85931634688 bytes) trimmed on /dev/nvme0n1p2
-# /: 104.7 GiB (112431742976 bytes) trimmed on /dev/mapper/debian--vg-root
+#> /btrfs_docker: 607.6 GiB (652451688448 bytes) trimmed on /dev/mapper/crypt_docker
+#> /boot/efi: 965.3 MiB (1012170752 bytes) trimmed on /dev/sdc1
+#> /boot: 779.4 MiB (817225728 bytes) trimmed on /dev/sdc2
+#> /var/lib/docker: 80 GiB (85931634688 bytes) trimmed on /dev/nvme0n1p2
+#> /: 104.7 GiB (112431742976 bytes) trimmed on /dev/mapper/debian--vg-root
 ```
 
 ### Enable zram for compressed swap in RAM
@@ -243,7 +243,7 @@ nano /etc/ssh/sshd_config
 
 Add or modify the following at the bottom of the file:
 
-```
+```sshconfig {file="/etc/ssh/sshd_config"}
 PermitRootLogin yes
 PasswordAuthentication no
 X11Forwarding yes
@@ -282,10 +282,10 @@ Don't forget to add your public key to GitHub, GitLab, servers, etc.
 # Run as your normal user, not root
 nano ~/.ssh/authorized_keys
 # Add your public keys, one per line:
-# ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJID7JVno+R8RzuCYQAV66VnZOgpuwNpQnzFiiX3tT6Q MacBook
-# ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFSlhZlx/+KMV9LG6v8W55UAkc+aOvS8W9r1oVRH+yYq Mac Mini
-# ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDl5yCXr9igpwWlV5cUC9yBOdcabNktlSpjqhCQpI+rZ iPad
-# ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGVN/LM0sCk4sacciihBlycWHqtQUpm4KCCvBl5IdlAm iPhone
+#> ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJID7JVno+R8RzuCYQAV66VnZOgpuwNpQnzFiiX3tT6Q MacBook
+#> ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFSlhZlx/+KMV9LG6v8W55UAkc+aOvS8W9r1oVRH+yYq Mac Mini
+#> ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDl5yCXr9igpwWlV5cUC9yBOdcabNktlSpjqhCQpI+rZ iPad
+#> ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGVN/LM0sCk4sacciihBlycWHqtQUpm4KCCvBl5IdlAm iPhone
 
 # Set correct permissions
 chmod 600 ~/.ssh/authorized_keys
@@ -308,8 +308,8 @@ Connect your machine to your Tailscale network:
 
 ```fish
 tailscale up
-# To authenticate, visit:
-# https://login.tailscale.com/a/SOMETHING
+#> To authenticate, visit:
+#> https://login.tailscale.com/a/SOMETHING
 ```
 
 I also disable key expiry in the Tailscale admin console to prevent periodic re-authentication.
@@ -339,7 +339,7 @@ When running as an exit node or subnet router, Tailscale may warn about suboptim
 
 Since Debian Trixie doesn't have `networkd-dispatcher`, create a systemd service to apply the setting persistently:
 
-```fish
+```sh
 cat << 'EOF' | tee /etc/systemd/system/tailscale-udp-offload.service
 [Unit]
 Description=Configure UDP GRO forwarding for Tailscale
@@ -393,7 +393,7 @@ To troubleshoot connection issues, restart the NoMachine server:
 {{< callout note >}}
 Before locking down the server, exit your current SSH session and reconnect using the Tailscale IP to ensure you won't lose access:
 
-```
+```fish
 ssh username@100.x.y.z
 ssh username@debian  # if using Magic DNS with hostname "debian"
 ```
@@ -413,15 +413,15 @@ Check the status:
 
 ```fish
 ufw status verbose
-# Status: active
-# Logging: on (low)
-# Default: deny (incoming), allow (outgoing), deny (routed)
-# New profiles: skip
-#
-# To                         Action      From
-# --                         ------      ----
-# Anywhere on tailscale0     ALLOW IN    Anywhere
-# Anywhere (v6) on tailscale0 ALLOW IN    Anywhere (v6)
+#> Status: active
+#> Logging: on (low)
+#> Default: deny (incoming), allow (outgoing), deny (routed)
+#> New profiles: skip
+#>
+#> To                         Action      From
+#> --                         ------      ----
+#> Anywhere on tailscale0     ALLOW IN    Anywhere
+#> Anywhere (v6) on tailscale0 ALLOW IN    Anywhere (v6)
 ```
 
 If you previously had SSH open on port 22 from the public internet, you can remove it:
@@ -452,23 +452,23 @@ View the current disk layout:
 
 ```fish
 lsblk
-# NAME                    MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINTS
-# sda                       8:0    0   3.6T  0 disk
-# sdb                       8:16   0   3.6T  0 disk
-# sdc                       8:32   0 119.2G  0 disk
-# ├─sdc1                    8:33   0   976M  0 part  /boot/efi
-# ├─sdc2                    8:34   0   977M  0 part  /boot
-# └─sdc3                    8:35   0 117.3G  0 part
-#   └─sda3_crypt          253:0    0 117.3G  0 crypt
-#     ├─debian--vg-root   253:1    0 111.3G  0 lvm   /home
-#     │                                              /
-#     └─debian--vg-swap_1 253:2    0     6G  0 lvm   [SWAP]
-# sdi                       8:128  0   1.4T  0 disk  /media/wmutschl/CORE
-# nvme0n1                 259:0    0   1.7T  0 disk
-# ├─nvme0n1p1             259:1    0    16M  0 part
-# ├─nvme0n1p2             259:2    0  99.6G  0 part
-# ├─nvme0n1p3             259:3    0   9.8G  0 part
-# └─nvme0n1p4             259:4    0   1.6T  0 part
+#> NAME                    MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINTS
+#> sda                       8:0    0   3.6T  0 disk
+#> sdb                       8:16   0   3.6T  0 disk
+#> sdc                       8:32   0 119.2G  0 disk
+#> ├─sdc1                    8:33   0   976M  0 part  /boot/efi
+#> ├─sdc2                    8:34   0   977M  0 part  /boot
+#> └─sdc3                    8:35   0 117.3G  0 part
+#>   └─sda3_crypt          253:0    0 117.3G  0 crypt
+#>     ├─debian--vg-root   253:1    0 111.3G  0 lvm   /home
+#>     │                                              /
+#>     └─debian--vg-swap_1 253:2    0     6G  0 lvm   [SWAP]
+#> sdi                       8:128  0   1.4T  0 disk  /media/wmutschl/CORE
+#> nvme0n1                 259:0    0   1.7T  0 disk
+#> ├─nvme0n1p1             259:1    0    16M  0 part
+#> ├─nvme0n1p2             259:2    0  99.6G  0 part
+#> ├─nvme0n1p3             259:3    0   9.8G  0 part
+#> └─nvme0n1p4             259:4    0   1.6T  0 part
 ```
 
 Unlock the encrypted partitions:
@@ -490,7 +490,7 @@ chown -R wmutschl:wmutschl /home/wmutschl/vm /home/wmutschl/docker
 
 Add the following entries to `/etc/fstab`:
 
-```
+```text {file="/etc/fstab"}
 #######################
 # 2 TB NVME (no RAID) #
 #######################
@@ -511,16 +511,16 @@ Mount all filesystems:
 
 ```fish
 mount -av
-# /btrfs_docker            : successfully mounted
-# /home/wmutschl/docker    : successfully mounted
-# /home/wmutschl/vm        : successfully mounted
-# /var/lib/docker          : successfully mounted
-# /btrfs_backup            : successfully mounted
+#> /btrfs_docker            : successfully mounted
+#> /home/wmutschl/docker    : successfully mounted
+#> /home/wmutschl/vm        : successfully mounted
+#> /var/lib/docker          : successfully mounted
+#> /btrfs_backup            : successfully mounted
 ```
 
 Add these lines to `/etc/crypttab` to decrypt disks automatically at boot:
 
-```
+```text {file="/etc/crypttab"}
 crypt_docker  UUID=2b417c1a-3a7e-44a3-881e-79252a509058 none luks,discard
 crypt_backup1 UUID=e6be3cc9-e15d-43b6-a2cb-e0a4db5cd871 none luks
 crypt_backup2 UUID=3d24ef22-0b76-4e92-b27e-97c2b92d11c6 none luks
@@ -545,7 +545,7 @@ lsblk
 
 Follow the [official guide](https://docs.docker.com/engine/install/debian/) to install Docker:
 
-```fish
+```sh
 # Remove any old versions
 apt remove $(dpkg --get-selections docker.io docker-compose docker-doc podman-docker containerd runc 2>/dev/null | cut -f1)
 
@@ -587,8 +587,8 @@ Open a new terminal and verify Docker works without root:
 ```fish
 # Run as your normal user, not root
 docker run hello-world
-# Hello from Docker!
-# This message shows that your installation appears to be working correctly.
+#> Hello from Docker!
+#> This message shows that your installation appears to be working correctly.
 ```
 
 ### Deploy Docker containers
@@ -637,10 +637,10 @@ As this is an always-on server, I completely disable sleep and hibernation using
 
 ```fish
 systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
-# Created symlink /etc/systemd/system/sleep.target → /dev/null.
-# Created symlink /etc/systemd/system/suspend.target → /dev/null.
-# Created symlink /etc/systemd/system/hibernate.target → /dev/null.
-# Created symlink /etc/systemd/system/hybrid-sleep.target → /dev/null.
+#> Created symlink /etc/systemd/system/sleep.target → /dev/null.
+#> Created symlink /etc/systemd/system/suspend.target → /dev/null.
+#> Created symlink /etc/systemd/system/hibernate.target → /dev/null.
+#> Created symlink /etc/systemd/system/hybrid-sleep.target → /dev/null.
 ```
 
 To undo this later:

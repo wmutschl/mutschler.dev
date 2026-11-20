@@ -44,7 +44,7 @@ Since most modern PCs have UEFI, I will cover only the UEFI installation. So, bo
 Then, open a terminal (<kbd>CTRL</kbd>+<kbd>ALT</kbd>+<kbd>T</kbd>) and run the following command:
 ```bash
 mount | grep efivars
-# efivarfs on /sys/firmware/efi/efivars type efivarfs (rw,nosuid,nodev,noexec,relatime)
+#> efivarfs on /sys/firmware/efi/efivars type efivarfs (rw,nosuid,nodev,noexec,relatime)
 ```
 to detect whether we are in UEFI mode. Now switch to an interactive root session:
 ```bash
@@ -59,18 +59,18 @@ You might find maximizing the terminal window is helpful for working with the co
 First find out the name of your drive. For me the installation target device is called `vda` and I will use `vdb` for the RAID1 managed by btrfs:
 ```bash
 lsblk
-# NAME  MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-# loop0   7:0    0   1.9G  1 loop /rofs
-# loop1   7:1    0  27.1M  1 loop /snap/snapd/7264
-# loop2   7:2    0    55M  1 loop /snap/core18/1705
-# loop3   7:3    0 240.8M  1 loop /snap/gnome-3-34-1804/24
-# loop4   7:4    0  62.1M  1 loop /snap/gtk-common-themes/1506
-# loop5   7:5    0  49.8M  1 loop /snap/snap-store/433
-# sr0    11:0    1   2.5G  0 rom  /cdrom
-# sr1    11:1    1  1024M  0 rom  
-# sr2    11:2    1  1024M  0 rom  
-# vda   252:0    0    64G  0 disk 
-# vdb   252:16   0    64G  0 disk 
+#> NAME  MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+#> loop0   7:0    0   1.9G  1 loop /rofs
+#> loop1   7:1    0  27.1M  1 loop /snap/snapd/7264
+#> loop2   7:2    0    55M  1 loop /snap/core18/1705
+#> loop3   7:3    0 240.8M  1 loop /snap/gnome-3-34-1804/24
+#> loop4   7:4    0  62.1M  1 loop /snap/gtk-common-themes/1506
+#> loop5   7:5    0  49.8M  1 loop /snap/snap-store/433
+#> sr0    11:0    1   2.5G  0 rom  /cdrom
+#> sr1    11:1    1  1024M  0 rom  
+#> sr2    11:2    1  1024M  0 rom  
+#> vda   252:0    0    64G  0 disk 
+#> vdb   252:16   0    64G  0 disk 
 ```
 You can also open `gparted` or have a look into the `/dev` folder to make sure what your hard drives are called. In most cases they are called `sda` and `sdb` for normal SSD and HDD, whereas for NVME storage the naming is `nvme0` and `nvme1`. Also note that there are no partitions or data on my hard drive, you should always double check which partition layout fits your use case, particularly if you dual-boot with other systems.
 
@@ -94,16 +94,16 @@ parted /dev/vda
   mkpart primary 513MiB 4609MiB
   mkpart primary 4609MiB 100%
   print
-  # Model: Virtio Block Device (virtblk)
-  # Disk /dev/vda: 68.7GB
-  # Sector size (logical/physical): 512B/512B
-  # Partition Table: gpt
-  # Disk Flags: 
-  # 
-  # Number  Start   End     Size    File system  Name     Flags
-  #  1      1049kB  538MB   537MB                primary
-  #  2      538MB   4833MB  4295MB               primary
-  #  3      4833MB  68.7GB  63.9GB               primary
+  #> Model: Virtio Block Device (virtblk)
+  #> Disk /dev/vda: 68.7GB
+  #> Sector size (logical/physical): 512B/512B
+  #> Partition Table: gpt
+  #> Disk Flags: 
+  #> 
+  #> Number  Start   End     Size    File system  Name     Flags
+  #>  1      1049kB  538MB   537MB                primary
+  #>  2      538MB   4833MB  4295MB               primary
+  #>  3      4833MB  68.7GB  63.9GB               primary
   quit
 ```
 Do not set names or flags, as in my experience the Ubiquity installer has some problems with that.
@@ -116,16 +116,16 @@ parted /dev/vdb
   mkpart primary 513MiB 4609MiB
   mkpart primary 4609MiB 100%
   print
-  # Model: Virtio Block Device (virtblk)
-  # Disk /dev/vdb: 68.7GB
-  # Sector size (logical/physical): 512B/512B
-  # Partition Table: gpt
-  # Disk Flags: 
-  # 
-  # Number  Start   End     Size    File system  Name     Flags
-  #  1      1049kB  538MB   537MB                primary
-  #  2      538MB   4833MB  4295MB               primary
-  #  3      4833MB  68.7GB  63.9GB               primary
+  #> Model: Virtio Block Device (virtblk)
+  #> Disk /dev/vdb: 68.7GB
+  #> Sector size (logical/physical): 512B/512B
+  #> Partition Table: gpt
+  #> Disk Flags: 
+  #> 
+  #> Number  Start   End     Size    File system  Name     Flags
+  #>  1      1049kB  538MB   537MB                primary
+  #>  2      538MB   4833MB  4295MB               primary
+  #>  3      4833MB  68.7GB  63.9GB               primary
   quit
 ```
 
@@ -135,54 +135,54 @@ The default luks (Linux Unified Key Setup) format used by the cryptsetup tool ha
 
 ```bash
 cryptsetup luksFormat --type=luks1 /dev/vda3
-# WARNING!
-# ========
-# This will overwrite data on /dev/vda3 irrevocably.
-# Are you sure? (Type uppercase yes): YES
-# Enter passphrase for /dev/vda3: 
-# Verify passphrase:
+#> WARNING!
+#> ========
+#> This will overwrite data on /dev/vda3 irrevocably.
+#> Are you sure? (Type uppercase yes): YES
+#> Enter passphrase for /dev/vda3: 
+#> Verify passphrase:
 
 cryptsetup luksFormat --type=luks1 /dev/vdb3
-# WARNING!
-# ========
-# This will overwrite data on /dev/vdb3 irrevocably.
-# Are you sure? (Type uppercase yes): YES
-# Enter passphrase for /dev/vdb3: 
-# Verify passphrase:
+#> WARNING!
+#> ========
+#> This will overwrite data on /dev/vdb3 irrevocably.
+#> Are you sure? (Type uppercase yes): YES
+#> Enter passphrase for /dev/vdb3: 
+#> Verify passphrase:
 ```
 Use very good passwords here. Now map the encrypted partitions to devices called `crypt_vda` and `crypt_vdb`, which will contain our root filesystem:
 
 ```bash
 cryptsetup luksOpen /dev/vda3 crypt_vda
-# Enter passphrase for /dev/vda3:
+#> Enter passphrase for /dev/vda3:
 cryptsetup luksOpen /dev/vdb3 crypt_vdb
-# Enter passphrase for /dev/vdb3:
+#> Enter passphrase for /dev/vdb3:
 ls /dev/mapper/
-# control  crypt_vda crypt_vdb
+#> control  crypt_vda crypt_vdb
 ```
 
 We need to pre-format `crypt_vda`, which will be the installation target for root during the graphical installer, because, in my experience, the Ubiquity installer messes up and complains about devices with the same name being mounted twice. After the installation we create the RAID1 with btrfs between `crypt_vda` and `crypt_vdb`.
 
 ```bash
 mkfs.btrfs /dev/mapper/crypt_vda
-# btrfs-progs v5.4.1 
-# See http://btrfs.wiki.kernel.org for more information.
-# Label:              (null)
-# UUID:               f9a73348-8e30-4265-a909-4e99ae7b380b
-# Node size:          16384
-# Sector size:        4096
-# Filesystem size:    59.50GiB
-# Block group profiles:
-#   Data:             single            8.00MiB
-#   Metadata:         DUP               1.00GiB
-#   System:           DUP               8.00MiB
-# SSD detected:       no
-# Incompat features:  extref, skinny-metadata
-# Checksum:           crc32c
-# Number of devices:  1
-# Devices:
-#    ID        SIZE  PATH
-#     1    59.50GiB  /dev/mapper/crypt_vda
+#> btrfs-progs v5.4.1 
+#> See http://btrfs.wiki.kernel.org for more information.
+#> Label:              (null)
+#> UUID:               f9a73348-8e30-4265-a909-4e99ae7b380b
+#> Node size:          16384
+#> Sector size:        4096
+#> Filesystem size:    59.50GiB
+#> Block group profiles:
+#>   Data:             single            8.00MiB
+#>   Metadata:         DUP               1.00GiB
+#>   System:           DUP               8.00MiB
+#> SSD detected:       no
+#> Incompat features:  extref, skinny-metadata
+#> Checksum:           crc32c
+#> Number of devices:  1
+#> Devices:
+#>    ID        SIZE  PATH
+#>     1    59.50GiB  /dev/mapper/crypt_vda
 ```
 Note that the SSD is not detected for me here, because I am running this in a Virtual Machine, but I will still pretend that I am on a SSD.
 
@@ -249,14 +249,14 @@ Now you are actually inside your system, so let's mount all other partitions and
 
 ```bash
 mount -av
-# /                        : ignored
-# /boot/efi                : successfully mounted
-# /home                    : successfully mounted
-# none                     : ignored
+#> /                        : ignored
+#> /boot/efi                : successfully mounted
+#> /home                    : successfully mounted
+#> none                     : ignored
 
 btrfs subvolume list /
-# ID 256 gen 195 top level 5 path @
-# ID 258 gen 22 top level 5 path @home
+#> ID 256 gen 195 top level 5 path @
+#> ID 258 gen 22 top level 5 path @home
 ```
 Looks great. Note that the subvolume `@` is mounted to `/`, whereas the subvolume `@home` is mounted to `/home`.
 
@@ -264,117 +264,117 @@ Looks great. Note that the subvolume `@` is mounted to `/`, whereas the subvolum
 Currently btrfs uses only one device `/dev/mapper/crypt_vda`, So let's add our other encrypted device `/dev/mapper/crypt_vdb` to it:
 ```bash
 btrfs filesystem show /
-# Label: none  uuid: d02e5c1d-292b-4a6e-9d44-c93572db897b
-# 	Total devices 1 FS bytes used 2.88GiB
-# 	devid    1 size 59.50GiB used 7.02GiB path /dev/mapper/crypt_vda
+#> Label: none  uuid: d02e5c1d-292b-4a6e-9d44-c93572db897b
+#> 	Total devices 1 FS bytes used 2.88GiB
+#> 	devid    1 size 59.50GiB used 7.02GiB path /dev/mapper/crypt_vda
 
 btrfs device add /dev/mapper/crypt_vdb /
 
 btrfs filesystem show /
-# Label: none  uuid: d02e5c1d-292b-4a6e-9d44-c93572db897b
-# 	  Total devices 2 FS bytes used 2.88GiB
-# 	  devid    1 size 59.50GiB used 7.02GiB path /dev/mapper/crypt_vda
-#  	  devid    2 size 59.50GiB used 0.00B path /dev/mapper/crypt_vdb
+#> Label: none  uuid: d02e5c1d-292b-4a6e-9d44-c93572db897b
+#> 	  Total devices 2 FS bytes used 2.88GiB
+#> 	  devid    1 size 59.50GiB used 7.02GiB path /dev/mapper/crypt_vda
+#>  	  devid    2 size 59.50GiB used 0.00B path /dev/mapper/crypt_vdb
 
 btrfs filesystem usage /
-# Overall:
-#     Device size:		 118.99GiB
-#     Device allocated:	   7.02GiB
-#     Device unallocated:	 111.97GiB
-#     Device missing:		     0.00B
-#     Used:			   3.04GiB
-#     Free (estimated):	 112.25GiB	(min: 56.27GiB)
-#     Data ratio:		      1.00
-#     Metadata ratio:		      2.00
-#     Global reserve:		  10.17MiB	(used: 0.00B)
-# 
-# Data,single: Size:3.01GiB, Used:2.72GiB (90.51%)
-#    /dev/mapper/crypt_vda	   3.01GiB
-# 
-# Metadata,DUP: Size:2.00GiB, Used:160.73MiB (7.85%)
-#    /dev/mapper/crypt_vda	   4.00GiB
-# 
-# System,DUP: Size:8.00MiB, Used:16.00KiB (0.20%)
-#    /dev/mapper/crypt_vda	  16.00MiB
-# 
-# Unallocated:
-#    /dev/mapper/crypt_vda	  52.47GiB
-#    /dev/mapper/crypt_vdb	  59.50GiB
+#> Overall:
+#>     Device size:		 118.99GiB
+#>     Device allocated:	   7.02GiB
+#>     Device unallocated:	 111.97GiB
+#>     Device missing:		     0.00B
+#>     Used:			   3.04GiB
+#>     Free (estimated):	 112.25GiB	(min: 56.27GiB)
+#>     Data ratio:		      1.00
+#>     Metadata ratio:		      2.00
+#>     Global reserve:		  10.17MiB	(used: 0.00B)
+#> 
+#> Data,single: Size:3.01GiB, Used:2.72GiB (90.51%)
+#>    /dev/mapper/crypt_vda	   3.01GiB
+#> 
+#> Metadata,DUP: Size:2.00GiB, Used:160.73MiB (7.85%)
+#>    /dev/mapper/crypt_vda	   4.00GiB
+#> 
+#> System,DUP: Size:8.00MiB, Used:16.00KiB (0.20%)
+#>    /dev/mapper/crypt_vda	  16.00MiB
+#> 
+#> Unallocated:
+#>    /dev/mapper/crypt_vda	  52.47GiB
+#>    /dev/mapper/crypt_vdb	  59.50GiB
 ```
 Note, however, that on the second device there is no data yet (see the "single" and "DUP" flags of the above "usage" command). We need to move the data chunks around to have a working RAID1 and btrfs has a balance command just for this case: "A balance passes all data in the filesystem through the allocator again. It is primarly intended to rebalance the data in the filesystem across the devices when a device eis added or removed. A balance will regenerate missing copies for the redundant *RAID* levels, if a device has failed". 
 ```bash
 btrfs balance start -dconvert=raid1 -mconvert=raid1 /
-# Done, had to relocate 9 out of 9 chunks
+#> Done, had to relocate 9 out of 9 chunks
 
 btrfs filesystem usage /
-# Overall:
-#     Device size:		 118.99GiB
-#     Device allocated:	  10.06GiB
-#     Device unallocated:	 108.93GiB
-#     Device missing:		     0.00B
-#     Used:			   5.76GiB
-#     Free (estimated):	  54.74GiB	(min: 54.74GiB)
-#     Data ratio:		      2.00
-#     Metadata ratio:		      2.00
-#     Global reserve:		  11.81MiB	(used: 0.00B)
-# 
-# Data,RAID1: Size:3.00GiB, Used:2.72GiB (90.73%)
-#    /dev/mapper/crypt_vda	   3.00GiB
-#    /dev/mapper/crypt_vdb	   3.00GiB
-# 
-# Metadata,RAID1: Size:2.00GiB, Used:162.38MiB (7.93%)
-#    /dev/mapper/crypt_vda	   2.00GiB
-#    /dev/mapper/crypt_vdb	   2.00GiB
-# 
-# System,RAID1: Size:32.00MiB, Used:16.00KiB (0.05%)
-#    /dev/mapper/crypt_vda	  32.00MiB
-#    /dev/mapper/crypt_vdb	  32.00MiB
-# 
-# Unallocated:
-#    /dev/mapper/crypt_vda	  54.46GiB
-#    /dev/mapper/crypt_vdb	  54.46GiB
+#> Overall:
+#>     Device size:		 118.99GiB
+#>     Device allocated:	  10.06GiB
+#>     Device unallocated:	 108.93GiB
+#>     Device missing:		     0.00B
+#>     Used:			   5.76GiB
+#>     Free (estimated):	  54.74GiB	(min: 54.74GiB)
+#>     Data ratio:		      2.00
+#>     Metadata ratio:		      2.00
+#>     Global reserve:		  11.81MiB	(used: 0.00B)
+#> 
+#> Data,RAID1: Size:3.00GiB, Used:2.72GiB (90.73%)
+#>    /dev/mapper/crypt_vda	   3.00GiB
+#>    /dev/mapper/crypt_vdb	   3.00GiB
+#> 
+#> Metadata,RAID1: Size:2.00GiB, Used:162.38MiB (7.93%)
+#>    /dev/mapper/crypt_vda	   2.00GiB
+#>    /dev/mapper/crypt_vdb	   2.00GiB
+#> 
+#> System,RAID1: Size:32.00MiB, Used:16.00KiB (0.05%)
+#>    /dev/mapper/crypt_vda	  32.00MiB
+#>    /dev/mapper/crypt_vdb	  32.00MiB
+#> 
+#> Unallocated:
+#>    /dev/mapper/crypt_vda	  54.46GiB
+#>    /dev/mapper/crypt_vdb	  54.46GiB
 ```
 You can monitor the progress in a new terminal using `sudo btrfs balance status /mnt`. Sometimes, one gets an ERROR:
-```bash
+```text {output="Error from btrfs balance"}
 ERROR: error during balancing '/': No space left on device
 There may be more info in syslog - try dmesg | tail
 ```
 and the output of `sudo btrfs filesystem usage /` still shows "Data,single" or "Metadata,single" (instead of the "RAID1" tag like above), then you should try to run with different values for "dusage" and "musage", starting with e.g. 80:
 ```bash
 btrfs balance start -dconvert=raid1 -mconvert=raid1 -dusage=80 -musage=80 /
-# Done, had to relocate 7 out of 9 chunks
+#> Done, had to relocate 7 out of 9 chunks
 btrfs filesystem usage /
-# Overall:
-#     Device size:		 118.99GiB
-#     Device allocated:	  10.06GiB
-#     Device unallocated:	 108.93GiB
-#     Device missing:		     0.00B
-#     Used:			   5.76GiB
-#     Free (estimated):	  54.74GiB	(min: 54.74GiB)
-#     Data ratio:		      2.00
-#     Metadata ratio:		      2.00
-#     Global reserve:		  11.81MiB	(used: 0.00B)
-# 
-# Data,RAID1: Size:3.00GiB, Used:2.72GiB (90.73%)
-#    /dev/mapper/crypt_vda	   3.00GiB
-#    /dev/mapper/crypt_vdb	   3.00GiB
-# 
-# Metadata,RAID1: Size:2.00GiB, Used:162.38MiB (7.93%)
-#    /dev/mapper/crypt_vda	   2.00GiB
-#    /dev/mapper/crypt_vdb	   2.00GiB
-# 
-# System,RAID1: Size:32.00MiB, Used:16.00KiB (0.05%)
-#    /dev/mapper/crypt_vda	  32.00MiB
-#    /dev/mapper/crypt_vdb	  32.00MiB
-# 
-# Unallocated:
-#    /dev/mapper/crypt_vda	  54.46GiB
-#    /dev/mapper/crypt_vdb	  54.46GiB
+#> Overall:
+#>     Device size:		 118.99GiB
+#>     Device allocated:	  10.06GiB
+#>     Device unallocated:	 108.93GiB
+#>     Device missing:		     0.00B
+#>     Used:			   5.76GiB
+#>     Free (estimated):	  54.74GiB	(min: 54.74GiB)
+#>     Data ratio:		      2.00
+#>     Metadata ratio:		      2.00
+#>     Global reserve:		  11.81MiB	(used: 0.00B)
+#> 
+#> Data,RAID1: Size:3.00GiB, Used:2.72GiB (90.73%)
+#>    /dev/mapper/crypt_vda	   3.00GiB
+#>    /dev/mapper/crypt_vdb	   3.00GiB
+#> 
+#> Metadata,RAID1: Size:2.00GiB, Used:162.38MiB (7.93%)
+#>    /dev/mapper/crypt_vda	   2.00GiB
+#>    /dev/mapper/crypt_vdb	   2.00GiB
+#> 
+#> System,RAID1: Size:32.00MiB, Used:16.00KiB (0.05%)
+#>    /dev/mapper/crypt_vda	  32.00MiB
+#>    /dev/mapper/crypt_vdb	  32.00MiB
+#> 
+#> Unallocated:
+#>    /dev/mapper/crypt_vda	  54.46GiB
+#>    /dev/mapper/crypt_vdb	  54.46GiB
 ```
 and try to lower values for dusage and musage by 5 (one at a time) in case of errors, until there is the "RAID1" tag everywhere and all chunks are reallocated. Just to make sure, I rerun the balance command from above:
 ```bash
 btrfs balance start -dconvert=raid1 -mconvert=raid1 /
-# Done, had to relocate 5 out of 5 chunks
+#> Done, had to relocate 5 out of 5 chunks
 ```
 Note also that you cannot have a swapfile in a RAID1, so deactivate and delete it, if you have one for some reason.
 
@@ -388,8 +388,8 @@ echo "crypt_vda UUID=${UUID_VDA3} none luks" >> /etc/crypttab
 echo "crypt_vdb UUID=${UUID_VDB3} none luks" >> /etc/crypttab
 
 cat /etc/crypttab
-# crypt_vda UUID=d8a7cab6-c875-4e65-b711-3ac2e2763ada none luks
-# crypt_vdb UUID=06d53b48-6731-4926-a680-1b9b00a0e420 none luks
+#> crypt_vda UUID=d8a7cab6-c875-4e65-b711-3ac2e2763ada none luks
+#> crypt_vdb UUID=06d53b48-6731-4926-a680-1b9b00a0e420 none luks
 ```
 Note that the UUID is from the luks partitions /dev/vda3 and /dev/vdb3, not from the device mappers `/dev/mapper/crypt_vda` or `/dev/mapper/crypt_vdb`! You can get all UUID using `blkid`.
 
@@ -400,10 +400,10 @@ There are many ways to encrypt the swap partition, a good reference is [dm-crypt
 As I have no use for hibernation or suspend-to-disk, I will simply use a random password to decrypt the swap partition using the `crypttab`:
 ```bash
 mkswap /dev/vda2
-# mkswap: error: /dev/vda2 is mounted; will not make swapspace
+#> mkswap: error: /dev/vda2 is mounted; will not make swapspace
 mkswap /dev/vdb2
-# Setting up swapspace version 1, size = 4 GiB (4294963200 bytes)
-# no label, UUID=f608784e-4497-4eac-8a7a-26c3415630dc
+#> Setting up swapspace version 1, size = 4 GiB (4294963200 bytes)
+#> no label, UUID=f608784e-4497-4eac-8a7a-26c3415630dc
 
 export UUID_SWAP_VDA=$(blkid -s UUID -o value /dev/vda2)
 export UUID_SWAP_VDB=$(blkid -s UUID -o value /dev/vdb2)
@@ -411,10 +411,10 @@ echo "cryptswap_vda UUID=${UUID_SWAP_VDA} /dev/urandom swap,offset=1024,cipher=a
 echo "cryptswap_vdb UUID=${UUID_SWAP_VDB} /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512" >> /etc/crypttab
 
 cat /etc/crypttab
-# crypt_vda UUID=d8a7cab6-c875-4e65-b711-3ac2e2763ada none luks
-# crypt_vdb UUID=06d53b48-6731-4926-a680-1b9b00a0e420 none luks
-# cryptswap_vda UUID=361e5a10-29df-4561-b4f2-a88335f316ce /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
-# cryptswap_vdb UUID=f608784e-4497-4eac-8a7a-26c3415630dc /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
+#> crypt_vda UUID=d8a7cab6-c875-4e65-b711-3ac2e2763ada none luks
+#> crypt_vdb UUID=06d53b48-6731-4926-a680-1b9b00a0e420 none luks
+#> cryptswap_vda UUID=361e5a10-29df-4561-b4f2-a88335f316ce /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
+#> cryptswap_vdb UUID=f608784e-4497-4eac-8a7a-26c3415630dc /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
 ```
 
 We also need to adapt the fstab accordingly:
@@ -423,11 +423,11 @@ sed -i "/UUID=${UUID_SWAP_VDA}/d" /etc/fstab
 echo "/dev/mapper/cryptswap_vda none swap defaults,pri=1 0 0" >> /etc/fstab
 echo "/dev/mapper/cryptswap_vdb none swap defaults,pri=1 0 0" >> /etc/fstab
 cat /etc/fstab
-# /dev/mapper/crypt_vda /               btrfs   defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd 0       0
-# UUID=0685-B0C8  /boot/efi       vfat    umask=0077      0       1
-# /dev/mapper/crypt_vda /home           btrfs   defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd 0       0
-# /dev/mapper/cryptswap_vda none swap defaults,pri=1 0 0
-# /dev/mapper/cryptswap_vdb none swap defaults,pri=1 0 0
+#> /dev/mapper/crypt_vda /               btrfs   defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd 0       0
+#> UUID=0685-B0C8  /boot/efi       vfat    umask=0077      0       1
+#> /dev/mapper/crypt_vda /home           btrfs   defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd 0       0
+#> /dev/mapper/cryptswap_vda none swap defaults,pri=1 0 0
+#> /dev/mapper/cryptswap_vdb none swap defaults,pri=1 0 0
 ```
 The sed command simply removed the previous line containing the swap partition. There you go, you have two encrypted swap partitions.
 
@@ -435,11 +435,11 @@ Also, let's use UUIDs instead of /dev/mapper/crypt_vda in the fstab:
 ```bash
 sed -i "s|/dev/mapper/crypt_vda|$(blkid -s UUID -o value /dev/mapper/crypt_vda)|" /etc/fstab
 cat /etc/fstab
-# UUID=d02e5c1d-292b-4a6e-9d44-c93572db897b /               btrfs   defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd 0       0
-# UUID=0685-B0C8  /boot/efi       vfat    umask=0077      0       1
-# UUID=d02e5c1d-292b-4a6e-9d44-c93572db897b /home           btrfs   defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd 0       0
-# /dev/mapper/cryptswap_vda none swap defaults,pri=1 0 0
-# /dev/mapper/cryptswap_vdb none swap defaults,pri=1 0 0
+#> UUID=d02e5c1d-292b-4a6e-9d44-c93572db897b /               btrfs   defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd 0       0
+#> UUID=0685-B0C8  /boot/efi       vfat    umask=0077      0       1
+#> UUID=d02e5c1d-292b-4a6e-9d44-c93572db897b /home           btrfs   defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd 0       0
+#> /dev/mapper/cryptswap_vda none swap defaults,pri=1 0 0
+#> /dev/mapper/cryptswap_vdb none swap defaults,pri=1 0 0
 ```
 
 ### Add a key-file to type luks passphrase only once (optional, but recommended)
@@ -451,33 +451,33 @@ Long story short, let's create a key-file, secure it, and add it to our luks vol
 ```bash
 mkdir /etc/luks
 dd if=/dev/urandom of=/etc/luks/boot_os.keyfile bs=4096 count=1
-# 1+0 records in
-# 1+0 records out
-# 4096 bytes (4.1 kB, 4.0 KiB) copied, 0.000928939 s, 4.4 MB/s
+#> 1+0 records in
+#> 1+0 records out
+#> 4096 bytes (4.1 kB, 4.0 KiB) copied, 0.000928939 s, 4.4 MB/s
 chmod u=rx,go-rwx /etc/luks
 chmod u=r,go-rwx /etc/luks/boot_os.keyfile
 cryptsetup luksAddKey /dev/vda3 /etc/luks/boot_os.keyfile
-# Enter any existing passphrase: 
+#> Enter any existing passphrase: 
 cryptsetup luksDump /dev/vda3 | grep "Key Slot"
-# Key Slot 0: ENABLED
-# Key Slot 1: ENABLED
-# Key Slot 2: DISABLED
-# Key Slot 3: DISABLED
-# Key Slot 4: DISABLED
-# Key Slot 5: DISABLED
-# Key Slot 6: DISABLED
-# Key Slot 7: DISABLED
+#> Key Slot 0: ENABLED
+#> Key Slot 1: ENABLED
+#> Key Slot 2: DISABLED
+#> Key Slot 3: DISABLED
+#> Key Slot 4: DISABLED
+#> Key Slot 5: DISABLED
+#> Key Slot 6: DISABLED
+#> Key Slot 7: DISABLED
 cryptsetup luksAddKey /dev/vdb3 /etc/luks/boot_os.keyfile
-# Enter any existing passphrase: 
+#> Enter any existing passphrase: 
 cryptsetup luksDump /dev/vdb3 | grep "Key Slot"
-# Key Slot 0: ENABLED
-# Key Slot 1: ENABLED
-# Key Slot 2: DISABLED
-# Key Slot 3: DISABLED
-# Key Slot 4: DISABLED
-# Key Slot 5: DISABLED
-# Key Slot 6: DISABLED
-# Key Slot 7: DISABLED
+#> Key Slot 0: ENABLED
+#> Key Slot 1: ENABLED
+#> Key Slot 2: DISABLED
+#> Key Slot 3: DISABLED
+#> Key Slot 4: DISABLED
+#> Key Slot 5: DISABLED
+#> Key Slot 6: DISABLED
+#> Key Slot 7: DISABLED
 ```
 
 Note that "Key Slot 0" contains our passphrase, whereas "Key Slot 1" contains the key-file. Let's restrict the pattern of keyfiles and avoid leaking key material for the initramfs hook:
@@ -494,10 +494,10 @@ Next, add the keyfile to your `crypttab`:
 sed -i "s|none|/etc/luks/boot_os.keyfile|" /etc/crypttab # this replaces none with /etc/luks/boot_os.keyfile
 
 cat /etc/crypttab
-# crypt_vda UUID=d8a7cab6-c875-4e65-b711-3ac2e2763ada /etc/luks/boot_os.keyfile luks
-# crypt_vdb UUID=06d53b48-6731-4926-a680-1b9b00a0e420 /etc/luks/boot_os.keyfile luks
-# cryptswap_vda UUID=361e5a10-29df-4561-b4f2-a88335f316ce /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
-# cryptswap_vdb UUID=f608784e-4497-4eac-8a7a-26c3415630dc /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
+#> crypt_vda UUID=d8a7cab6-c875-4e65-b711-3ac2e2763ada /etc/luks/boot_os.keyfile luks
+#> crypt_vdb UUID=06d53b48-6731-4926-a680-1b9b00a0e420 /etc/luks/boot_os.keyfile luks
+#> cryptswap_vda UUID=361e5a10-29df-4561-b4f2-a88335f316ce /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
+#> cryptswap_vdb UUID=f608784e-4497-4eac-8a7a-26c3415630dc /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
 ```
 
 
@@ -509,35 +509,35 @@ Now it is time to finalize the setup and install the GRUB bootloader. First we n
 echo "GRUB_ENABLE_CRYPTODISK=y" >> /etc/default/grub
 
 apt install -y --reinstall grub-efi-amd64-signed linux-generic linux-headers-generic linux-generic-hwe-20.04 linux-headers-generic-hwe-20.04
-# --- SOME APT INSTALLATION OUTPUT ---
+#~ --- SOME APT INSTALLATION OUTPUT ---
 
 update-initramfs -c -k all
-# update-initramfs: Generating /boot/initrd.img-5.4.0-26-generic
-# update-initramfs: Generating /boot/initrd.img-5.4.0-31-generic
+#> update-initramfs: Generating /boot/initrd.img-5.4.0-26-generic
+#> update-initramfs: Generating /boot/initrd.img-5.4.0-31-generic
 
 grub-install /dev/vda
-# Installing for x86_64-efi platform.
-# Installation finished. No error reported.
+#> Installing for x86_64-efi platform.
+#> Installation finished. No error reported.
 
 update-grub
-# Sourcing file `/etc/default/grub'
-# Sourcing file `/etc/default/grub.d/init-select.cfg'
-# Generating grub configuration file ...
-# Found linux image: /boot/vmlinuz-5.4.0-31-generic
-# Found initrd image: /boot/initrd.img-5.4.0-31-generic
-# Found linux image: /boot/vmlinuz-5.4.0-26-generic
-# Found initrd image: /boot/initrd.img-5.4.0-26-generic
-# Adding boot menu entry for UEFI Firmware Settings
-# done
+#> Sourcing file `/etc/default/grub'
+#> Sourcing file `/etc/default/grub.d/init-select.cfg'
+#> Generating grub configuration file ...
+#> Found linux image: /boot/vmlinuz-5.4.0-31-generic
+#> Found initrd image: /boot/initrd.img-5.4.0-31-generic
+#> Found linux image: /boot/vmlinuz-5.4.0-26-generic
+#> Found initrd image: /boot/initrd.img-5.4.0-26-generic
+#> Adding boot menu entry for UEFI Firmware Settings
+#> done
 ```
 
 Lastly, double-check that the initramfs image has restrictive permissions and includes the keyfile:
 
 ```bash
 stat -L -c "%A  %n" /boot/initrd.img
-# -rw-------  /boot/initrd.img
+#> -rw-------  /boot/initrd.img
 lsinitramfs /boot/initrd.img | grep "^cryptroot/keyfiles/"
-# cryptroot/keyfiles/cryptdata.key
+#> cryptroot/keyfiles/cryptdata.key
 ```
 Note that cryptsetup-initramfs may rename key files inside the initramfs.
 
@@ -548,12 +548,12 @@ Now, it is time to exit the chroot - cross your fingers - and reboot the system:
 
 ```bash
 exit
-# exit
+#> exit
 reboot now
 ```
 
 If all went well you should see a single passphrase prompt (YAY!) from GRUB for both your disks:
-```
+```text {output="GRUB passphrase prompt"}
 Enter the passphrase for hd0,gpt3 (some very long number):
 ....
 Enter the passphrase for hd1,gpt3 (some very long number):
@@ -564,43 +564,43 @@ Now let's click through the welcome screen and open up a terminal to see whether
 
 ```bash
 sudo cat /etc/crypttab
-# crypt_vda UUID=d8a7cab6-c875-4e65-b711-3ac2e2763ada /etc/luks/boot_os.keyfile luks
-# crypt_vdb UUID=06d53b48-6731-4926-a680-1b9b00a0e420 /etc/luks/boot_os.keyfile luks
-# cryptswap_vda UUID=361e5a10-29df-4561-b4f2-a88335f316ce /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
-# cryptswap_vdb UUID=f608784e-4497-4eac-8a7a-26c3415630dc /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
+#> crypt_vda UUID=d8a7cab6-c875-4e65-b711-3ac2e2763ada /etc/luks/boot_os.keyfile luks
+#> crypt_vdb UUID=06d53b48-6731-4926-a680-1b9b00a0e420 /etc/luks/boot_os.keyfile luks
+#> cryptswap_vda UUID=361e5a10-29df-4561-b4f2-a88335f316ce /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
+#> cryptswap_vdb UUID=f608784e-4497-4eac-8a7a-26c3415630dc /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
 
 sudo cat /etc/fstab
-# UUID=d02e5c1d-292b-4a6e-9d44-c93572db897b /               btrfs   defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd 0       0
-# UUID=0685-B0C8  /boot/efi       vfat    umask=0077      0       1
-# UUID=d02e5c1d-292b-4a6e-9d44-c93572db897b /home           btrfs   defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd 0       0
-# /dev/mapper/cryptswap_vda none swap defaults,pri=1 0 0
-# /dev/mapper/cryptswap_vdb none swap defaults,pri=1 0 0
+#> UUID=d02e5c1d-292b-4a6e-9d44-c93572db897b /               btrfs   defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd 0       0
+#> UUID=0685-B0C8  /boot/efi       vfat    umask=0077      0       1
+#> UUID=d02e5c1d-292b-4a6e-9d44-c93572db897b /home           btrfs   defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd 0       0
+#> /dev/mapper/cryptswap_vda none swap defaults,pri=1 0 0
+#> /dev/mapper/cryptswap_vdb none swap defaults,pri=1 0 0
 
 sudo mount -av
-# /                        : ignored
-# /boot/efi                : already mounted
-# /home                    : already mounted
-# none                     : ignored
-# none                     : ignored
+#> /                        : ignored
+#> /boot/efi                : already mounted
+#> /home                    : already mounted
+#> none                     : ignored
+#> none                     : ignored
 
 sudo mount -v | grep /dev/mapper
-# /dev/mapper/crypt_vda on / type btrfs (rw,noatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=256,subvol=/@)
-# /dev/mapper/crypt_vda on /home type btrfs (rw,noatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=258,subvol=/@home)
+#> /dev/mapper/crypt_vda on / type btrfs (rw,noatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=256,subvol=/@)
+#> /dev/mapper/crypt_vda on /home type btrfs (rw,noatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=258,subvol=/@home)
 
 sudo swapon
-# NAME      TYPE      SIZE USED PRIO
-# /dev/dm-2 partition   4G   0B    1
-# /dev/dm-3 partition   4G   0B    1
+#> NAME      TYPE      SIZE USED PRIO
+#> /dev/dm-2 partition   4G   0B    1
+#> /dev/dm-3 partition   4G   0B    1
 
 sudo btrfs filesystem show /
-# Label: none  uuid: d02e5c1d-292b-4a6e-9d44-c93572db897b
-# 	Total devices 2 FS bytes used 2.92GiB
-# 	devid    1 size 59.50GiB used 4.03GiB path /dev/mapper/crypt_vda
-# 	devid    2 size 59.50GiB used 4.03GiB path /dev/mapper/crypt_vdb
+#> Label: none  uuid: d02e5c1d-292b-4a6e-9d44-c93572db897b
+#> 	Total devices 2 FS bytes used 2.92GiB
+#> 	devid    1 size 59.50GiB used 4.03GiB path /dev/mapper/crypt_vda
+#> 	devid    2 size 59.50GiB used 4.03GiB path /dev/mapper/crypt_vdb
 
 sudo btrfs subvolume list /
-# ID 256 gen 403 top level 5 path @
-# ID 258 gen 403 top level 5 path @home
+#> ID 256 gen 403 top level 5 path @
+#> ID 258 gen 403 top level 5 path @home
 ```
 
 Look's good.
@@ -631,37 +631,37 @@ Open an interactive sudo terminal, duplicate the efi partition to the second dis
 sudo -i
 umount /boot/efi
 dd if=/dev/vda1 of=/dev/vdb1 bs=1024 status=progress
-# 491181056 bytes (491 MB, 468 MiB) copied, 6 s, 81,9 MB/s
-# 524288+0 records in
-# 524288+0 records out
-# 536870912 bytes (537 MB, 512 MiB) copied, 9,07637 s, 59,2 MB/s
+#> 491181056 bytes (491 MB, 468 MiB) copied, 6 s, 81,9 MB/s
+#> 524288+0 records in
+#> 524288+0 records out
+#> 536870912 bytes (537 MB, 512 MiB) copied, 9,07637 s, 59,2 MB/s
 mount /dev/vdb1 /boot/efi
 ```
 Reinstall the GRUB boot manager to `vdb1`:
 ```bash
 apt install -y --reinstall grub-efi-amd64-signed linux-generic linux-headers-generic linux-generic-hwe-20.04 linux-headers-generic-hwe-20.04
-# --- SOME APT INSTALLATION OUTPUT ---
+#~ --- SOME APT INSTALLATION OUTPUT ---
 
 update-initramfs -c -k all
-# update-initramfs: Generating /boot/initrd.img-5.4.0-26-generic
-# cryptsetup: WARNING: Resume target cryptswap_vda uses a key file
-# update-initramfs: Generating /boot/initrd.img-5.4.0-31-generic
-# cryptsetup: WARNING: Resume target cryptswap_vda uses a key file
+#> update-initramfs: Generating /boot/initrd.img-5.4.0-26-generic
+#> cryptsetup: WARNING: Resume target cryptswap_vda uses a key file
+#> update-initramfs: Generating /boot/initrd.img-5.4.0-31-generic
+#> cryptsetup: WARNING: Resume target cryptswap_vda uses a key file
 
 grub-install /dev/vdb
-# Installing for x86_64-efi platform.
-# Installation finished. No error reported.
+#> Installing for x86_64-efi platform.
+#> Installation finished. No error reported.
 
 update-grub
-# Sourcing file `/etc/default/grub'
-# Sourcing file `/etc/default/grub.d/init-select.cfg'
-# Generating grub configuration file ...
-# Found linux image: /boot/vmlinuz-5.4.0-31-generic
-# Found initrd image: /boot/initrd.img-5.4.0-31-generic
-# Found linux image: /boot/vmlinuz-5.4.0-26-generic
-# Found initrd image: /boot/initrd.img-5.4.0-26-generic
-# Adding boot menu entry for UEFI Firmware Settings
-# done
+#> Sourcing file `/etc/default/grub'
+#> Sourcing file `/etc/default/grub.d/init-select.cfg'
+#> Generating grub configuration file ...
+#> Found linux image: /boot/vmlinuz-5.4.0-31-generic
+#> Found initrd image: /boot/initrd.img-5.4.0-31-generic
+#> Found linux image: /boot/vmlinuz-5.4.0-26-generic
+#> Found initrd image: /boot/initrd.img-5.4.0-26-generic
+#> Adding boot menu entry for UEFI Firmware Settings
+#> done
 ```
 
 Now, you should reboot and check whether both EFI partitions work and are bootable.
@@ -698,7 +698,7 @@ sudo timeshift-gtk
 
 ```bash
 ls /run/timeshift/backup
-# @  @home  timeshift-btrfs
+#> @  @home  timeshift-btrfs
 ```
 Note that `/run/timeshift/backup/@` contains your `/` folder and `/run/timeshift/backup/@home` contains your `/home` folder.
 
@@ -723,87 +723,87 @@ For example, as we don't have a dedicated /boot partition, we can set `snapshotB
 Check if everything is working:
 ```bash
 sudo timeshift-autosnap-apt
-# Rsyncing /boot/efi into the filesystem before the call to timeshift.
-# Using system disk as snapshot device for creating snapshots in BTRFS mode
-# 
-# /dev/dm-1 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=5,subvol=/
-# 
-# Creating new backup...(BTRFS)
-# Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
-# Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-16-45
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-16-45/@
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-16-45/@home
-# Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-16-45/info.json
-# BTRFS Snapshot saved successfully (0s)
-# Tagged snapshot '2020-05-22_11-16-45': ondemand
-# ------------------------------------------------------------------------------
-# Sourcing file `/etc/default/grub'
-# Sourcing file `/etc/default/grub.d/init-select.cfg'
-# Generating grub configuration file ...
-# Found linux image: /boot/vmlinuz-5.4.0-31-generic
-# Found initrd image: /boot/initrd.img-5.4.0-31-generic
-# Found linux image: /boot/vmlinuz-5.4.0-26-generic
-# Found initrd image: /boot/initrd.img-5.4.0-26-generic
-# Adding boot menu entry for UEFI Firmware Settings
-# ###### - Grub-btrfs: Snapshot detection started - ######
-# # Info: Separate boot partition not detected 
-# # Found snapshot: 2020-05-22 11:16:45 | timeshift-btrfs/snapshots/2020-05-22_11-16-45/@
-# # Found snapshot: 2020-05-22 11:15:10 | timeshift-btrfs/snapshots/2020-05-22_11-15-10/@
-# # Found 2 snapshot(s)
-# ###### - Grub-btrfs: Snapshot detection ended   - ######
-# done
+#> Rsyncing /boot/efi into the filesystem before the call to timeshift.
+#> Using system disk as snapshot device for creating snapshots in BTRFS mode
+#> 
+#> /dev/dm-1 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=5,subvol=/
+#> 
+#> Creating new backup...(BTRFS)
+#> Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
+#> Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-16-45
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-16-45/@
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-16-45/@home
+#> Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-16-45/info.json
+#> BTRFS Snapshot saved successfully (0s)
+#> Tagged snapshot '2020-05-22_11-16-45': ondemand
+#> ------------------------------------------------------------------------------
+#> Sourcing file `/etc/default/grub'
+#> Sourcing file `/etc/default/grub.d/init-select.cfg'
+#> Generating grub configuration file ...
+#> Found linux image: /boot/vmlinuz-5.4.0-31-generic
+#> Found initrd image: /boot/initrd.img-5.4.0-31-generic
+#> Found linux image: /boot/vmlinuz-5.4.0-26-generic
+#> Found initrd image: /boot/initrd.img-5.4.0-26-generic
+#> Adding boot menu entry for UEFI Firmware Settings
+#> ###### - Grub-btrfs: Snapshot detection started - ######
+#> # Info: Separate boot partition not detected 
+#> # Found snapshot: 2020-05-22 11:16:45 | timeshift-btrfs/snapshots/2020-05-22_11-16-45/@
+#> # Found snapshot: 2020-05-22 11:15:10 | timeshift-btrfs/snapshots/2020-05-22_11-15-10/@
+#> # Found 2 snapshot(s)
+#> ###### - Grub-btrfs: Snapshot detection ended   - ######
+#> done
 ```
 
 Now, if you run `sudo apt install|remove|upgrade|dist-upgrade`, *timeshift-autosnap-apt* will create a snapshot of your system with *Timeshift* and *grub-btrfs* creates the corresponding boot menu entries (actually it creates boot menu entries for all subvolumes of your system). For example:
 
 ```bash
 sudo apt install rolldice
-# Reading package lists... Done
-# Building dependency tree       
-# Reading state information... Done
-# The following NEW packages will be installed:
-#   rolldice
-# 0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
-# Need to get 9.628 B of archives.
-# After this operation, 31,7 kB of additional disk space will be used.
-# Get:1 http://de.archive.ubuntu.com/ubuntu focal/universe amd64 rolldice amd64 1.16-1build1 [9.628 B]
-# Fetched 9.628 B in 0s (137 kB/s)
-# Rsyncing /boot/efi into the filesystem before the call to timeshift.
-# Using system disk as snapshot device for creating snapshots in BTRFS mode
-# 
-# /dev/dm-1 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=5,subvol=/
-# 
-# Creating new backup...(BTRFS)
-# Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
-# Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-17-36
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-17-36/@
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-17-36/@home
-# Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-17-36/info.json
-# BTRFS Snapshot saved successfully (0s)
-# Tagged snapshot '2020-05-22_11-17-36': ondemand
-# ------------------------------------------------------------------------------
-# Sourcing file `/etc/default/grub'
-# Sourcing file `/etc/default/grub.d/init-select.cfg'
-# Generating grub configuration file ...
-# Found linux image: /boot/vmlinuz-5.4.0-31-generic
-# Found initrd image: /boot/initrd.img-5.4.0-31-generic
-# Found linux image: /boot/vmlinuz-5.4.0-26-generic
-# Found initrd image: /boot/initrd.img-5.4.0-26-generic
-# Adding boot menu entry for UEFI Firmware Settings
-# ###### - Grub-btrfs: Snapshot detection started - ######
-# # Info: Separate boot partition not detected 
-# # Found snapshot: 2020-05-22 11:17:36 | timeshift-btrfs/snapshots/2020-05-22_11-17-36/@
-# # Found snapshot: 2020-05-22 11:16:45 | timeshift-btrfs/snapshots/2020-05-22_11-16-45/@
-# # Found snapshot: 2020-05-22 11:15:10 | timeshift-btrfs/snapshots/2020-05-22_11-15-10/@
-# # Found 3 snapshot(s)
-# ###### - Grub-btrfs: Snapshot detection ended   - ######
-# done
-# Selecting previously unselected package rolldice.
-# (Reading database ... 185770 files and directories currently installed.)
-# Preparing to unpack .../rolldice_1.16-1build1_amd64.deb ...
-# Unpacking rolldice (1.16-1build1) ...
-# Setting up rolldice (1.16-1build1) ...
-# Processing triggers for man-db (2.9.1-1) ...
+#> Reading package lists... Done
+#> Building dependency tree       
+#> Reading state information... Done
+#> The following NEW packages will be installed:
+#>   rolldice
+#> 0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+#> Need to get 9.628 B of archives.
+#> After this operation, 31,7 kB of additional disk space will be used.
+#> Get:1 http://de.archive.ubuntu.com/ubuntu focal/universe amd64 rolldice amd64 1.16-1build1 [9.628 B]
+#> Fetched 9.628 B in 0s (137 kB/s)
+#> Rsyncing /boot/efi into the filesystem before the call to timeshift.
+#> Using system disk as snapshot device for creating snapshots in BTRFS mode
+#> 
+#> /dev/dm-1 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=5,subvol=/
+#> 
+#> Creating new backup...(BTRFS)
+#> Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
+#> Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-17-36
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-17-36/@
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-17-36/@home
+#> Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-22_11-17-36/info.json
+#> BTRFS Snapshot saved successfully (0s)
+#> Tagged snapshot '2020-05-22_11-17-36': ondemand
+#> ------------------------------------------------------------------------------
+#> Sourcing file `/etc/default/grub'
+#> Sourcing file `/etc/default/grub.d/init-select.cfg'
+#> Generating grub configuration file ...
+#> Found linux image: /boot/vmlinuz-5.4.0-31-generic
+#> Found initrd image: /boot/initrd.img-5.4.0-31-generic
+#> Found linux image: /boot/vmlinuz-5.4.0-26-generic
+#> Found initrd image: /boot/initrd.img-5.4.0-26-generic
+#> Adding boot menu entry for UEFI Firmware Settings
+#> ###### - Grub-btrfs: Snapshot detection started - ######
+#> # Info: Separate boot partition not detected 
+#> # Found snapshot: 2020-05-22 11:17:36 | timeshift-btrfs/snapshots/2020-05-22_11-17-36/@
+#> # Found snapshot: 2020-05-22 11:16:45 | timeshift-btrfs/snapshots/2020-05-22_11-16-45/@
+#> # Found snapshot: 2020-05-22 11:15:10 | timeshift-btrfs/snapshots/2020-05-22_11-15-10/@
+#> # Found 3 snapshot(s)
+#> ###### - Grub-btrfs: Snapshot detection ended   - ######
+#> done
+#> Selecting previously unselected package rolldice.
+#> (Reading database ... 185770 files and directories currently installed.)
+#> Preparing to unpack .../rolldice_1.16-1build1_amd64.deb ...
+#> Unpacking rolldice (1.16-1build1) ...
+#> Setting up rolldice (1.16-1build1) ...
+#> Processing triggers for man-db (2.9.1-1) ...
 ```
 
 **FINISHED! CONGRATULATIONS AND THANKS FOR STICKING THROUGH!**
@@ -837,29 +837,29 @@ sudo chroot /mnt
 
 # get PARTUUID
 echo $(blkid -s PARTUUID -o value /dev/vdb1)
-# df1701f7-6e8b-4db1-8192-3a7931e3a905
+#> df1701f7-6e8b-4db1-8192-3a7931e3a905
 echo $(blkid -s PARTUUID -o value /dev/vdb2)
-# 3560ffd1-39f0-44da-9c3b-a5d98ea43f08
+#> 3560ffd1-39f0-44da-9c3b-a5d98ea43f08
 nano /etc/fstab
 # USE df1701f7-6e8b-4db1-8192-3a7931e3a905 FOR /boot/efi
 # USE 3560ffd1-39f0-44da-9c3b-a5d98ea43f08 FOR /recovery
 cat /etc/fstab
-# PARTUUID=df1701f7-6e8b-4db1-8192-3a7931e3a905  /boot/efi  vfat  umask=0077  0  0
-# PARTUUID=3560ffd1-39f0-44da-9c3b-a5d98ea43f08  /recovery  vfat  umask=0077  0  0
-# UUID=c277ed84-e32f-4204-a211-1d80596e6e15  /  btrfs  defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd  0  0
-# UUID=c277ed84-e32f-4204-a211-1d80596e6e15   /home   btrfs   defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd   0 0
-# /dev/mapper/cryptswap  none  swap  defaults  0  0
+#> PARTUUID=df1701f7-6e8b-4db1-8192-3a7931e3a905  /boot/efi  vfat  umask=0077  0  0
+#> PARTUUID=3560ffd1-39f0-44da-9c3b-a5d98ea43f08  /recovery  vfat  umask=0077  0  0
+#> UUID=c277ed84-e32f-4204-a211-1d80596e6e15  /  btrfs  defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd  0  0
+#> UUID=c277ed84-e32f-4204-a211-1d80596e6e15   /home   btrfs   defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd   0 0
+#> /dev/mapper/cryptswap  none  swap  defaults  0  0
 
 mkswap /dev/vdb3
-# Setting up swapspace version 1, size = 4 GiB (4294963200 bytes)
-# no label, UUID=a6a9ec65-a225-4185-8edd-f9dd3c243a2a
+#> Setting up swapspace version 1, size = 4 GiB (4294963200 bytes)
+#> no label, UUID=a6a9ec65-a225-4185-8edd-f9dd3c243a2a
 
 nano /etc/crypttab
 # UNCOMMENT THE NOT WORKING DEVICE AND CHANGE UUID of cryptswap
 cat /etc/crypttab
-# cryptswap UUID=a6a9ec65-a225-4185-8edd-f9dd3c243a2a /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
-# #crypt_vda UUID=9fc916b2-bdd8-4fbd-b557-4c4366f8cd63 none luks
-# crypt_vdb UUID=93fc3643-a687-4a1c-9859-409b090448b9 none luks
+#> cryptswap UUID=a6a9ec65-a225-4185-8edd-f9dd3c243a2a /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
+#> #crypt_vda UUID=9fc916b2-bdd8-4fbd-b557-4c4366f8cd63 none luks
+#> crypt_vdb UUID=93fc3643-a687-4a1c-9859-409b090448b9 none luks
 
 update-initramfs -c -k all
 
@@ -885,9 +885,9 @@ sudo chroot /mnt
 nano /etc/crypttab
 # UNCOMMENT THE NOT WORKING DEVICE
 cat /etc/crypttab
-# cryptswap UUID=03019356-3691-4002-a013-be15f291cde2 /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
-# crypt_vda UUID=9fc916b2-bdd8-4fbd-b557-4c4366f8cd63 none luks
-# #crypt_vdb UUID=93fc3643-a687-4a1c-9859-409b090448b9 none luks
+#> cryptswap UUID=03019356-3691-4002-a013-be15f291cde2 /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
+#> crypt_vda UUID=9fc916b2-bdd8-4fbd-b557-4c4366f8cd63 none luks
+#> #crypt_vdb UUID=93fc3643-a687-4a1c-9859-409b090448b9 none luks
 
 update-initramfs -c -k all
 

@@ -27,29 +27,29 @@ sudo hostnamectl set-hostname raspi4
 Even though I am based in Germany, I use `en_US` for my locales on my server:
 ```sh
 sudo locale-gen en_US.UTF-8 de_DE.UTF-8
-# Generating locales (this might take a while)...
-#   de_DE.UTF-8... done
-#   en_US.UTF-8... done
-# Generation complete.
+#> Generating locales (this might take a while)...
+#>   de_DE.UTF-8... done
+#>   en_US.UTF-8... done
+#> Generation complete.
 sudo update-locale LANG=en_US.UTF-8
 ```
 Check the timezone:
-```
+```sh
 sudo dpkg-reconfigure tzdata
-# Current default time zone: 'Europe/Berlin'
-# Local time is now:      Mon Jan 11 20:40:36 CET 2021.
-# Universal Time is now:  Mon Jan 11 19:40:36 UTC 2021.
+#> Current default time zone: 'Europe/Berlin'
+#> Local time is now:      Mon Jan 11 20:40:36 CET 2021.
+#> Universal Time is now:  Mon Jan 11 19:40:36 UTC 2021.
 ```
 and change the keyboard language to 'de':
 ```sh
 L='de' && sudo sed -i 's/XKBLAYOUT=\"\w*"/XKBLAYOUT=\"'$L'\"/g' /etc/default/keyboard
 cat /etc/default/keyboard 
-# XKBMODEL="pc105"
-# XKBLAYOUT="de"
-# XKBVARIANT=""
-# XKBOPTIONS=""
-# 
-# BACKSPACE="guess"
+#> XKBMODEL="pc105"
+#> XKBLAYOUT="de"
+#> XKBVARIANT=""
+#> XKBOPTIONS=""
+#> 
+#> BACKSPACE="guess"
 ```
 
 
@@ -57,8 +57,8 @@ cat /etc/default/keyboard
 ```sh
 sudo nano /etc/inputrc
 # Uncomment:
-# "\e[5~": history-search-backward
-# "\e[6~": history-search-forward
+#> "\e[5~": history-search-backward
+#> "\e[6~": history-search-forward
 ```
 
 #### SSH settings and SSH keys for passwordless logins
@@ -66,18 +66,18 @@ Add your public keys for passwordless logins in the `authorized_keys` file:
 ```sh
 nano /home/$USER/.ssh/authorized_keys
 # Add public keys:
-# ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB7vrYpbvJaZq2L1Gm7BrrCyl1iPCUephMZScwdentw3 XPS
-# ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIfzrJ10mpCU6s4MEcCDtzILvD8gIYYzxoDAO1P9WadH iPad-iPhone
-# ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKX/swGeaikcTOx/7rNbyBkeJI3VMiWCkywrdLDfyqJe precision
+#> ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB7vrYpbvJaZq2L1Gm7BrrCyl1iPCUephMZScwdentw3 XPS
+#> ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIfzrJ10mpCU6s4MEcCDtzILvD8gIYYzxoDAO1P9WadH iPad-iPhone
+#> ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKX/swGeaikcTOx/7rNbyBkeJI3VMiWCkywrdLDfyqJe precision
 ```
 
 
 Check settings of the SSH server:
 ```sh
 sudo nano /etc/ssh/sshd_config
-# PubkeyAuthentication yes
-# PasswordAuthentication no
-# PermitRootLogin prohibit-password
+#> PubkeyAuthentication yes
+#> PasswordAuthentication no
+#> PermitRootLogin prohibit-password
 
 sudo systemctl restart ssh
 ```
@@ -96,7 +96,7 @@ mkdir -p /home/$USER/logs
 I am runnning Cron Jobs for my maintenance scripts. To monitor these I am saving the output of the scripts into my `logs` folder. Moreover, I am using [healthchecks.io](https://healthchecks.io) such that in case a script does not succeed or is not executed on time I get a warning via email. In the scripts below the `BASEURL` environmental variables need to be adapted by the URLs to the healtchecks.io base urls.
 
 My crontab looks like this (`sudo crontab -l`):
-```sh
+```text {file="Root crontab"}
 @daily     /home/ubuntu/scripts/wasabi.sh         >> /home/ubuntu/logs/wasabi.log        2>&1
 @weekly    /home/ubuntu/scripts/btrfs-balance.sh  >> /home/ubuntu/logs/btrfs-balance.log 2>&1
 @monthly   /home/ubuntu/scripts/btrfs-scrub.sh    >> /home/ubuntu/logs/btrfs-scrub.log   2>&1
@@ -104,7 +104,7 @@ My crontab looks like this (`sudo crontab -l`):
 
 ### btrfs balance
 I do a weekly [btrfs balance](https://btrfs.wiki.kernel.org/index.php/Manpage/btrfs-balance) using the following script adapted from [btrfsmaintenance](https://github.com/kdave/btrfsmaintenance):
-```sh
+```bash {file="/home/ubuntu/scripts/btrfs-balance.sh"}
 #!/bin/bash
 BTRFS_BALANCE_BASEURL="https://hc-ping.com/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 
@@ -147,7 +147,7 @@ echo "*****************************************************"
 ### btrfs scrub
 I do a monthly [btrfs scrub](https://btrfs.wiki.kernel.org/index.php/Manpage/btrfs-scrub) using the following script adapted from [btrfsmaintenance](https://github.com/kdave/btrfsmaintenance):
 
-```sh
+```bash {file="/home/ubuntu/scripts/btrfs-scrub.sh"}
 #!/bin/bash
 BTRFS_SCRUB_BASEURL="https://hc-ping.com/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 
@@ -217,7 +217,7 @@ restic -r s3:https://$WASABI_SERVICE_URL/$WASABI_BUCKET_NAME init
 
 The script (`wasabi.sh`) which I use for the backup is:
 
-```sh
+```bash {file="/home/ubuntu/scripts/wasabi.sh"}
 #!/bin/bash
 export WASABI_BASEURL="https://hc-ping.com/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 export RESTIC_PASSWORD="XXXXXXXXXX"
@@ -276,7 +276,7 @@ echo 'command="/usr/share/btrbk/scripts/ssh_filter_btrbk.sh --log --target --inf
 
 ### On my Fedora machine
 For example, the configuration file `/home/wmutschl/scripts/btrbk-precision.conf` of BTRBK on my Fedora machine looks like this:
-```sh
+```text {file="/home/wmutschl/scripts/btrbk-precision.conf"}
 transaction_log         /var/log/btrbk.log
 stream_buffer           256m
 snapshot_dir            _btrbk_snap
@@ -308,8 +308,8 @@ Also, I run BTRBK daily to create snapshots and backup this to both an encrypted
 
 ```sh
 cat /etc/cron.daily/btrbk 
-#!/bin/sh
-exec /usr/bin/btrbk -q -c /home/wmutschl/scripts/btrbk-precision.conf run
+#> #!/bin/sh
+#> exec /usr/bin/btrbk -q -c /home/wmutschl/scripts/btrbk-precision.conf run
 ```
 
 ## ZRam [Not yet]
@@ -328,25 +328,25 @@ sudo -i
 Now let's encrypt `sda2` with luks and add a key-file to open it:
 ```sh
 cryptsetup luksFormat --type=luks2 -c xchacha20,aes-adiantum-plain64 /dev/sda2
-# WARNING: Device /dev/sda2 already contains a 'ext4' superblock signature.
-# 
-# WARNING!
-# ========
-# This will overwrite data on /dev/sda2 irrevocably.
-# 
-# Are you sure? (Type 'yes' in capital letters): YES
-# Enter passphrase for /dev/sda2: 
-# Verify passphrase: 
+#> WARNING: Device /dev/sda2 already contains a 'ext4' superblock signature.
+#> 
+#> WARNING!
+#> ========
+#> This will overwrite data on /dev/sda2 irrevocably.
+#> 
+#> Are you sure? (Type 'yes' in capital letters): YES
+#> Enter passphrase for /dev/sda2: 
+#> Verify passphrase: 
 
 mkdir /etc/luks
 dd if=/dev/urandom of=/etc/luks/boot_os.keyfile bs=4096 count=1
-# 1+0 records in
-# 1+0 records out
-# 4096 bytes (4.1 kB, 4.0 KiB) copied, 0.000928939 s, 4.4 MB/s
+#> 1+0 records in
+#> 1+0 records out
+#> 4096 bytes (4.1 kB, 4.0 KiB) copied, 0.000928939 s, 4.4 MB/s
 chmod u=rx,go-rwx /etc/luks
 chmod u=r,go-rwx /etc/luks/boot_os.keyfile
 cryptsetup luksAddKey /dev/sda2 /etc/luks/boot_os.keyfile
-# Enter any existing passphrase: 
+#> Enter any existing passphrase: 
 ```
 
 Let's restrict the pattern of keyfiles and avoid leaking key material for the initramfs hook:
@@ -360,27 +360,27 @@ These commands will harden the security options in the intiramfs configuration f
 Let's unlock the luks partition and create an ext4 filesystem in `crypt_docker`:
 ```sh
 cryptsetup luksOpen /dev/sda2 crypt_docker
-# Enter passphrase for /dev/sda2:
+#> Enter passphrase for /dev/sda2:
 
 mkfs.ext4 /dev/mapper/crypt_docker
-# mke2fs 1.45.6 (20-Mar-2020)
-# Creating filesystem with 1210112 4k blocks and 303104 inodes
-# Filesystem UUID: b34df824-3749-421e-9ad4-c1c86a6ef55e
-# Superblock backups stored on blocks: 
-# 	32768, 98304, 163840, 229376, 294912, 819200, 884736
-# 
-# Allocating group tables: done                            
-# Writing inode tables: done                            
-# Creating journal (16384 blocks): done
-# Writing superblocks and filesystem accounting information: done 
+#> mke2fs 1.45.6 (20-Mar-2020)
+#> Creating filesystem with 1210112 4k blocks and 303104 inodes
+#> Filesystem UUID: b34df824-3749-421e-9ad4-c1c86a6ef55e
+#> Superblock backups stored on blocks: 
+#> 	32768, 98304, 163840, 229376, 294912, 819200, 884736
+#> 
+#> Allocating group tables: done                            
+#> Writing inode tables: done                            
+#> Creating journal (16384 blocks): done
+#> Writing superblocks and filesystem accounting information: done 
 ```
 
 Next, add the partition and keyfile to your `crypttab`:
 
 ```bash
 echo "crypt_docker   /dev/sda2   /etc/luks/boot_os.keyfile luks" >> /etc/crypttab
-# crypt_raspi  /dev/sda3   none   luks
-# crypt_docker /dev/sda2   /etc/luks/boot_os.keyfile luks
+#> crypt_raspi  /dev/sda3   none   luks
+#> crypt_docker /dev/sda2   /etc/luks/boot_os.keyfile luks
 ```
 
 Mount the partition to `/var/lib/docker`:
@@ -405,22 +405,22 @@ truncate -s 0 /btr_pool/docker-volume.img
 chattr +C /btr_pool/docker-volume.img
 fallocate -l 10G /btr_pool/docker-volume.img
 mkfs.ext4 /btr_pool/docker-volume.img
-# mke2fs 1.45.6 (20-Mar-2020)
-# Discarding device blocks: done                            
-# Creating filesystem with 2621440 4k blocks and 655360 inodes
-# Filesystem UUID: 7da7f4d8-6518-4ec3-894b-8819ac2f7c22
-# Superblock backups stored on blocks: 
-# 	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632
-# 
-# Allocating group tables: done                            
-# Writing inode tables: done                            
-# Creating journal (16384 blocks): done
-# Writing superblocks and filesystem accounting information: done 
+#> mke2fs 1.45.6 (20-Mar-2020)
+#> Discarding device blocks: done                            
+#> Creating filesystem with 2621440 4k blocks and 655360 inodes
+#> Filesystem UUID: 7da7f4d8-6518-4ec3-894b-8819ac2f7c22
+#> Superblock backups stored on blocks: 
+#> 	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632
+#> 
+#> Allocating group tables: done                            
+#> Writing inode tables: done                            
+#> Creating journal (16384 blocks): done
+#> Writing superblocks and filesystem accounting information: done 
 
 mkdir -p /var/lib/docker
 mount -o loop -t ext4 /btr_pool/docker-volume.img /var/lib/docker
 df -h
-# You should see: /dev/loop6      9.8G   37M  9.3G   1% /var/lib/docker
+#~ You should see: /dev/loop6      9.8G   37M  9.3G   1% /var/lib/docker
 umount /var/lib/docker
 ```
 
@@ -467,7 +467,7 @@ mv /home/ubuntu/homeassistant-restore/btr_pool/\@home_wasabi/ubuntu/homeassistan
 ### docker-compose file
 My docker-compose file looks like this:
 
-```sh
+```yaml {file="/home/ubuntu/scripts/raspi4-compose.yml"}
 version: '3'
 
 services:

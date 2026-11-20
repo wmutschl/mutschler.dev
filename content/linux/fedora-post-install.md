@@ -27,9 +27,9 @@ By Default Wayland is enabled. If you have a Nvidia card this is not working wel
 
 ```sh
 sudo nano /etc/gdm/custom.conf
-# [daemon]
-# WaylandEnable=false
-# DefaultSession=gnome-xorg.desktop
+#> [daemon]
+#> WaylandEnable=false
+#> DefaultSession=gnome-xorg.desktop
 ```
 Next time you reboot the system it will boot into an Xorg Gnome session.
 
@@ -54,15 +54,15 @@ echo 'fastestmirror=1' | sudo tee -a /etc/dnf/dnf.conf
 echo 'max_parallel_downloads=10' | sudo tee -a /etc/dnf/dnf.conf
 echo 'deltarpm=true' | sudo tee -a /etc/dnf/dnf.conf
 cat /etc/dnf/dnf.conf
-# [main]
-# gpgcheck=1
-# installonly_limit=3
-# clean_requirements_on_remove=True
-# best=False
-# skip_if_unavailable=True
-# fastestmirror=1
-# max_parallel_downloads=10
-# deltarpm=true
+#> [main]
+#> gpgcheck=1
+#> installonly_limit=3
+#> clean_requirements_on_remove=True
+#> best=False
+#> skip_if_unavailable=True
+#> fastestmirror=1
+#> max_parallel_downloads=10
+#> deltarpm=true
 ```
 
 ### Set hostname
@@ -74,20 +74,20 @@ hostnamectl set-hostname fedora
 
 ### Check locales
 Let's check if the locales and timezone is correctly set:
-```
+```sh
 localectl status
-# System Locale: LANG=de_DE.UTF-8
-# VC Keymap: de-nodeadkeys
-# X11 Layout: de
-# X11 Variant: nodeadkeys
+#> System Locale: LANG=de_DE.UTF-8
+#> VC Keymap: de-nodeadkeys
+#> X11 Layout: de
+#> X11 Variant: nodeadkeys
 timedatectl
-# Local time: Di 2020-11-03 13:58:54 CET
-# Universal time: Di 2020-11-03 12:58:54 UTC
-# RTC time: Di 2020-11-03 12:58:54    
-# Time zone: Europe/Berlin (CET, +0100)
-# System clock synchronized: yes                       
-# NTP service: active                    
-# RTC in local TZ: no
+#> Local time: Di 2020-11-03 13:58:54 CET
+#> Universal time: Di 2020-11-03 12:58:54 UTC
+#> RTC time: Di 2020-11-03 12:58:54    
+#> Time zone: Europe/Berlin (CET, +0100)
+#> System clock synchronized: yes                       
+#> NTP service: active                    
+#> RTC in local TZ: no
 ```
 Looks good, if not see the help file on the two commands or change locales and timezone in Gnome-Settings.
 
@@ -104,11 +104,11 @@ Fedora has not optimized the mount options for btrfs yet. I have found that ther
 So add these options to your btrfs subvolume mount points in your fstab:
 ```sh
 sudo nano /etc/fstab
-# UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /                       btrfs   subvol=root,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
-# UUID=04ae92cd-717c-4aaf-bb24-58001be8d334 /boot                   ext4    defaults        1 2
-# UUID=C17B-722D                            /boot/efi               vfat    umask=0077,shortname=winnt 0 2
-# UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /home                   btrfs   subvol=home,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
-# UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /btrfs_pool             btrfs   subvolid=5,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
+#> UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /                       btrfs   subvol=root,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
+#> UUID=04ae92cd-717c-4aaf-bb24-58001be8d334 /boot                   ext4    defaults        1 2
+#> UUID=C17B-722D                            /boot/efi               vfat    umask=0077,shortname=winnt 0 2
+#> UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /home                   btrfs   subvol=home,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
+#> UUID=47faf958-b80a-43e1-a36f-ca5a932474f7 /btrfs_pool             btrfs   subvolid=5,x-systemd.device-timeout=0,ssd,noatime,space_cache=v2,commit=120,compress=zstd,discard=async 0 0
 sudo mkdir -p /btrfs_pool
 sudo mount -a
 ```
@@ -117,7 +117,7 @@ Note that I also add a mountpoint for the btrfs root filesystem (this has always
 Furthermore, as I am using btrfs discard support, let's check whether the `discard` option is passed on in `/etc/crypttab` (as I am using LUKS to encrypt my drives):
 ```sh
 sudo nano /etc/crypttab
-# luks-fcc669e7-32d5-43b2-ba03-2db6a7f5b33d UUID=fcc669e7-32d5-43b2-ba03-2db6a7f5b33d none discard
+#> luks-fcc669e7-32d5-43b2-ba03-2db6a7f5b33d UUID=fcc669e7-32d5-43b2-ba03-2db6a7f5b33d none discard
 ```
 As [both fstrim and discard=async mount option can peacefully co-exist](https://www.phoronix.com/scan.php?page=news_item&px=Fedora-Btrfs-Opts-Discard-Comp), I also enable `fstrim.timer`:
 ```sh
@@ -151,7 +151,7 @@ set -Ua fish_user_paths /home/$USER/.local/bin
 Also I make sure that it is in my $PATH also on bash:
 ```sh
 bash -c 'echo $PATH'
-#/home/$USER/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin
+#>/home/$USER/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin
 ```
 If it isn't then I make the necessary changes in my `.bashrc`, see [below](#pop-gnome-terminal-theme).
 
@@ -335,7 +335,7 @@ Right click on the Pop profile and set as default.
 
 Lastly, we need to append some things to `PS1` in our `.bashrc` to get the green prompt and some other neat colors in the terminal. Mine looks like this:
 
-```sh
+```bash {file="~/.bashrc"}
 # .bashrc
 
 # Source global definitions
@@ -418,20 +418,20 @@ For this I need to install several packages:
 sudo dnf install -y yubikey-manager # some common packages
 # Insert the yubikey
 ykman info # your key should be recognized
-# Device type: YubiKey 5 NFC
-# Serial number: 
-# Firmware version: 5.1.2
-# Form factor: Keychain (USB-A)
-# Enabled USB interfaces: OTP+FIDO+CCID
-# NFC interface is enabled.
-# 
-# Applications	USB    	NFC     
-# OTP     	Enabled	Enabled 	
-# FIDO U2F	Enabled	Enabled 	
-# OpenPGP 	Enabled	Enabled 	
-# PIV     	Enabled	Enabled	
-# OATH    	Enabled	Enabled 	
-# FIDO2   	Enabled	Enabled 	
+#> Device type: YubiKey 5 NFC
+#> Serial number: 
+#> Firmware version: 5.1.2
+#> Form factor: Keychain (USB-A)
+#> Enabled USB interfaces: OTP+FIDO+CCID
+#> NFC interface is enabled.
+#> 
+#> Applications	USB    	NFC     
+#> OTP     	Enabled	Enabled 	
+#> FIDO U2F	Enabled	Enabled 	
+#> OpenPGP 	Enabled	Enabled 	
+#> PIV     	Enabled	Enabled	
+#> OATH    	Enabled	Enabled 	
+#> FIDO2   	Enabled	Enabled 	
 ```
 
 Make sure that OpenPGP and PIV are enabled on both Yubikeys as shown above.
@@ -448,8 +448,8 @@ pamu2fcfg -n >> ~/.config/Yubico/u2f_keys # Do the same with your backup device
 Important: before you close the terminal, open a new one and check whether you can do `sudo echo test`:
 ```sh
 sudo echo test
-# Please touch the device.
-# [sudo] Passwort for $USER
+#> Please touch the device.
+#> [sudo] Passwort for $USER
 ```
 
 ### Yubikey: two-factor authentication for luks
@@ -468,27 +468,27 @@ sudo make install-dracut
 Get the serial number(s) from your Yubikey(s):
 ```sh
 sudo ykinfo -s #with first yubikey
-# serial: 9600174
+#> serial: 9600174
 sudo ykinfo -s #with second yubikey
-# serial: 9243118
+#> serial: 9243118
 ```
 and write them down. Get the luks mapping name by looking into the crypttab (it's the first entry in each line):
 ```sh
 sudo cat /etc/crypttab
-# luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf UUID=6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf none discard
+#> luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf UUID=6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf none discard
 ```
 Now, open `/etc/ykfde.conf` with a text editor and add your mapping name and serial numbers to the bottom of the file and save it:
 ```sh
 sudo nano /etc/ykfde.conf
-# [general]
-# device name = luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf
-# second factor = yes
-# 
-# [9600174]
-# luks slot = 1
-#
-# [9243118]
-# luks slot = 2
+#> [general]
+#> device name = luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf
+#> second factor = yes
+#> 
+#> [9600174]
+#> luks slot = 1
+#>
+#> [9243118]
+#> luks slot = 2
 ```
 Make sure to choose the appropriate LUKS slot; they are numbered from 0 and slot 0 is used by default and contains your passphrase chosen in the installer. Better check it with `cryptsetup luksDump /dev/vda3` if you have other slots occupied.
 
@@ -496,15 +496,15 @@ Now, add your Yubikey with your 2-factor password of choice:
 ```sh
 ## Put in your first yubikey
 sudo ykfde --ask-new-2nd-factor
-# Please give new second factor: ## put in a password of your choice
-# Please give new second factor for verification: ## put in a password of your choice again
-# Please give existing LUKS passphrase: ## put in your existing LUKS passphrase
+#> Please give new second factor: ## put in a password of your choice
+#> Please give new second factor for verification: ## put in a password of your choice again
+#> Please give existing LUKS passphrase: ## put in your existing LUKS passphrase
 
 ## Put in your second yubikey
 sudo ykfde --ask-new-2nd-factor
-# Please give new second factor: ## put in a password of your choice
-# Please give new second factor for verification: ## put in a password of your choice again
-# Please give existing LUKS passphrase: ## put in your existing LUKS passphrase
+#> Please give new second factor: ## put in a password of your choice
+#> Please give new second factor for verification: ## put in a password of your choice again
+#> Please give existing LUKS passphrase: ## put in your existing LUKS passphrase
 ```
 
 Set up your Yubikey challenges to run at boot with these two commands:
@@ -598,7 +598,7 @@ This neat little utility improves your browsing experience:
 ```sh
 sudo dnf install -y profile-sync-daemon
 psd
-# First time running psd so please edit /home/$USER/.config/psd/psd.conf to your liking and run again
+#> First time running psd so please edit /home/$USER/.config/psd/psd.conf to your liking and run again
 nano /home/$USER/.config/psd/psd.conf
 # Close your browser now
 systemctl --user enable psd.service
@@ -669,16 +669,16 @@ The same issue happens with [Visual Studio Code](#visual-studio-code) and the wo
 
 ```sh
 nano /home/$USER/.config/autostart/com.nextcloud.desktopclient.nextcloud.desktop 
-# [Desktop Entry]
-# Categories=Utility;X-SuSE-SyncUtility;
-# Type=Application
-# Exec=bash -c 'sleep 5 && nextcloud'
-# Name=Nextcloud desktop sync client
-# Comment=Nextcloud desktop synchronization client
-# GenericName=Folder Sync
-# Icon=Nextcloud
-# Keywords=Nextcloud;syncing;file;sharing;
-# X-GNOME-Autostart-Delay=3
+#> [Desktop Entry]
+#> Categories=Utility;X-SuSE-SyncUtility;
+#> Type=Application
+#> Exec=bash -c 'sleep 5 && nextcloud'
+#> Name=Nextcloud desktop sync client
+#> Comment=Nextcloud desktop synchronization client
+#> GenericName=Folder Sync
+#> Icon=Nextcloud
+#> Keywords=Nextcloud;syncing;file;sharing;
+#> X-GNOME-Autostart-Delay=3
 ```
 What it does is simply waiting 3+5 seconds before launching the client. Your mileage may vary - perhaps you need to give it more time if your startup takes longer than mine. 
 
@@ -787,7 +787,7 @@ make -j$(($(nproc)+1)) #rule of thumb: one more than CPUs as shown by e.g. lscpu
 I have a license for MATLAB R2020a and R2020b; which I both install. In the following I will focus on the latest, but mention some details for the other version if needed.
 
 First download the installation files from [Mathworks](https://mathworks.com), then unzip the installation files. The normal installer does not work for me as I am getting a "terminate called after throwing an instance of 'std::runtime_error'; what():  Unable to launch the MATLAB Window application Aborted" error, so I run the legacy installer:
-```
+```sh
 unzip matlab_R2020b_glnxa64.zip -d /home/$USER/matlab_installer/R2020b
 /home/$USER/matlab_installer/R2020b/bin/glnxa64/install_unix_legacy
 ```
@@ -812,8 +812,8 @@ ln -s /home/$USER/MATLAB/R2020b/bin/matlab /home/$USER/.local/bin/matlab
 Now open MATLAB in the terminal and activate your license. Make note of any errors and warnings in the terminal such as
 ```sh
 matlab
-# Gtk-Message: 21:10:59.44: Failed to load module "canberra-gtk-module"
-# Gtk-Message: 21:10:59.44: Failed to load module "pk-gtk-module"
+#> Gtk-Message: 21:10:59.44: Failed to load module "canberra-gtk-module"
+#> Gtk-Message: 21:10:59.44: Failed to load module "pk-gtk-module"
 exit
 ```
 Inside MATLAB try opening Settings and the Add-Ons Manager and make note of any errors. For instance, I get all sorts of `matlab.internal.webwindow` and `matlab.internal.cef.webwindow` when I try to open e.g. the AddOns window. We will solve this later, for now exit MATLAB again.
@@ -876,9 +876,9 @@ echo 'MESA_LOADER_DRIVER_OVERRIDE=i965' | sudo tee -a /etc/environment
 Open a new terminal (or better reboot) and check the following:
 ```sh
 glxinfo | grep "direct rendering"
-#should be yes
+#~should be yes
 matlab -nodesktop -nosplash -r "opengl info; exit" | grep Software
-#should be false
+#~should be false
 ```
 
 If you run into a [shared resources-for-x11-graphics bug](https://de.mathworks.com/matlabcentral/answers/342906-could-not-initialize-shared-resources-for-x11graphicsdevice#answer_425485?s_tid=prof_contriblnk), this can be solved by
@@ -900,7 +900,7 @@ sudo bash -c 'cat > /etc/ld.so.conf.d/gtk3.conf << 'EOF'
 EOF'
 sudo ldconfig
 matlab
-#no more warnings
+#~no more warnings
 ```
 
 
@@ -961,7 +961,7 @@ tar -xvf hugo_extended_${HUGOVER:1}_Linux-64bit.tar.gz hugo
 rm hugo_extended_${HUGOVER:1}_Linux-64bit.tar.gz
 mv hugo ~/.local/bin/hugo
 hugo version
-# Hugo Static Site Generator v0.78.2-959724F0/extended linux/amd64 BuildDate: ...
+#> Hugo Static Site Generator v0.78.2-959724F0/extended linux/amd64 BuildDate: ...
 ```
 
 #### Latex related packages

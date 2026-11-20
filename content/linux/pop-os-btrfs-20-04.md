@@ -43,7 +43,7 @@ This tutorial is made with Pop!_OS 20.04 from https://system76.com/pop copied to
 Since most modern PCs have UEFI, I will cover only the UEFI installation. So, boot the installation medium in UEFI mode and choose `Try or install Pop!_OS`. Once the Live Desktop environment has started choose your language, region, and keyboard layout, then hit `Try Demo Mode`. Open a terminal (<kbd>META</kbd> + <kbd>T</kbd>) and run the following command:
 ```bash
 mount | grep efivars
-# efivarfs on /sys/firmware/efi/efivars type efivarfs (rw,nosuid,nodev,noexec,relatime)
+#> efivarfs on /sys/firmware/efi/efivars type efivarfs (rw,nosuid,nodev,noexec,relatime)
 ```
 to detect whether you are in UEFI mode. Now switch to an interactive root session:
 ```bash
@@ -58,12 +58,12 @@ You might find maximizing the terminal window is helpful for working with the co
 First find out the name of your drive. For me the installation target device is called `vda`:
 ```bash
 lsblk
-# NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-# loop0    7:0    0     2G  1 loop /rofs
-# sr0     11:0    1   2.1G  0 rom  /cdrom
-# sr1     11:1    1  1024M  0 rom
-# sr2     11:2    1  1024M  0 rom
-# vda   252:0     0    64G  0 disk
+#> NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+#> loop0    7:0    0     2G  1 loop /rofs
+#> sr0     11:0    1   2.1G  0 rom  /cdrom
+#> sr1     11:1    1  1024M  0 rom
+#> sr2     11:2    1  1024M  0 rom
+#> vda   252:0     0    64G  0 disk
 ```
 You can also open `gparted` or have a look into the `/dev` folder to make sure what your hard drives are called. In most cases they are called `sda` for normal SSD and HDD, whereas for NVME storage the naming is `nvme0`. Also note that there are no partitions or data on my hard drive, you should always double check which partition layout fits your use case, particularly if you dual-boot with other systems.
 
@@ -92,16 +92,16 @@ parted /dev/vda
   name 3 CRYPTDATA
   set 1 esp on
   print
-# Model: Virtio Block Device (virtblk)
-# Disk /dev/vda: 68.7GB
-# Sector size (logical/physical): 512B/512B
-# Partition Table: gpt
-# Disk Flags: 
-
-# Number  Start    End       Size      File system  Name       Flags
-#  1      1049kB   538MB     537MB     fat32        EFI        esp
-#  2      538MB    4833MB    4295MB    fat32        RECOVERY
-#  3      4833MB   68.7GB    63.9GB                 CRYPTDATA
+#> Model: Virtio Block Device (virtblk)
+#> Disk /dev/vda: 68.7GB
+#> Sector size (logical/physical): 512B/512B
+#> Partition Table: gpt
+#> Disk Flags: 
+#>
+#> Number  Start    End       Size      File system  Name       Flags
+#>  1      1049kB   538MB     537MB     fat32        EFI        esp
+#>  2      538MB    4833MB    4295MB    fat32        RECOVERY
+#>  3      4833MB   68.7GB    63.9GB                 CRYPTDATA
   quit
 ```
 
@@ -111,16 +111,16 @@ Pop!_OS uses the systemd bootloader, which can handle luks type 2 encryption jus
 
 ```bash
 cryptsetup luksFormat /dev/vda3
-# WARNING!
-# ========
-# This will overwrite data on /dev/vda3 irrevocably.
-# Are you sure? (Type uppercase yes): YES
-# Enter passphrase for /dev/vda3: 
-# Verify passphrase:
+#> WARNING!
+#> ========
+#> This will overwrite data on /dev/vda3 irrevocably.
+#> Are you sure? (Type uppercase yes): YES
+#> Enter passphrase for /dev/vda3: 
+#> Verify passphrase:
 cryptsetup luksOpen /dev/vda3 cryptdata
-# Enter passphrase for /dev/vda3:
+#> Enter passphrase for /dev/vda3:
 ls /dev/mapper
-# control cryptdata
+#> control cryptdata
 ```
 Use a very good password here. Now we need to create the LVM for the Pop!_OS installer, i.e. 
 
@@ -132,17 +132,17 @@ These are also the steps the Pop!_OS installer performs when you click `Clean in
 
 ```bash
 pvcreate /dev/mapper/cryptdata
-# Physical volume "/dev/mapper/cryptdata" successfully created
+#> Physical volume "/dev/mapper/cryptdata" successfully created
 vgcreate data /dev/mapper/cryptdata
-# Volume group "data" successfully created
+#> Volume group "data" successfully created
 lvcreate -n root -l 100%FREE data
-# Logical volume "root" created.
+#> Logical volume "root" created.
 ls /dev/mapper/
-# control cryptdata data-root
+#> control cryptdata data-root
 cryptsetup luksClose /dev/mapper/data-root
 cryptsetup luksClose /dev/mapper/cryptdata
 ls /dev/mapper
-# control
+#> control
 ```
 `data-root` is our root partition which we'll use for the root filesystem. We will use the Pop!_OS installer to format it to btrfs and after the installation create three subvolumes: 
 
@@ -172,7 +172,7 @@ Recheck everything (check the partitions where there is a black checkmark) and h
 Let's mount our root partition (the top-level btrfs volume always has root-id 5), but with mount options that optimize performance and durability on SSD or NVME drives:
 ```bash
 cryptsetup luksOpen /dev/vda3 cryptdata
-# Enter passphrase for /dev/vda3
+#> Enter passphrase for /dev/vda3
 mount -o subvolid=5,ssd,noatime,space_cache,commit=120,compress=zstd /dev/mapper/data-root /mnt
 ```
  I have found that there is some general agreement to use the following mount options, namely:
@@ -189,28 +189,28 @@ mount -o subvolid=5,ssd,noatime,space_cache,commit=120,compress=zstd /dev/mapper
 Now we will first create the subvolume `@` and move all files and folders from the top-level filesystem into it. Note that as we use the optimized mount options like compression, these will be applied during the moving process:
 ```bash
 btrfs subvolume create /mnt/@
-# Create subvolume '/mnt/@'
+#> Create subvolume '/mnt/@'
 cd /mnt
 ls | grep -v @ | xargs mv -t @ #move all files and folders to /mnt/@
 ls /mnt/
-# @
+#> @
 cd /
 ```
 Now let's create two more subvolumes `@home` and `@swap`. Note that the Pop!_OS installer does not create a swapfile, so there is nothing we need to copy over for swap.
 ```bash
 btrfs subvolume create /mnt/@home
-# Create subvolume '/mnt/@home'
+#> Create subvolume '/mnt/@home'
 mv /mnt/@/home/* /mnt/@home/
 ls -a /mnt/@/home
-# . ..
+#> . ..
 ls -a /mnt/@home
-# . .. wmutschl
+#> . .. wmutschl
 btrfs subvolume create /mnt/@swap
-# Create subvolume '/mnt/@swap'
+#> Create subvolume '/mnt/@swap'
 btrfs subvolume list /mnt
-# ID 264 gen 66 top level 5 path @
-# ID 267 gen 64 top level 5 path @home
-# ID 268 gen 66 top level 5 path @swap
+#> ID 264 gen 66 top level 5 path @
+#> ID 267 gen 64 top level 5 path @home
+#> ID 268 gen 66 top level 5 path @swap
 ```
 
 ### Create a btrfs swapfile
@@ -225,8 +225,8 @@ btrfs property set /mnt/@swap/swapfile compression none
 fallocate -l 4G /mnt/@swap/swapfile
 chmod 600 /mnt/@swap/swapfile
 mkswap /mnt/@swap/swapfile
-# Setting up swapspace version 1, size = 2 GiB (2147479552 bytes)
-# no label, UUID=a0fee436-e38a-4d60-bb40-680c221db376
+#> Setting up swapspace version 1, size = 2 GiB (2147479552 bytes)
+#> no label, UUID=a0fee436-e38a-4d60-bb40-680c221db376
 mkdir /mnt/@/swap
 ```
 Note that we created the folder `/swap` to mount `@swap` to it via the `fstab`. 
@@ -245,12 +245,12 @@ echo "/swap/swapfile none swap defaults 0 0" >> /mnt/@/etc/fstab
 Either way your `fstab` should look like this:
 ```bash
 cat /mnt/@/etc/fstab
-# PARTUUID=UUID_of_vda1                     /boot/efi   vfat   umask=0077   0   0
-# PARTUUID=UUID_of_vda2                     /recovery   vfat   umask=0077   0   0
-# UUID=UUID_of_data-root         /           btrfs  defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd   0   0
-# UUID=UUID_of_data-root         /home       btrfs  defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd   0   0
-# UUID=UUID_of_data-root         /swap       btrfs  defaults,subvol=@swap,compress=no   0   0
-# /swap/swapfile                            none        swap   defaults      0   0
+#> PARTUUID=UUID_of_vda1                     /boot/efi   vfat   umask=0077   0   0
+#> PARTUUID=UUID_of_vda2                     /recovery   vfat   umask=0077   0   0
+#> UUID=UUID_of_data-root         /           btrfs  defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd   0   0
+#> UUID=UUID_of_data-root         /home       btrfs  defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd   0   0
+#> UUID=UUID_of_data-root         /swap       btrfs  defaults,subvol=@swap,compress=no   0   0
+#> /swap/swapfile                            none        swap   defaults      0   0
 ```
 Note that the mount options for `@` and `@home` are the same, whereas for swap we do not use compression (in the video I did a mistake there).
 
@@ -267,18 +267,18 @@ Add a timeout to the systemd boot menu in order to easily access the recovery pa
 ```bash
 echo "timeout 2" >> /mnt/@/boot/efi/loader/loader.conf
 cat /mnt/@/boot/efi/loader/loader.conf 
-# default Pop_OS-current
-# timeout 2
+#> default Pop_OS-current
+#> timeout 2
 ```
 
 Add `rootflags=subvol=@` to last line of `Pop_OS_current.conf` either using a text editor or the following command
 ```bash
 sed -i 's/splash/splash rootflags=subvol=@/' /mnt/@/boot/efi/loader/entries/Pop_OS-current.conf
 cat /mnt/@/boot/efi/loader/entries/Pop_OS-current.conf
-# title Pop!_OS
-# linux /EFI/Pop_OS-UUID_of_data-root/vmlinuz.efi
-# initrd /EFI/Pop_OS-UUID_of_data-root/initrd.img
-# options root=UUID=UUID_of_data-root ro quiet loglevel=0 systemd.show_status=false splash rootflags=subvol=@
+#> title Pop!_OS
+#> linux /EFI/Pop_OS-UUID_of_data-root/vmlinuz.efi
+#> initrd /EFI/Pop_OS-UUID_of_data-root/initrd.img
+#> options root=UUID=UUID_of_data-root ro quiet loglevel=0 systemd.show_status=false splash rootflags=subvol=@
 ```
 where UUID_of_data-root is the UUID of /dev/mapper/data-root.
 
@@ -289,35 +289,35 @@ nano /mnt/@/etc/kernelstub/configuration
 # don't forget the comma after "splash"
 
 cat /mnt/@/etc/kernelstub/configuration
-# {
-#   "default": {
-#     "kernel_options": [
-#       "quiet",
-#       "splash"
-#     ],
-#     "esp_path": "/boot/efi",
-#     "setup_loader": false,
-#     "manage_mode": false,
-#     "force_update": false,
-#     "live_mode": false,
-#     "config_rev":3
-#   },
-#   "user": {
-#     "kernel_options": [
-#       "quiet",
-#       "loglevel=0",
-#       "systemd.show_status=false",
-#       "splash",
-#       "rootflags=subvol=@"
-#     ],
-#     "esp_path": "/boot/efi",
-#     "setup_loader": true,
-#     "manage_mode": true,
-#     "force_update": false,
-#     "live_mode": false,
-#     "config_rev":3
-#   }
-# }
+#> {
+#>   "default": {
+#>     "kernel_options": [
+#>       "quiet",
+#>       "splash"
+#>     ],
+#>     "esp_path": "/boot/efi",
+#>     "setup_loader": false,
+#>     "manage_mode": false,
+#>     "force_update": false,
+#>     "live_mode": false,
+#>     "config_rev":3
+#>   },
+#>   "user": {
+#>     "kernel_options": [
+#>       "quiet",
+#>       "loglevel=0",
+#>       "systemd.show_status=false",
+#>       "splash",
+#>       "rootflags=subvol=@"
+#>     ],
+#>     "esp_path": "/boot/efi",
+#>     "setup_loader": true,
+#>     "manage_mode": true,
+#>     "force_update": false,
+#>     "live_mode": false,
+#>     "config_rev":3
+#>   }
+#> }
 ```
 **VERY IMPORTANTLY: Don't forget the comma after `"splash"`, otherwise you get errors when you later run `update-initramfs` (see below)!**
 
@@ -339,67 +339,67 @@ sudo chroot /mnt
 Cool, you are now inside your system and we can check whether our `fstab` mounts everything correctly:
 ```bash
 mount -av
-# /boot/efi                : successfully mounted
-# /recovery                : successfully mounted
-# /                        : ignored
-# /home                    : successfully mounted
-# /swap                    : successfully mounted
-# none                     : ignored
+#> /boot/efi                : successfully mounted
+#> /recovery                : successfully mounted
+#> /                        : ignored
+#> /home                    : successfully mounted
+#> /swap                    : successfully mounted
+#> none                     : ignored
 ```
 Looks good! Now we need to install `btrfs-progs` (in the video it was already installed for some reason):
 ```bash
 apt install -y btrfs-progs
-# Reading package lists... Done
-# Building dependency tree       
-# Reading state information... Done
-# The following additional packages will be installed:
-#   liblzo2-2
-# Suggested packages:
-#   duperemove
-# The following NEW packages will be installed:
-#   btrfs-progs liblzo2-2
-# 0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded.
-# Need to get 705 kB of archives.
-# After this operation, 4292 kB of additional disk space will be used.
-# Do you want to continue? [Y/n] Y
-# Get:1 http://us.archive.ubuntu.com/ubuntu focal/main amd64 liblzo2-2 amd64 2.10-2 [50.8 kB]
-# Get:2 http://us.archive.ubuntu.com/ubuntu focal/main amd64 btrfs-progs amd64 5.4.1-2 [654 kB]
-# Fetched 705 kB in 1s (693 kB/s)  
-# Selecting previously unselected package liblzo2-2:amd64.
-# (Reading database ... 208003 files and directories currently installed.)
-# Preparing to unpack .../liblzo2-2_2.10-2_amd64.deb ...
-# Unpacking liblzo2-2:amd64 (2.10-2) ...
-# Selecting previously unselected package btrfs-progs.
-# Preparing to unpack .../btrfs-progs_5.4.1-2_amd64.deb ...
-# Unpacking btrfs-progs (5.4.1-2) ...
-# Setting up liblzo2-2:amd64 (2.10-2) ...
-# Setting up btrfs-progs (5.4.1-2) ...
-# update-initramfs: deferring update (trigger activated)
-# Processing triggers for man-db (2.9.1-1) ...
-# Processing triggers for initramfs-tools (0.136ubuntu6) ...
-# update-initramfs: Generating /boot/initrd.img-5.4.0-7624-generic
-# kernelstub.Config    : INFO     Looking for configuration...
-# kernelstub           : INFO     System information: 
-# 
-#     OS:..................Pop!_OS 20.04
-#     Root partition:....../dev/dm-1
-#     Root FS UUID:........c277ed84-e32f-4204-a211-1d80596e6e15
-#     ESP Path:............/boot/efi
-#     ESP Partition:......./dev/vda1
-#     ESP Partition #:.....1
-#     NVRAM entry #:.......-1
-#     Boot Variable #:.....0000
-#     Kernel Boot Options:.quiet loglevel=0 systemd.show_status=false splash rootflags=subvol=@
-#     Kernel Image Path:.../boot/vmlinuz-5.4.0-7624-generic
-#     Initrd Image Path:.../boot/initrd.img-5.4.0-7624-generic
-#     Force-overwrite:.....False
-# 
-# kernelstub.Installer : INFO     Copying Kernel into ESP
-# kernelstub.Installer : INFO     Copying initrd.img into ESP
-# kernelstub.Installer : INFO     Setting up loader.conf configuration
-# kernelstub.Installer : INFO     Making entry file for Pop!_OS
-# kernelstub.Installer : INFO     Backing up old kernel
-# kernelstub.Installer : INFO     No old kernel found, skipping
+#> Reading package lists... Done
+#> Building dependency tree       
+#> Reading state information... Done
+#> The following additional packages will be installed:
+#>   liblzo2-2
+#> Suggested packages:
+#>   duperemove
+#> The following NEW packages will be installed:
+#>   btrfs-progs liblzo2-2
+#> 0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded.
+#> Need to get 705 kB of archives.
+#> After this operation, 4292 kB of additional disk space will be used.
+#> Do you want to continue? [Y/n] Y
+#> Get:1 http://us.archive.ubuntu.com/ubuntu focal/main amd64 liblzo2-2 amd64 2.10-2 [50.8 kB]
+#> Get:2 http://us.archive.ubuntu.com/ubuntu focal/main amd64 btrfs-progs amd64 5.4.1-2 [654 kB]
+#> Fetched 705 kB in 1s (693 kB/s)  
+#> Selecting previously unselected package liblzo2-2:amd64.
+#> (Reading database ... 208003 files and directories currently installed.)
+#> Preparing to unpack .../liblzo2-2_2.10-2_amd64.deb ...
+#> Unpacking liblzo2-2:amd64 (2.10-2) ...
+#> Selecting previously unselected package btrfs-progs.
+#> Preparing to unpack .../btrfs-progs_5.4.1-2_amd64.deb ...
+#> Unpacking btrfs-progs (5.4.1-2) ...
+#> Setting up liblzo2-2:amd64 (2.10-2) ...
+#> Setting up btrfs-progs (5.4.1-2) ...
+#> update-initramfs: deferring update (trigger activated)
+#> Processing triggers for man-db (2.9.1-1) ...
+#> Processing triggers for initramfs-tools (0.136ubuntu6) ...
+#> update-initramfs: Generating /boot/initrd.img-5.4.0-7624-generic
+#> kernelstub.Config    : INFO     Looking for configuration...
+#> kernelstub           : INFO     System information: 
+#> 
+#>     OS:..................Pop!_OS 20.04
+#>     Root partition:....../dev/dm-1
+#>     Root FS UUID:........c277ed84-e32f-4204-a211-1d80596e6e15
+#>     ESP Path:............/boot/efi
+#>     ESP Partition:......./dev/vda1
+#>     ESP Partition #:.....1
+#>     NVRAM entry #:.......-1
+#>     Boot Variable #:.....0000
+#>     Kernel Boot Options:.quiet loglevel=0 systemd.show_status=false splash rootflags=subvol=@
+#>     Kernel Image Path:.../boot/vmlinuz-5.4.0-7624-generic
+#>     Initrd Image Path:.../boot/initrd.img-5.4.0-7624-generic
+#>     Force-overwrite:.....False
+#> 
+#> kernelstub.Installer : INFO     Copying Kernel into ESP
+#> kernelstub.Installer : INFO     Copying initrd.img into ESP
+#> kernelstub.Installer : INFO     Setting up loader.conf configuration
+#> kernelstub.Installer : INFO     Making entry file for Pop!_OS
+#> kernelstub.Installer : INFO     Backing up old kernel
+#> kernelstub.Installer : INFO     No old kernel found, skipping
 ```
 
 Note that this has also updated the initramfs, but to just be sure, run it again:
@@ -407,7 +407,7 @@ Note that this has also updated the initramfs, but to just be sure, run it again
 update-initramfs -c -k all
 ```
 Note that if you run into errors like this:
-```sh
+```text {output="Error from update-initramfs"}
 update-initramfs: Generating /boot/initrd.img-5.11.0-7620-generic
 kernelstub.Config    : INFO     Looking for configuration...
 Traceback (most recent call last):
@@ -440,7 +440,7 @@ Now, it is time to exit the chroot - cross your fingers - and reboot the system:
 
 ```bash
 exit
-# exit
+#> exit
 reboot now
 ```
 
@@ -450,42 +450,42 @@ Now let's click through the welcome screen and create a user account. Let's open
 
 ```bash
 sudo cat /etc/crypttab
-# cryptdata UUID=d17cee65-e8cc-415a-8ea8-3521332c6c41 none luks
+#> cryptdata UUID=d17cee65-e8cc-415a-8ea8-3521332c6c41 none luks
 
 sudo cat /etc/fstab
-# PARTUUID=69eb0006-62ee-4c4b-8c4a-4cab8e3e2174  /boot/efi  vfat  umask=0077  0  0
-# PARTUUID=e358f275-f7e2-4b9d-9e66-4dd5ae992eb6  /recovery  vfat  umask=0077  0  0
-# UUID=a41ad72e-5188-42e2-ab45-40938756005f  /  btrfs  defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd  0  0
-# UUID=a41ad72e-5188-42e2-ab45-40938756005f  /home  btrfs  defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd  0  0
-# UUID=a41ad72e-5188-42e2-ab45-40938756005f  /home  btrfs  defaults,subvol=@swap,compress=no  0  0
-# /swap/swapfile none swap defaults 0 0
+#> PARTUUID=69eb0006-62ee-4c4b-8c4a-4cab8e3e2174  /boot/efi  vfat  umask=0077  0  0
+#> PARTUUID=e358f275-f7e2-4b9d-9e66-4dd5ae992eb6  /recovery  vfat  umask=0077  0  0
+#> UUID=a41ad72e-5188-42e2-ab45-40938756005f  /  btrfs  defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd  0  0
+#> UUID=a41ad72e-5188-42e2-ab45-40938756005f  /home  btrfs  defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd  0  0
+#> UUID=a41ad72e-5188-42e2-ab45-40938756005f  /home  btrfs  defaults,subvol=@swap,compress=no  0  0
+#> /swap/swapfile none swap defaults 0 0
 
 sudo mount -av
-# /boot/efi                : already mounted
-# /recovery                : already mounted
-# /                        : ignored
-# /home                    : already mounted
-# /swap                    : already mounted
-# none                     : ignored
+#> /boot/efi                : already mounted
+#> /recovery                : already mounted
+#> /                        : ignored
+#> /home                    : already mounted
+#> /swap                    : already mounted
+#> none                     : ignored
 
 sudo mount -v | grep /dev/mapper
-# /dev/mapper/data-root on / type btrfs (rw,noatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=263,subvol=/@)
-# /dev/mapper/data-root on /swap type btrfs (rw,noatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=265,subvol=/@home)
-# /dev/mapper/data-root on /home type btrfs (rw,noatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=264,subvol=/@home)
+#> /dev/mapper/data-root on / type btrfs (rw,noatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=263,subvol=/@)
+#> /dev/mapper/data-root on /swap type btrfs (rw,noatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=265,subvol=/@home)
+#> /dev/mapper/data-root on /home type btrfs (rw,noatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=264,subvol=/@home)
 
 sudo swapon
-# NAME           TYPE      SIZE USED PRIO
-# /swap/swapfile file        4G   0B   -2
+#> NAME           TYPE      SIZE USED PRIO
+#> /swap/swapfile file        4G   0B   -2
 
 sudo btrfs filesystem show /
-# Label: none  uuid: a41ad72e-5188-42e2-ab45-40938756005f
-# 	Total devices 1 FS bytes used 271.63GiB
-# 	devid    1 size 468.42GiB used 294.02GiB path /dev/mapper/data-root
+#> Label: none  uuid: a41ad72e-5188-42e2-ab45-40938756005f
+#> 	Total devices 1 FS bytes used 271.63GiB
+#> 	devid    1 size 468.42GiB used 294.02GiB path /dev/mapper/data-root
 
 sudo btrfs subvolume list /
-# ID 256 gen 195 top level 5 path @
-# ID 258 gen 192 top level 5 path @home
-# ID 262 gen 180 top level 5 path @swap
+#> ID 256 gen 195 top level 5 path @
+#> ID 258 gen 192 top level 5 path @home
+#> ID 262 gen 180 top level 5 path @swap
 ```
 If all look's good, let's update and upgrade the system:
 
@@ -540,7 +540,7 @@ sudo timeshift-gtk
 
 ```bash
 ls /run/timeshift/backup
-# @  @home  @swap  timeshift-btrfs
+#> @  @home  @swap  timeshift-btrfs
 ```
 Note that `/run/timeshift/backup/@` contains your `/` folder, `/run/timeshift/backup/@home` contains your `/home` folder, `/run/timeshift/backup/@swap` contains your `/swap` folder.
 
@@ -560,54 +560,54 @@ For example, as we don't have a dedicated `/boot` partition, we can set `snapsho
 Check if everything is working:
 ```bash
 sudo timeshift-autosnap-apt
-# Rsyncing /boot/efi into the filesystem before the call to timeshift.
-# Using system disk as snapshot device for creating snapshots in BTRFS mode
-# 
-# /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=5,subvol=/
-# 
-# Creating new backup...(BTRFS)
-# Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
-# Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-43-29
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-43-29/@
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-43-29/@home
-# Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-43-29/info.json
-# BTRFS Snapshot saved successfully (0s)
-# Tagged snapshot '2020-05-06_23-43-29': ondemand
+#> Rsyncing /boot/efi into the filesystem before the call to timeshift.
+#> Using system disk as snapshot device for creating snapshots in BTRFS mode
+#> 
+#> /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=5,subvol=/
+#> 
+#> Creating new backup...(BTRFS)
+#> Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
+#> Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-43-29
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-43-29/@
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-43-29/@home
+#> Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-43-29/info.json
+#> BTRFS Snapshot saved successfully (0s)
+#> Tagged snapshot '2020-05-06_23-43-29': ondemand
 ```
 
 Now, if you run `sudo apt install|remove|upgrade|dist-upgrade`, *timeshift-autosnap-apt* will create a snapshot of your system with *Timeshift*. For example:
 
 ```bash
 sudo apt install -y rolldice
-# Reading package lists... Done
-# Building dependency tree       
-# Reading state information... Done
-# The following NEW packages will be installed:
-#   rolldice
-# 0 upgraded, 1 newly installed, 0 to remove and 37 not upgraded.
-# Need to get 9.628 B of archives.
-# After this operation, 31,7 kB of additional disk space will be used.
-# Get:1 http://de.archive.ubuntu.com/ubuntu focal/universe amd64 rolldice amd64 1.16-1build1 [9.628 B]
-# Fetched 9.628 B in 0s (32,4 kB/s)
-# Rsyncing /boot/efi into the filesystem before the call to timeshift.
-# Using system disk as snapshot device for creating snapshots in BTRFS mode
-# 
-# /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=5,subvol=/
-# 
-# Creating new backup...(BTRFS)
-# Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
-# Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-45-37
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-45-37/@
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-45-37/@home
-# Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-45-37/info.json
-# BTRFS Snapshot saved successfully (0s)
-# Tagged snapshot '2020-05-06_23-45-37': ondemand
-# Selecting previously unselected package rolldice.
-# (Reading database ... 158308 files and directories currently installed.)
-# Preparing to unpack .../rolldice_1.16-1build1_amd64.deb ...
-# Unpacking rolldice (1.16-1build1) ...
-# Setting up rolldice (1.16-1build1) ...
-# Processing triggers for man-db (2.9.1-1) ...
+#> Reading package lists... Done
+#> Building dependency tree       
+#> Reading state information... Done
+#> The following NEW packages will be installed:
+#>   rolldice
+#> 0 upgraded, 1 newly installed, 0 to remove and 37 not upgraded.
+#> Need to get 9.628 B of archives.
+#> After this operation, 31,7 kB of additional disk space will be used.
+#> Get:1 http://de.archive.ubuntu.com/ubuntu focal/universe amd64 rolldice amd64 1.16-1build1 [9.628 B]
+#> Fetched 9.628 B in 0s (32,4 kB/s)
+#> Rsyncing /boot/efi into the filesystem before the call to timeshift.
+#> Using system disk as snapshot device for creating snapshots in BTRFS mode
+#> 
+#> /dev/dm-0 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,ssd,space_cache,commit=120,subvolid=5,subvol=/
+#> 
+#> Creating new backup...(BTRFS)
+#> Saving to device: /dev/dm-0, mounted at path: /run/timeshift/backup
+#> Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-45-37
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-45-37/@
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-45-37/@home
+#> Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2020-05-06_23-45-37/info.json
+#> BTRFS Snapshot saved successfully (0s)
+#> Tagged snapshot '2020-05-06_23-45-37': ondemand
+#> Selecting previously unselected package rolldice.
+#> (Reading database ... 158308 files and directories currently installed.)
+#> Preparing to unpack .../rolldice_1.16-1build1_amd64.deb ...
+#> Unpacking rolldice (1.16-1build1) ...
+#> Setting up rolldice (1.16-1build1) ...
+#> Processing triggers for man-db (2.9.1-1) ...
 ```
 
 **FINISHED! CONGRATULATIONS AND THANKS FOR STICKING THROUGH!**

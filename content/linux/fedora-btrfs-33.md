@@ -51,28 +51,28 @@ Open a terminal (<kbd>META</kbd> + <kbd>term</kbd> + <kbd>Enter</kbd>), switch t
 ```bash
 sudo -i
 lsblk
-# NAME                                          MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINT
-# zram0                                         251:0    0   1.9G  0 disk  [SWAP]
-# vda                                           252:0    0    64G  0 disk  
-# ├─vda1                                        252:1    0   600M  0 part  /mnt/sysroot/boot/efi
-# ├─vda2                                        252:2    0     1G  0 part  /mnt/sysroot/boot
-# └─vda3                                        252:3    0  62.4G  0 part  
-#   └─luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf 253:2    0  62.4G  0 crypt /home
+#> NAME                                          MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINT
+#> zram0                                         251:0    0   1.9G  0 disk  [SWAP]
+#> vda                                           252:0    0    64G  0 disk  
+#> ├─vda1                                        252:1    0   600M  0 part  /mnt/sysroot/boot/efi
+#> ├─vda2                                        252:2    0     1G  0 part  /mnt/sysroot/boot
+#> └─vda3                                        252:3    0  62.4G  0 part  
+#>   └─luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf 253:2    0  62.4G  0 crypt /home
 
 btrfs subvolume list /
-# ID 256 gen 169 top level 5 path home
-# ID 258 gen 169 top level 5 path root
-# ID 265 gen 24 top level 258 path var/lib/machines
+#> ID 256 gen 169 top level 5 path home
+#> ID 258 gen 169 top level 5 path root
+#> ID 265 gen 24 top level 258 path var/lib/machines
 
 ls /dev/mapper
-# control luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf
+#> control luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf
 
 blkid
-# /dev/vda1: UUID="4FD9-A843" BLOCK_SIZE="512" TYPE="vfat" PARTLABEL="EFI System Partition" PARTUUID="9b25248e-f8fb-456d-8a9b-4b7025107794"
-# /dev/vda2: UUID="7d52fc6e-8804-4a34-8d16-b185d6d62319" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="f4479656-e55d-46a6-bd60-0f04f833d754"
-# /dev/vda3: UUID="6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf" TYPE="crypto_LUKS" PARTUUID="d20fbfac-af98-43bc-a01b-007719a37100"
-# /dev/mapper/luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf: LABEL="fedora_localhost-live" UUID="11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a" UUID_SUB="7353fe42-342b-42dd-b4b0-ab00cebfacbd" BLOCK_SIZE="4096" TYPE="btrfs"
-# /dev/zram0: UUID="07753a1d-ee0b-49b3-a6fc-0c1828bf1727" TYPE="swap"
+#> /dev/vda1: UUID="4FD9-A843" BLOCK_SIZE="512" TYPE="vfat" PARTLABEL="EFI System Partition" PARTUUID="9b25248e-f8fb-456d-8a9b-4b7025107794"
+#> /dev/vda2: UUID="7d52fc6e-8804-4a34-8d16-b185d6d62319" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="f4479656-e55d-46a6-bd60-0f04f833d754"
+#> /dev/vda3: UUID="6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf" TYPE="crypto_LUKS" PARTUUID="d20fbfac-af98-43bc-a01b-007719a37100"
+#> /dev/mapper/luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf: LABEL="fedora_localhost-live" UUID="11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a" UUID_SUB="7353fe42-342b-42dd-b4b0-ab00cebfacbd" BLOCK_SIZE="4096" TYPE="btrfs"
+#> /dev/zram0: UUID="07753a1d-ee0b-49b3-a6fc-0c1828bf1727" TYPE="swap"
 ```
 Note that my disk is called `vda`, in most cases they are called `sda` for normal SSD and HDD, whereas for NVME storage the naming is `nvme0`. Also my luks crypt is named `luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf`, where the number is the UUID of `/dev/vda3`.
 
@@ -84,7 +84,7 @@ Let's mount our the top-level btrfs volume (which has always id 5):
 mkdir /btrfs_pool
 mount -o subvolid=5 /dev/mapper/luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf /btrfs_pool
 ls /btrfs_pool
-# home root
+#> home root
 ```
 
 ### Create btrfs subvolumes `@` and `@home`
@@ -95,9 +95,9 @@ Now the simplest way to get `@` and `@home` is to rename `root` and `home`, i.e.
 mv /btrfs_pool/root /btrfs_pool/@
 mv /btrfs_pool/home /btrfs_pool/@home
 btrfs subvolume list /btrfs_pool
-# ID 256 gen 345 top level 5 path @home
-# ID 258 gen 346 top level 5 path @
-# ID 265 gen 24 top level 258 path var/lib/machines
+#> ID 256 gen 345 top level 5 path @home
+#> ID 258 gen 346 top level 5 path @
+#> ID 265 gen 24 top level 258 path var/lib/machines
 ```
 
 ### Make changes to fstab with optimized mount options
@@ -124,11 +124,11 @@ echo "UUID=$(blkid -s UUID -o value /dev/mapper/luks-6e7e8f26-4f38-468e-aa2c-9dd
 Either way your `fstab` should look like this:
 ```bash
 cat /etc/fstab
-# UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /                       btrfs   subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0      0 0
-# UUID=7d52fc6e-8804-4a34-8d16-b185d6d62319 /boot                   ext4    defaults                                                                                                1 2
-# UUID=4FD9-A843                            /boot/efi               vfat    umask=0077,shortname=winnt                                                                              0 2
-# UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /home                   btrfs   subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0  0 0
-# UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /btrfs_pool             btrfs   subvolid=5,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0    0 0
+#> UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /                       btrfs   subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0      0 0
+#> UUID=7d52fc6e-8804-4a34-8d16-b185d6d62319 /boot                   ext4    defaults                                                                                                1 2
+#> UUID=4FD9-A843                            /boot/efi               vfat    umask=0077,shortname=winnt                                                                              0 2
+#> UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /home                   btrfs   subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0  0 0
+#> UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /btrfs_pool             btrfs   subvolid=5,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0    0 0
 ```
 We need to let GRUB know about the changes as well:
 ```bash
@@ -144,35 +144,35 @@ Now let's open up a terminal to see whether everything is set up correctly:
 
 ```bash
 sudo cat /etc/crypttab
-# luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf UUID=6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf none discard
+#> luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf UUID=6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf none discard
 
 sudo cat /etc/fstab
-# UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /                       btrfs   subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0      0 0
-# UUID=7d52fc6e-8804-4a34-8d16-b185d6d62319 /boot                   ext4    defaults                                                                                                1 2
-# UUID=4FD9-A843                            /boot/efi               vfat    umask=0077,shortname=winnt                                                                              0 2
-# UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /home                   btrfs   subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0  0 0
-# UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /btrfs_pool             btrfs   subvolid=5,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0    0 0
+#> UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /                       btrfs   subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0      0 0
+#> UUID=7d52fc6e-8804-4a34-8d16-b185d6d62319 /boot                   ext4    defaults                                                                                                1 2
+#> UUID=4FD9-A843                            /boot/efi               vfat    umask=0077,shortname=winnt                                                                              0 2
+#> UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /home                   btrfs   subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0  0 0
+#> UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /btrfs_pool             btrfs   subvolid=5,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0    0 0
 
 sudo mount -av
-# /                        : ignored
-# /boot                    : already mounted
-# /boot/efi                : already mounted
-# /home                    : already mounted
-# /btrfs_pool              : already mounted
+#> /                        : ignored
+#> /boot                    : already mounted
+#> /boot/efi                : already mounted
+#> /home                    : already mounted
+#> /btrfs_pool              : already mounted
 
 sudo mount -v | grep /dev/mapper
-# /dev/mapper/luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf on / type btrfs (rw,noatime,seclabel,compress=zstd:3,ssd,discard=async,space_cache,commit=120,subvolid=258,subvol=/@)
-# /dev/mapper/luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf on /btrfs_pool type btrfs (rw,noatime,seclabel,compress=zstd:3,ssd,discard=async,space_cache,commit=120,subvolid=5,subvol=/)
-# /dev/mapper/luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf on /home type btrfs (rw,noatime,seclabel,compress=zstd:3,ssd,discard=async,space_cache,commit=120,subvolid=256,subvol=/@home)
+#> /dev/mapper/luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf on / type btrfs (rw,noatime,seclabel,compress=zstd:3,ssd,discard=async,space_cache,commit=120,subvolid=258,subvol=/@)
+#> /dev/mapper/luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf on /btrfs_pool type btrfs (rw,noatime,seclabel,compress=zstd:3,ssd,discard=async,space_cache,commit=120,subvolid=5,subvol=/)
+#> /dev/mapper/luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf on /home type btrfs (rw,noatime,seclabel,compress=zstd:3,ssd,discard=async,space_cache,commit=120,subvolid=256,subvol=/@home)
 
 sudo swapon
-# NAME       TYPE      SIZE USED PRIO
-# /dev/zram0 partition 1.9G   0B  100
+#> NAME       TYPE      SIZE USED PRIO
+#> /dev/zram0 partition 1.9G   0B  100
 
 sudo btrfs subvolume list /
-# ID 256 gen 464 top level 5 path @home
-# ID 258 gen 464 top level 5 path @
-# ID 265 gen 428 top level 258 path var/lib/machines
+#> ID 256 gen 464 top level 5 path @home
+#> ID 258 gen 464 top level 5 path @
+#> ID 265 gen 428 top level 258 path var/lib/machines
 ```
 
 Let's update the system and reboot one more time:
@@ -213,9 +213,9 @@ sudo timeshift-gtk
 
 ```bash
 ls /run/timeshift/backup
-# @  @home  timeshift-btrfs
+#> @  @home  timeshift-btrfs
 ls /btrfs_pool
-# @  @home  timeshift-btrfs
+#> @  @home  timeshift-btrfs
 ```
 Note that `/run/timeshift/backup/@` contains your `/` folder and `/run/timeshift/backup/@home` contains your `/home` folder.
 
@@ -252,21 +252,21 @@ GRUB is able to decrypt luks version 1 partitions at boot time, but by default v
 ```bash
 umount /boot
 cryptsetup luksFormat --type=luks1 /dev/vda2
-# WARNING!
-# ========
-# This will overwrite data on /dev/vda2 irrevocably.
-# Are you sure? (Type uppercase yes): YES
-# Enter passphrase for /dev/vda2: 
-# Verify passphrase:
+#> WARNING!
+#> ========
+#> This will overwrite data on /dev/vda2 irrevocably.
+#> Are you sure? (Type uppercase yes): YES
+#> Enter passphrase for /dev/vda2: 
+#> Verify passphrase:
 ```
 Now map the encrypted partition to a device called `crypt-boot` and choose a filesystem (e.g. ext4 or btrfs)
 
 ```bash
 cryptsetup luksOpen /dev/vda2 crypt-boot
-# Enter passphrase for /dev/vda2:
+#> Enter passphrase for /dev/vda2:
 
 ls /dev/mapper/
-# control  crypt-boot  luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf
+#> control  crypt-boot  luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf
 
 mkfs.btrfs /dev/mapper/crypt-boot
 ```
@@ -275,26 +275,26 @@ mkfs.btrfs /dev/mapper/crypt-boot
 Let's find out the new UUID of our encrypted boot partition:
 ```bash
 blkid | grep crypt-boot
-# dev/mapper/crypt-boot: UUID="3f75f101-bbe7-4850-9b33-a2196807fb01" UUID_SUB="984444d1-66fb-4d09-9586-8cb876653c28" BLOCK_SIZE="4096" TYPE="btrfs"
+#> dev/mapper/crypt-boot: UUID="3f75f101-bbe7-4850-9b33-a2196807fb01" UUID_SUB="984444d1-66fb-4d09-9586-8cb876653c28" BLOCK_SIZE="4096" TYPE="btrfs"
 ```
 and replace the old UUID of the boot partition with the new one in /etc/fstab, also making sure that btrfs is the filesystem:
 ```bash
 nano /etc/fstab
-# UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /                       btrfs   subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0      0 0
-# UUID=3f75f101-bbe7-4850-9b33-a2196807fb01 /boot                   btrfs   defaults         0 0
-# UUID=4FD9-A843                            /boot/efi               vfat    umask=0077,shortname=winnt                                                                              0 2
-# UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /home                   btrfs   subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0  0 0
-# UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /btrfs_pool             btrfs   subvolid=5,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0    0 0
+#> UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /                       btrfs   subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0      0 0
+#> UUID=3f75f101-bbe7-4850-9b33-a2196807fb01 /boot                   btrfs   defaults         0 0
+#> UUID=4FD9-A843                            /boot/efi               vfat    umask=0077,shortname=winnt                                                                              0 2
+#> UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /home                   btrfs   subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0  0 0
+#> UUID=11fa3de5-bfb4-4227-a5ee-d8a3d2d2304a /btrfs_pool             btrfs   subvolid=5,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0    0 0
 ```
 
 Also add an entry for the crypt-boot container to /etc/crypttab:
 ```bash
 blkid | grep vda2
-# UUID="84fbddb8-984c-4dda-b5b7-27a49864b5f8" TYPE="crypto_LUKS" PARTUUID="e4007823-54ac-4bce.929d-7616a04f59a8"
+#> UUID="84fbddb8-984c-4dda-b5b7-27a49864b5f8" TYPE="crypto_LUKS" PARTUUID="e4007823-54ac-4bce.929d-7616a04f59a8"
 
 nano /etc/crypttab
-# luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf UUID=6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf none discard
-# crypt-boot                                UUID=84fbddb8-984c-4dda-b5b7-27a49864b5f8 none discard
+#> luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf UUID=6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf none discard
+#> crypt-boot                                UUID=84fbddb8-984c-4dda-b5b7-27a49864b5f8 none discard
 ```
 
 Let's remount the boot partition, restore the backup, and mount the efi partition:

@@ -68,7 +68,7 @@ On AMD systems with IOMMU, you may encounter `IO_PAGE_FAULT` errors in the kerne
 
 ```fish
 sudo dmesg --level=emerg,err,warn
-# [  812.086690] ahci 0000:02:00.0: AMD-Vi: Event logged [IO_PAGE_FAULT domain=0x0043 address=0xecdd5004 flags=0x0070]
+#> [  812.086690] ahci 0000:02:00.0: AMD-Vi: Event logged [IO_PAGE_FAULT domain=0x0043 address=0xecdd5004 flags=0x0070]
 ```
 
 This [video](https://www.youtube.com/watch?v=wJN3e8Usmzw) explains the problem and solution.
@@ -80,7 +80,7 @@ sudo nano /etc/default/grub
 
 Find the line that starts with `GRUB_CMDLINE_LINUX_DEFAULT` and add `amd_iommu=on iommu=pt` to it. Also change `GRUB_TIMEOUT` to 3 seconds and `GRUB_RECORDFAIL_TIMEOUT` to 5 seconds. For example:
 
-```fish
+```bash {file="/etc/default/grub"}
 GRUB_TIMEOUT=3
 GRUB_RECORDFAIL_TIMEOUT=5
 GRUB_CMDLINE_LINUX_DEFAULT="quiet splash amd_iommu=on iommu=pt"
@@ -120,7 +120,7 @@ Once this is done, I usually connect via SSH for all other commands.
 
 Next, let's configure SSH settings by adding the following settings to the bottom of `/etc/ssh/sshd_config`:
 
-```fish
+```sh
 echo "## My Settings" | sudo tee -a /etc/ssh/sshd_config
 echo "PermitRootLogin yes" | sudo tee -a /etc/ssh/sshd_config
 echo "PasswordAuthentication no" | sudo tee -a /etc/ssh/sshd_config
@@ -154,7 +154,7 @@ Don't forget to add your public key to GitHub, GitLab, servers, etc.
 ### Configure authorized keys for incoming connections
 
 Create or edit your authorized_keys file (with correct permissions) and add your public keys:
-```fish
+```sh
 cat << EOF > ~/.ssh/authorized_keys
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJID7JVno+R8RzuCYQAV66VnZOgpuwNpQnzFiiX3tT6Q MacBook
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFSlhZlx/+KMV9LG6v8W55UAkc+aOvS8W9r1oVRH+yYq Mac Mini
@@ -183,8 +183,8 @@ Connect your machine to your Tailscale network (wait a couple of seconds until t
 
 ```fish
 sudo tailscale up
-# To authenticate, visit:
-# https://login.tailscale.com/a/SOMETHING
+#> To authenticate, visit:
+#> https://login.tailscale.com/a/SOMETHING
 ```
 
 I also disable key expiry in the Tailscale admin console to prevent periodic re-authentication.
@@ -204,8 +204,8 @@ echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf
 echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf
 sudo sysctl -p /etc/sysctl.d/99-tailscale.conf
 sudo tailscale up --advertise-exit-node
-# Warning: UDP GRO forwarding is suboptimally configured on ens10f0np0, UDP forwarding throughput # capability will increase with a configuration change.
-# See https://tailscale.com/s/ethtool-config-udp-gro
+#> Warning: UDP GRO forwarding is suboptimally configured on ens10f0np0, UDP forwarding throughput # capability will increase with a configuration change.
+#> See https://tailscale.com/s/ethtool-config-udp-gro
 ```
 
 Then enable the exit node in your Tailscale admin console.
@@ -215,12 +215,12 @@ Then enable the exit node in your Tailscale admin console.
 When running as an exit node or subnet router, Tailscale may warn about suboptimal UDP GRO forwarding.
 This [optimization](https://tailscale.com/s/ethtool-config-udp-gro) improves UDP throughput on Linux 6.2+ kernels:
 
-```fish
+```sh
 NETDEV=$(ip -o route get 8.8.8.8 | cut -f 5 -d " ")
 sudo ethtool -K $NETDEV rx-udp-gro-forwarding on rx-gro-list off
 
 systemctl is-enabled networkd-dispatcher
-# enabled
+#> enabled
 
 printf '#!/bin/sh\n\nethtool -K %s rx-udp-gro-forwarding on rx-gro-list off \n' "$(ip -o route get 8.8.8.8 | cut -f 5 -d " ")" | sudo tee /etc/networkd-dispatcher/routable.d/50-tailscale
 
@@ -238,7 +238,7 @@ You should see no error messages.
 {{< callout note >}}
 Before locking down the server, exit your current SSH session and reconnect using the Tailscale IP to ensure you won't lose access:
 
-```
+```fish
 ssh username@100.x.y.z
 ssh wmutschl@tailscale-name  # if using Tailscale's magic DNS
 ```
@@ -258,15 +258,15 @@ Check the status:
 
 ```fish
 sudo ufw status verbose
-# Status: active
-# Logging: on (low)
-# Default: deny (incoming), allow (outgoing), deny (routed)
-# New profiles: skip
-#
-# To                         Action      From
-# --                         ------      ----
-# Anywhere on tailscale0     ALLOW IN    Anywhere
-# Anywhere (v6) on tailscale0 ALLOW IN    Anywhere (v6)
+#> Status: active
+#> Logging: on (low)
+#> Default: deny (incoming), allow (outgoing), deny (routed)
+#> New profiles: skip
+#>
+#> To                         Action      From
+#> --                         ------      ----
+#> Anywhere on tailscale0     ALLOW IN    Anywhere
+#> Anywhere (v6) on tailscale0 ALLOW IN    Anywhere (v6)
 ```
 
 If you previously had SSH open on port 22 from the public internet, you can remove it:
@@ -304,17 +304,17 @@ View the current disk layout:
 
 ```fish
 lsblk
-# NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
-# sda           8:0    0   3.6T  0 disk
-# sdb           8:16   0   3.6T  0 disk
-# sdc           8:32   0 119.2G  0 disk
-# ├─sdc1        8:33   0     1G  0 part /boot/efi
-# └─sdc2        8:34   0 118.1G  0 part /
-# nvme0n1     259:0    0   1.7T  0 disk
-# ├─nvme0n1p1 259:1    0    16M  0 part
-# ├─nvme0n1p2 259:2    0  99.6G  0 part
-# ├─nvme0n1p3 259:3    0   9.8G  0 part
-# └─nvme0n1p4 259:4    0   1.6T  0 part
+#> NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+#> sda           8:0    0   3.6T  0 disk
+#> sdb           8:16   0   3.6T  0 disk
+#> sdc           8:32   0 119.2G  0 disk
+#> ├─sdc1        8:33   0     1G  0 part /boot/efi
+#> └─sdc2        8:34   0 118.1G  0 part /
+#> nvme0n1     259:0    0   1.7T  0 disk
+#> ├─nvme0n1p1 259:1    0    16M  0 part
+#> ├─nvme0n1p2 259:2    0  99.6G  0 part
+#> ├─nvme0n1p3 259:3    0   9.8G  0 part
+#> └─nvme0n1p4 259:4    0   1.6T  0 part
 ```
 
 Unlock the encrypted partitions:
@@ -339,7 +339,7 @@ sudo chown -R $USER:$USER $HOME/vm $HOME/docker
 
 Add the following entries to `/etc/fstab`:
 
-```
+```text {file="/etc/fstab"}
 #######################
 # 2 TB NVME (no RAID) #
 #######################
@@ -360,20 +360,20 @@ Mount all filesystems:
 
 ```fish
 sudo mount -av
-# /                        : ignored
-# /boot/efi                : already mounted
-# mount: (hint) your fstab has been modified, but systemd still uses
-#        the old version; use 'systemctl daemon-reload' to reload.
-# /btrfs_docker            : successfully mounted
-# /home/wmutschl/docker    : successfully mounted
-# /home/wmutschl/vm        : successfully mounted
-# /var/lib/docker          : successfully mounted
-# /btrfs_backup            : successfully mounted
+#> /                        : ignored
+#> /boot/efi                : already mounted
+#> mount: (hint) your fstab has been modified, but systemd still uses
+#>        the old version; use 'systemctl daemon-reload' to reload.
+#> /btrfs_docker            : successfully mounted
+#> /home/wmutschl/docker    : successfully mounted
+#> /home/wmutschl/vm        : successfully mounted
+#> /var/lib/docker          : successfully mounted
+#> /btrfs_backup            : successfully mounted
 ```
 
 Add these lines to `/etc/crypttab` to decrypt disks automatically at boot:
 
-```
+```text {file="/etc/crypttab"}
 crypt_docker  UUID=2b417c1a-3a7e-44a3-881e-79252a509058 none luks
 crypt_backup1 UUID=e6be3cc9-e15d-43b6-a2cb-e0a4db5cd871 none luks
 crypt_backup2 UUID=3d24ef22-0b76-4e92-b27e-97c2b92d11c6 none luks
@@ -389,43 +389,43 @@ Reboot and verify the disks are decrypted and mounted correctly:
 
 ```fish
 sudo lsblk
-# NAME             MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINTS
-# sda                8:0    0   3.6T  0 disk
-# └─crypt_backup1  252:1    0   3.6T  0 crypt /btrfs_backup
-# sdb                8:16   0   3.6T  0 disk
-# └─crypt_backup2  252:0    0   3.6T  0 crypt
-# sdc                8:32   0 119.2G  0 disk
-# ├─sdc1             8:33   0     1G  0 part  /boot/efi
-# └─sdc2             8:34   0 118.1G  0 part  /
-# nvme0n1          259:0    0   1.7T  0 disk
-# ├─nvme0n1p1      259:1    0    16M  0 part
-# ├─nvme0n1p2      259:2    0  99.6G  0 part  /var/lib/docker
-# ├─nvme0n1p3      259:3    0   9.8G  0 part
-# └─nvme0n1p4      259:4    0   1.6T  0 part
-#   └─crypt_docker 252:2    0   1.6T  0 crypt /home/wmutschl/docker
-#                                             /btrfs_docker
-#                                             /home/wmutschl/vm
+#> NAME             MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINTS
+#> sda                8:0    0   3.6T  0 disk
+#> └─crypt_backup1  252:1    0   3.6T  0 crypt /btrfs_backup
+#> sdb                8:16   0   3.6T  0 disk
+#> └─crypt_backup2  252:0    0   3.6T  0 crypt
+#> sdc                8:32   0 119.2G  0 disk
+#> ├─sdc1             8:33   0     1G  0 part  /boot/efi
+#> └─sdc2             8:34   0 118.1G  0 part  /
+#> nvme0n1          259:0    0   1.7T  0 disk
+#> ├─nvme0n1p1      259:1    0    16M  0 part
+#> ├─nvme0n1p2      259:2    0  99.6G  0 part  /var/lib/docker
+#> ├─nvme0n1p3      259:3    0   9.8G  0 part
+#> └─nvme0n1p4      259:4    0   1.6T  0 part
+#>   └─crypt_docker 252:2    0   1.6T  0 crypt /home/wmutschl/docker
+#>                                             /btrfs_docker
+#>                                             /home/wmutschl/vm
 
 sudo mount -av
-# /                        : ignored
-# /boot/efi                : already mounted
-# /btrfs_docker            : already mounted
-# /home/wmutschl/docker    : already mounted
-# /home/wmutschl/vm        : already mounted
-# /var/lib/docker          : already mounted
-# mount: /btrfs_backup: /dev/mapper/crypt_backup2 already # mounted or mount point busy.
-#        dmesg(1) may have more information after failed mount system call.
+#> /                        : ignored
+#> /boot/efi                : already mounted
+#> /btrfs_docker            : already mounted
+#> /home/wmutschl/docker    : already mounted
+#> /home/wmutschl/vm        : already mounted
+#> /var/lib/docker          : already mounted
+#> mount: /btrfs_backup: /dev/mapper/crypt_backup2 already # mounted or mount point busy.
+#>        dmesg(1) may have more information after failed mount system call.
 
 sudo btrfs filesystem show /btrfs_backup
-# Label: none  uuid: e1963877-fc4d-4412-ba2e-f67e2b865f4b
-# 	Total devices 2 FS bytes used 2.14TiB
-# 	devid    1 size 3.64TiB used 2.21TiB path /dev/mapper/crypt_backup1
-# 	devid    2 size 3.64TiB used 2.21TiB path /dev/mapper/crypt_backup2
+#> Label: none  uuid: e1963877-fc4d-4412-ba2e-f67e2b865f4b
+#> 	Total devices 2 FS bytes used 2.14TiB
+#> 	devid    1 size 3.64TiB used 2.21TiB path /dev/mapper/crypt_backup1
+#> 	devid    2 size 3.64TiB used 2.21TiB path /dev/mapper/crypt_backup2
 
 sudo btrfs filesystem show /btrfs_docker
-# Label: none  uuid: b9611a9a-0e1e-4f4b-86ce-f81845dab910
-# 	Total devices 1 FS bytes used 1.07TiB
-# 	devid    1 size 1.64TiB used 1.21TiB path /dev/mapper/crypt_docker
+#> Label: none  uuid: b9611a9a-0e1e-4f4b-86ce-f81845dab910
+#> 	Total devices 1 FS bytes used 1.07TiB
+#> 	devid    1 size 1.64TiB used 1.21TiB path /dev/mapper/crypt_docker
 ```
 
 
@@ -435,7 +435,7 @@ If you have an SSD or NVMe drive, enabling TRIM helps maintain performance over 
 
 ```fish
 sudo systemctl status fstrim.timer
-#      Loaded: loaded (/usr/lib/systemd/system/fstrim.timer; enabled; preset: enabled)
+#>      Loaded: loaded (/usr/lib/systemd/system/fstrim.timer; enabled; preset: enabled)
 ```
 
 If not enabled, enable and start it:
@@ -449,11 +449,11 @@ You can also run TRIM manually:
 
 ```fish
 sudo fstrim -av
-# /btrfs_docker: 607.6 GiB (652451688448 bytes) trimmed on /dev/mapper/crypt_docker
-# /boot/efi: 965.3 MiB (1012170752 bytes) trimmed on /dev/sdc1
-# /boot: 779.4 MiB (817225728 bytes) trimmed on /dev/sdc2
-# /var/lib/docker: 80 GiB (85931634688 bytes) trimmed on /dev/nvme0n1p2
-# /: 104.7 GiB (112431742976 bytes) trimmed on /dev/mapper/debian--vg-root
+#> /btrfs_docker: 607.6 GiB (652451688448 bytes) trimmed on /dev/mapper/crypt_docker
+#> /boot/efi: 965.3 MiB (1012170752 bytes) trimmed on /dev/sdc1
+#> /boot: 779.4 MiB (817225728 bytes) trimmed on /dev/sdc2
+#> /var/lib/docker: 80 GiB (85931634688 bytes) trimmed on /dev/nvme0n1p2
+#> /: 104.7 GiB (112431742976 bytes) trimmed on /dev/mapper/debian--vg-root
 ```
 
 
@@ -481,7 +481,7 @@ sudo chmod a+r /etc/apt/keyrings/docker.asc
 
 Add the repository to Apt sources (copy all files to last EOF):
 
-```fish
+```sh
 sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
 Types: deb
 URIs: https://download.docker.com/linux/ubuntu
@@ -520,8 +520,8 @@ Verify Docker works without root (run as your normal user, not root):
 
 ```fish
 docker run hello-world
-# Hello from Docker!
-# This message shows that your installation appears to be working correctly.
+#> Hello from Docker!
+#> This message shows that your installation appears to be working correctly.
 ```
 
 ### Deploy Docker containers
@@ -568,9 +568,9 @@ Begin by adding an entry to the fstab to mount the top-level BTRFS root to `/btr
 
 ```fish
 sudo nano /etc/fstab
-# /dev/disk/by-uuid/48c5cb40-0a06-4222-944c-4b9ccca36fc2 /           btrfs defaults,compress=zstd:1,subvol=@      0 0
-# /dev/disk/by-uuid/48c5cb40-0a06-4222-944c-4b9ccca36fc2 /home       btrfs defaults,compress=zstd:1,subvol=@home  0 0
-# /dev/disk/by-uuid/48c5cb40-0a06-4222-944c-4b9ccca36fc2 /btrfs_pool btrfs defaults,compress=zstd:1,subvolid=5    0 0
+#> /dev/disk/by-uuid/48c5cb40-0a06-4222-944c-4b9ccca36fc2 /           btrfs defaults,compress=zstd:1,subvol=@      0 0
+#> /dev/disk/by-uuid/48c5cb40-0a06-4222-944c-4b9ccca36fc2 /home       btrfs defaults,compress=zstd:1,subvol=@home  0 0
+#> /dev/disk/by-uuid/48c5cb40-0a06-4222-944c-4b9ccca36fc2 /btrfs_pool btrfs defaults,compress=zstd:1,subvolid=5    0 0
 ```
 
 Then mount the filesystem:
@@ -578,7 +578,7 @@ Then mount the filesystem:
 ```fish
 sudo mount -av
 ls /btrfs_pool
-# @/  @home/
+#> @/  @home/
 ```
 
 Create a directory for the snapshots:
@@ -592,7 +592,7 @@ Next, install BTRBK:
 ```fish
 sudo apt install btrbk
 btrbk --version
-# btrbk command line client, version 0.32.6
+#> btrbk command line client, version 0.32.6
 ```
 
 Test the BTRBK configuration with a dry run before executing the actual backup.
@@ -643,7 +643,7 @@ sudo crontab -e
 
 To use my GPG keys stored on my Mac (YubiKey) remotely, I forward the GPG agent over SSH.
 On the **Mac**, I create an entry in `~/.ssh/config` for the SSH connection using the Tailscale IP:
-```
+```sshconfig {file="~/.ssh/config"}
 Host simba-tailscale
    User wmutschl
    HostName 100.105.169.114
@@ -693,9 +693,9 @@ cd $HOME/.gnupg
 export KEYID=91E724BF17A73F6D
 echo "This is an encrypted message" | gpg --encrypt --armor --recipient $KEYID -o encrypted.txt # this should ask you for the pin of your YubiKey
 gpg --decrypt --armor encrypted.txt
-# gpg: encrypted with rsa4096 key, ID 16B5237D55638B96, created 2019-12-09
-#       "Willi Mutschler <willi@mutschler.eu>"
-# This is an encrypted message
+#> gpg: encrypted with rsa4096 key, ID 16B5237D55638B96, created 2019-12-09
+#>       "Willi Mutschler <willi@mutschler.eu>"
+#> This is an encrypted message
 scp encrypted.txt simba-tailscale:.gnupg/encrypted.txt
 ```
 
@@ -703,30 +703,30 @@ scp encrypted.txt simba-tailscale:.gnupg/encrypted.txt
 Third, reconnect using verbose mode to check whether the socket is forwarded correctly:
 ```fish
 ssh simba-tailscale -v
-# ...
-# debug1: Remote connections from /run/user/1000/gnupg/S.gpg-agent:-2 forwarded to local address /Users/wmutschl/.gnupg/S.gpg-agent.extra:-2
-# ...
-# debug1: Remote: /home/wmutschl/.ssh/authorized_keys:1: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
-# debug1: Remote: /home/wmutschl/.ssh/authorized_keys:1: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
-# debug1: remote forward success for: listen /run/user/1000/gnupg/S.gpg-agent:-2, connect /Users/wmutschl/.gnupg/S.gpg-agent.extra:-2
-# ...
+#> ...
+#> debug1: Remote connections from /run/user/1000/gnupg/S.gpg-agent:-2 forwarded to local address /Users/wmutschl/.gnupg/S.gpg-agent.extra:-2
+#> ...
+#> debug1: Remote: /home/wmutschl/.ssh/authorized_keys:1: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+#> debug1: Remote: /home/wmutschl/.ssh/authorized_keys:1: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+#> debug1: remote forward success for: listen /run/user/1000/gnupg/S.gpg-agent:-2, connect /Users/wmutschl/.gnupg/S.gpg-agent.extra:-2
+#> ...
 ```
 If you see the above, then the socket is forwarded correctly.
 
 Fourth, **on the server** decrypt the file:
 ```fish
 gpg --decrypt --armor .gnupg/encrypted.txt # this should ask you for the pin of your YubiKey
-# debug1: client_input_channel_open: ctype forwarded-streamlocal@openssh.com rchan 2 win 2097152 max 32768
-# debug1: client_request_forwarded_streamlocal: request: /run/user/1000/gnupg/S.gpg-agent
-# debug1: connect_next: start for host /Users/wmutschl/.gnupg/S.gpg-agent.extra ([unix]:/Users/wmutschl/.gnupg/S.gpg-agent.extra)
-# debug1: connect_next: connect host /Users/wmutschl/.gnupg/S.gpg-agent.extra ([unix]:/Users/wmutschl/.gnupg/S.gpg-agent.extra) in progress, fd=7
-# debug1: channel 1: new forwarded-streamlocal@openssh.com [forwarded-streamlocal] (inactive timeout: 0)
-# debug1: confirm forwarded-streamlocal@openssh.com
-# debug1: channel 1: connected to /Users/wmutschl/.gnupg/S.gpg-agent.extra port -2
-# gpg: encrypted with rsa4096 key, ID 16B5237D55638B96, created 2019-12-09
-#       "Willi Mutschler <willi@mutschler.eu>"
-# gpg: problem with fast path key listing: Forbidden - ignored
-# This is an encrypted message
+#> debug1: client_input_channel_open: ctype forwarded-streamlocal@openssh.com rchan 2 win 2097152 max 32768
+#> debug1: client_request_forwarded_streamlocal: request: /run/user/1000/gnupg/S.gpg-agent
+#> debug1: connect_next: start for host /Users/wmutschl/.gnupg/S.gpg-agent.extra ([unix]:/Users/wmutschl/.gnupg/S.gpg-agent.extra)
+#> debug1: connect_next: connect host /Users/wmutschl/.gnupg/S.gpg-agent.extra ([unix]:/Users/wmutschl/.gnupg/S.gpg-agent.extra) in progress, fd=7
+#> debug1: channel 1: new forwarded-streamlocal@openssh.com [forwarded-streamlocal] (inactive timeout: 0)
+#> debug1: confirm forwarded-streamlocal@openssh.com
+#> debug1: channel 1: connected to /Users/wmutschl/.gnupg/S.gpg-agent.extra port -2
+#> gpg: encrypted with rsa4096 key, ID 16B5237D55638B96, created 2019-12-09
+#>       "Willi Mutschler <willi@mutschler.eu>"
+#> gpg: problem with fast path key listing: Forbidden - ignored
+#> This is an encrypted message
 ```
 If you see the content of the encrypted message, then everything is working correctly. Don't worry about the `fast path key listening` warning.
 
@@ -769,7 +769,7 @@ sudo apt install -y gcc g++ gfortran octave-dev libboost-graph-dev libgsl-dev li
 
 ### MATLAB
 I have a license for MATLAB, so I download it from their website and run the installer after unzipping:
-```
+```fish
 cd Downloads
 unzip matlab_R2025b_Linux.zip -d matlab_installer
 matlab_installer/install

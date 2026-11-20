@@ -54,15 +54,15 @@ You might find maximizing the terminal window is helpful for working with the co
 First find out the name of your drive. You can also open `gparted` or have a look into the `/dev` folder to make sure what your hard drives are called. In most cases they are called `sda`, `sdb`, `sdc`... for normal SSD and HDD, whereas for NVME storage the naming is `nvme0n1`, `nvme0n2`, `nvme0n3`,.... I usually use the following command to get an overview:
 ```bash
 lsblk
-# NAME    MAJ:MIN RM    SIZE RO TYPE MOUNTPOINT
-# loop0     7:0    0    2.6G  1 loop /rofs
-# sda       8:0    0  465.8G  0 disk 
-# └─sda1    8:1    0  465.8G  0 part 
-# sdb       8:16   1    3.7G  0 disk 
-# ├─sdb1    8:17   1    2.7G  0 part /cdrom
-# ├─sdb2    8:18   1      4M  0 part 
-# └─sdb3    8:19   1 1011.5M  0 part /var/crash
-# nvme0n1 259:0    0  476.9G  0 disk
+#> NAME    MAJ:MIN RM    SIZE RO TYPE MOUNTPOINT
+#> loop0     7:0    0    2.6G  1 loop /rofs
+#> sda       8:0    0  465.8G  0 disk 
+#> └─sda1    8:1    0  465.8G  0 part 
+#> sdb       8:16   1    3.7G  0 disk 
+#> ├─sdb1    8:17   1    2.7G  0 part /cdrom
+#> ├─sdb2    8:18   1      4M  0 part 
+#> └─sdb3    8:19   1 1011.5M  0 part /var/crash
+#> nvme0n1 259:0    0  476.9G  0 disk
 ```
 In my case `sda` is an internal SSD that I use for [my backup strategy](/stuff/backup_old/#dell-precision-7520-linux), whereas `sdb` is the flash drive that contains the installation files. So, for me the installation target device is called `nvme0n1`.
 
@@ -94,17 +94,17 @@ parted /dev/nvme0n1 name 4 POPOS
 parted /dev/nvme0n1 set 1 esp on
 parted /dev/nvme0n1 set 3 swap on
 parted /dev/nvme0n1 unit MiB print
-# Model: PM961 NVMe SAMSUNG 512GB (nvme)
-# Disk /dev/nvme0n1: 488386MiB
-# Sector size (logical/physical): 512B/512B
-# Partition Table: gpt
-# Disk Flags: 
-# 
-# Number  Start    End        Size       File system  Name      Flags
-#  1      2.00MiB  500MiB     498MiB     fat32        EFI       boot, esp
-#  2      500MiB   4596MiB    4096MiB    fat32        recovery  msftdata
-#  3      4596MiB  8692MiB    4096MiB                 SWAP      swap
-#  4      8692MiB  488386MiB  479694MiB               POPOS
+#> Model: PM961 NVMe SAMSUNG 512GB (nvme)
+#> Disk /dev/nvme0n1: 488386MiB
+#> Sector size (logical/physical): 512B/512B
+#> Partition Table: gpt
+#> Disk Flags: 
+#> 
+#> Number  Start    End        Size       File system  Name      Flags
+#>  1      2.00MiB  500MiB     498MiB     fat32        EFI       boot, esp
+#>  2      500MiB   4596MiB    4096MiB    fat32        recovery  msftdata
+#>  3      4596MiB  8692MiB    4096MiB                 SWAP      swap
+#>  4      8692MiB  488386MiB  479694MiB               POPOS
 ```
 
 ### Create luks2 partition, LVM and btrfs root filesystem
@@ -113,16 +113,16 @@ Pop!_OS uses the systemd bootloader, which can handle luks type 2 encryption jus
 
 ```bash
 cryptsetup luksFormat /dev/nvme0n1p4
-# WARNING!
-# ========
-# This will overwrite data on /dev/nvme0n1p4 irrevocably.
-# Are you sure? (Type uppercase yes): YES
-# Enter passphrase for /dev/nvme0n1p4: 
-# Verify passphrase:
+#> WARNING!
+#> ========
+#> This will overwrite data on /dev/nvme0n1p4 irrevocably.
+#> Are you sure? (Type uppercase yes): YES
+#> Enter passphrase for /dev/nvme0n1p4: 
+#> Verify passphrase:
 cryptsetup luksOpen /dev/nvme0n1p4 cryptdata
-# Enter passphrase for /dev/nvme0n1p4:
+#> Enter passphrase for /dev/nvme0n1p4:
 ls /dev/mapper
-# control cryptdata
+#> control cryptdata
 ```
 Use a very good password here. Now we need to create the LVM for the Pop!_OS installer, i.e. 
 
@@ -134,17 +134,17 @@ These are also the steps the Pop!_OS installer performs when you click `Clean in
 
 ```bash
 pvcreate /dev/mapper/cryptdata
-# Physical volume "/dev/mapper/cryptdata" successfully created
+#> Physical volume "/dev/mapper/cryptdata" successfully created
 vgcreate data /dev/mapper/cryptdata
-# Volume group "data" successfully created
+#> Volume group "data" successfully created
 lvcreate -n root -l 100%FREE data
-# Logical volume "root" created.
+#> Logical volume "root" created.
 ls /dev/mapper/
-# control cryptdata data-root
+#> control cryptdata data-root
 cryptsetup luksClose /dev/mapper/data-root
 cryptsetup luksClose /dev/mapper/cryptdata
 ls /dev/mapper
-# control
+#> control
 ```
 `data-root` is our root partition which we'll use for the root filesystem. We will use the Pop!_OS installer to format it to btrfs and after the installation create two subvolumes: 
 
@@ -173,7 +173,7 @@ Recheck everything (check the partitions where there is a black checkmark) and h
 Let's mount our root partition (the top-level btrfs volume always has root-id 5), but with mount options that optimize performance and durability on SSD or NVME drives:
 ```bash
 cryptsetup luksOpen /dev/nvme0n1p4 cryptdata
-# Enter passphrase for /dev/nvme0n1p4
+#> Enter passphrase for /dev/nvme0n1p4
 mount -o subvolid=5,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async /dev/mapper/data-root /mnt
 ```
  I have found that there is some general agreement to use the following mount options, namely:
@@ -192,25 +192,25 @@ We will later also append these mount options to the fstab, but it is good pract
 Now we will first create the subvolume `@` and move all files and folders from the top-level filesystem into `@`. Note that as we use the optimized mount options like compression, these will be applied during the moving process:
 ```bash
 btrfs subvolume create /mnt/@
-# Create subvolume '/mnt/@'
+#> Create subvolume '/mnt/@'
 cd /mnt
 ls | grep -v @ | xargs mv -t @ #move all files and folders to /mnt/@
 ls -a /mnt
-# . .. @
+#> . .. @
 ```
 Now let's create another subvolume called `@home` and move the user folder from `/mnt/@/home/` into `@home`:
 ```bash
 btrfs subvolume create /mnt/@home
-# Create subvolume '/mnt/@home'
+#> Create subvolume '/mnt/@home'
 mv /mnt/@/home/* /mnt/@home/
 ls -a /mnt/@/home
-# . ..
+#> . ..
 ls -a /mnt/@home
-# . .. wmutschl
+#> . .. wmutschl
 
 btrfs subvolume list /mnt
-# ID 264 gen 339 top level 5 path @
-# ID 265 gen 340 top level 5 path @home
+#> ID 264 gen 339 top level 5 path @
+#> ID 265 gen 340 top level 5 path @home
 ```
 
 ### Changes to fstab and crypttab
@@ -232,11 +232,11 @@ Either way your `fstab` should look like this:
 ```bash
 cat /mnt/@/etc/fstab
 
-# PARTUUID=57a2caa4-adb4-4b30-bf56-370907690882  /boot/efi  vfat  umask=0077  0  0
-# PARTUUID=bc7b4892-230a-46ed-91a7-418b7b2726e1  /recovery  vfat  umask=0077  0  0
-# /dev/mapper/cryptswap  none  swap  defaults  0  0
-# UUID=498cd72c-fdcb-4569-991d-229aa17d3dd4  /  btrfs  defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async  0  0
-# UUID=498cd72c-fdcb-4569-991d-229aa17d3dd4 /home btrfs defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async 0 0
+#> PARTUUID=57a2caa4-adb4-4b30-bf56-370907690882  /boot/efi  vfat  umask=0077  0  0
+#> PARTUUID=bc7b4892-230a-46ed-91a7-418b7b2726e1  /recovery  vfat  umask=0077  0  0
+#> /dev/mapper/cryptswap  none  swap  defaults  0  0
+#> UUID=498cd72c-fdcb-4569-991d-229aa17d3dd4  /  btrfs  defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async  0  0
+#> UUID=498cd72c-fdcb-4569-991d-229aa17d3dd4 /home btrfs defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async 0 0
 ```
 Note that your PARTUUID and UUID numbers will be different.
 
@@ -245,8 +245,8 @@ Lastly, as we use `discard=async`, we need to add discard to the `crypttab`:
 ```sh
 sed -i 's/luks/luks,discard/' /mnt/@/etc/crypttab
 cat /mnt/@/etc/crypttab
-# cryptswap UUID=4811153e-7b1d-489d-a350-a5b58e0c05b5 /dev/urandom swap,plain,offset=1024,cipher=aes-xts-plain64,size=512
-# cryptdata UUID=48acea7a-7290-40de-b3c8-3fab4e328f60 none luks,discard
+#> cryptswap UUID=4811153e-7b1d-489d-a350-a5b58e0c05b5 /dev/urandom swap,plain,offset=1024,cipher=aes-xts-plain64,size=512
+#> cryptdata UUID=48acea7a-7290-40de-b3c8-3fab4e328f60 none luks,discard
 ```
 
 ### Adjust configuration of systemd bootloader and kernelstub
@@ -261,18 +261,18 @@ Add a timeout to the systemd boot menu in order to easily access the recovery pa
 ```bash
 echo "timeout 2" >> /mnt/@/boot/efi/loader/loader.conf
 cat /mnt/@/boot/efi/loader/loader.conf 
-# default Pop_OS-current
-# timeout 2
+#> default Pop_OS-current
+#> timeout 2
 ```
 
 Add `rootflags=subvol=@` to last line of `Pop_OS_current.conf` either using a text editor or the following command
 ```bash
 sed -i 's/splash/splash rootflags=subvol=@/' /mnt/@/boot/efi/loader/entries/Pop_OS-current.conf
 cat /mnt/@/boot/efi/loader/entries/Pop_OS-current.conf
-# title Pop!_OS
-# linux /EFI/Pop_OS-UUID_of_data-root/vmlinuz.efi
-# initrd /EFI/Pop_OS-UUID_of_data-root/initrd.img
-# options root=UUID=UUID_of_data-root ro quiet loglevel=0 systemd.show_status=false splash rootflags=subvol=@
+#> title Pop!_OS
+#> linux /EFI/Pop_OS-UUID_of_data-root/vmlinuz.efi
+#> initrd /EFI/Pop_OS-UUID_of_data-root/initrd.img
+#> options root=UUID=UUID_of_data-root ro quiet loglevel=0 systemd.show_status=false splash rootflags=subvol=@
 ```
 where UUID_of_data-root is the UUID of /dev/mapper/data-root.
 
@@ -283,35 +283,35 @@ nano /mnt/@/etc/kernelstub/configuration
 # don't forget the comma after "splash"
 
 cat /mnt/@/etc/kernelstub/configuration
-# {
-#   "default": {
-#     "kernel_options": [
-#       "quiet",
-#       "splash"
-#     ],
-#     "esp_path": "/boot/efi",
-#     "setup_loader": false,
-#     "manage_mode": false,
-#     "force_update": false,
-#     "live_mode": false,
-#     "config_rev":3
-#   },
-#   "user": {
-#     "kernel_options": [
-#       "quiet",
-#       "loglevel=0",
-#       "systemd.show_status=false",
-#       "splash",
-#       "rootflags=subvol=@"
-#     ],
-#     "esp_path": "/boot/efi",
-#     "setup_loader": true,
-#     "manage_mode": true,
-#     "force_update": false,
-#     "live_mode": false,
-#     "config_rev":3
-#   }
-# }
+#> {
+#>   "default": {
+#>     "kernel_options": [
+#>       "quiet",
+#>       "splash"
+#>     ],
+#>     "esp_path": "/boot/efi",
+#>     "setup_loader": false,
+#>     "manage_mode": false,
+#>     "force_update": false,
+#>     "live_mode": false,
+#>     "config_rev":3
+#>   },
+#>   "user": {
+#>     "kernel_options": [
+#>       "quiet",
+#>       "loglevel=0",
+#>       "systemd.show_status=false",
+#>       "splash",
+#>       "rootflags=subvol=@"
+#>     ],
+#>     "esp_path": "/boot/efi",
+#>     "setup_loader": true,
+#>     "manage_mode": true,
+#>     "force_update": false,
+#>     "live_mode": false,
+#>     "config_rev":3
+#>   }
+#> }
 ```
 **VERY IMPORTANTLY: Don't forget the comma after `"splash"`, otherwise you get errors when you later run `update-initramfs` (see below)!**
 
@@ -332,18 +332,18 @@ chroot /mnt
 Cool, you are now inside your system and we can check whether our `fstab` mounts everything correctly:
 ```bash
 mount -av
-# /boot/efi                : successfully mounted
-# /recovery                : successfully mounted
-# none                     : ignored
-# /                        : ignored
-# /home                    : successfully mounted
+#> /boot/efi                : successfully mounted
+#> /recovery                : successfully mounted
+#> none                     : ignored
+#> /                        : ignored
+#> /home                    : successfully mounted
 ```
 Looks good! Now we need to update the initramfs to make it aware of our changes:
 ```bash
 update-initramfs -c -k all
 ```
 Note that if you run into errors like this:
-```sh
+```text {output="Error from update-initramfs"}
 update-initramfs: Generating /boot/initrd.img-5.11.0-7620-generic
 kernelstub.Config    : INFO     Looking for configuration...
 Traceback (most recent call last):
@@ -376,7 +376,7 @@ Now, it is time to exit the chroot - cross your fingers - and reboot the system:
 
 ```bash
 exit
-# exit
+#> exit
 reboot now
 ```
 
@@ -386,28 +386,28 @@ Now let's click through the welcome screen (actually it took a minute until the 
 
 ```bash
 sudo mount -av
-# /boot/efi                : already mounted
-# /recovery                : already mounted
-# none                     : ignored
-# /                        : ignored
-# /home                    : already mounted
+#> /boot/efi                : already mounted
+#> /recovery                : already mounted
+#> none                     : ignored
+#> /                        : ignored
+#> /home                    : already mounted
 
 sudo mount -v | grep /dev/mapper
-# /dev/mapper/data-root on / type btrfs (rw,noatime,compress=zstd:3,ssd,discard=async,space_cache,commit=120,subvolid=264,subvol=/@)
-# /dev/mapper/data-root on /home type btrfs (rw,noatime,compress=zstd:3,ssd,discard=async,space_cache,commit=120,subvolid=265,subvol=/@home)
+#> /dev/mapper/data-root on / type btrfs (rw,noatime,compress=zstd:3,ssd,discard=async,space_cache,commit=120,subvolid=264,subvol=/@)
+#> /dev/mapper/data-root on /home type btrfs (rw,noatime,compress=zstd:3,ssd,discard=async,space_cache,commit=120,subvolid=265,subvol=/@home)
 
 sudo swapon
-# NAME           TYPE      SIZE USED PRIO
-# /dev/dm-2      partition 4G   0B   -2
+#> NAME           TYPE      SIZE USED PRIO
+#> /dev/dm-2      partition 4G   0B   -2
 
 sudo btrfs filesystem show /
-# Label: none  uuid: 498cd72c-fdcb-4569-991d-229aa17d3dd4
-# 	Total devices 1 FS bytes used 6.75GiB
-# 	devid    1 size 468.43GiB used 8.02GiB path dm-1
+#> Label: none  uuid: 498cd72c-fdcb-4569-991d-229aa17d3dd4
+#> 	Total devices 1 FS bytes used 6.75GiB
+#> 	devid    1 size 468.43GiB used 8.02GiB path dm-1
 
 sudo btrfs subvolume list /
-# ID 264 gen 410 top level 5 path @
-# ID 265 gen 410 top level 5 path @home
+#> ID 264 gen 410 top level 5 path @
+#> ID 265 gen 410 top level 5 path @home
 ```
 If all look's good, let's update and upgrade the system:
 
@@ -460,7 +460,7 @@ sudo timeshift-gtk
 
 ```bash
 ls /run/timeshift/backup
-# @  @home  timeshift-btrfs
+#> @  @home  timeshift-btrfs
 ```
 Note that `/run/timeshift/backup/@` contains your `/` folder and `/run/timeshift/backup/@home` contains your `/home` folder.
 
@@ -480,19 +480,19 @@ For example, as we don't have a dedicated `/boot` partition, we can set `snapsho
 Check if everything is working:
 ```bash
 sudo timeshift-autosnap-apt
-# Rsyncing /boot/efi into the filesystem before the call to timeshift.
-# Using system disk as snapshot device for creating snapshots in BTRFS mode
-# 
-# /dev/dm-1 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,ssd,discard=async,space_cache,commit=120,subvolid=5,subvol=/
-# 
-# Creating new backup...(BTRFS)
-# Saving to device: /dev/dm-1, mounted at path: /run/timeshift/backup
-# Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-07-27_22-14-29
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-07-27_22-14-29/@
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-07-27_22-14-29/@home
-# Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-07-27_22-14-29/info.json
-# BTRFS Snapshot saved successfully (0s)
-# Tagged snapshot '2021-07-27_22-14-29': ondemand
+#> Rsyncing /boot/efi into the filesystem before the call to timeshift.
+#> Using system disk as snapshot device for creating snapshots in BTRFS mode
+#> 
+#> /dev/dm-1 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:3,ssd,discard=async,space_cache,commit=120,subvolid=5,subvol=/
+#> 
+#> Creating new backup...(BTRFS)
+#> Saving to device: /dev/dm-1, mounted at path: /run/timeshift/backup
+#> Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-07-27_22-14-29
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-07-27_22-14-29/@
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-07-27_22-14-29/@home
+#> Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2021-07-27_22-14-29/info.json
+#> BTRFS Snapshot saved successfully (0s)
+#> Tagged snapshot '2021-07-27_22-14-29': ondemand
 ```
 
 Now, if you run `sudo apt install|remove|upgrade|dist-upgrade`, *timeshift-autosnap-apt* will create a snapshot of your system with *Timeshift*.

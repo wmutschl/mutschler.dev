@@ -78,23 +78,23 @@ First, let's see the current partition layout:
 
 ```fish
 lsblk
-# NAME                    MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINTS
-# sr0                      11:0    1   3.8G  0 rom
-# sr1                      11:1    1  1024M  0 rom
-# vda                     254:0    0    16G  0 disk
-# ├─vda1                  254:1    0   869M  0 part  /boot/efi
-# ├─vda2                  254:2    0   870M  0 part  /boot
-# └─vda3                  254:3    0  14.3G  0 part
-#   └─vda3_crypt          252:0    0  14.3G  0 crypt
-#     ├─debian--vg-root   252:1    0  13.5G  0 lvm   /
-#     └─debian--vg-swap_1 252:2    0   804M  0 lvm   [SWAP]
+#> NAME                    MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINTS
+#> sr0                      11:0    1   3.8G  0 rom
+#> sr1                      11:1    1  1024M  0 rom
+#> vda                     254:0    0    16G  0 disk
+#> ├─vda1                  254:1    0   869M  0 part  /boot/efi
+#> ├─vda2                  254:2    0   870M  0 part  /boot
+#> └─vda3                  254:3    0  14.3G  0 part
+#>   └─vda3_crypt          252:0    0  14.3G  0 crypt
+#>     ├─debian--vg-root   252:1    0  13.5G  0 lvm   /
+#>     └─debian--vg-swap_1 252:2    0   804M  0 lvm   [SWAP]
 ```
 
 Check the current BTRFS subvolumes:
 
 ```fish
 btrfs subvolume list /
-# ID 256 gen 63 top level 5 path @rootfs
+#> ID 256 gen 63 top level 5 path @rootfs
 ```
 
 The installer created a subvolume called `@rootfs`. We'll create `@` as a snapshot of this and add `@home` for `/home`.
@@ -106,7 +106,7 @@ Mount the top-level BTRFS volume (subvolid=5) to `/mnt`:
 ```fish
 mount -o subvolid=5 /dev/mapper/debian--vg-root /mnt
 ls /mnt
-# @rootfs
+#> @rootfs
 ```
 
 {{< callout note >}}
@@ -119,7 +119,7 @@ Create a snapshot of `@rootfs` called `@`:
 
 ```fish
 btrfs subvolume snapshot /mnt/@rootfs /mnt/@
-# Create a snapshot of '/mnt/@rootfs' in '/mnt/@'
+#> Create a snapshot of '/mnt/@rootfs' in '/mnt/@'
 ```
 
 ### Create the `@home` subvolume
@@ -128,7 +128,7 @@ Create the `@home` subvolume and move the home directory contents from the `@` s
 
 ```fish
 btrfs subvolume create /mnt/@home
-# Create subvolume '/mnt/@home'
+#> Create subvolume '/mnt/@home'
 mv /mnt/@/home/* /mnt/@home/
 ```
 
@@ -136,13 +136,13 @@ Verify the subvolumes:
 
 ```fish
 ls -a /mnt/@/home
-# . ..
+#> . ..
 ls -a /mnt/@home
-# . .. wmutschl
+#> . .. wmutschl
 btrfs subvolume list /mnt
-# ID 256 gen 68 top level 5 path @rootfs
-# ID 257 gen 68 top level 5 path @
-# ID 258 gen 68 top level 5 path @home
+#> ID 256 gen 68 top level 5 path @rootfs
+#> ID 257 gen 68 top level 5 path @
+#> ID 258 gen 68 top level 5 path @home
 ```
 
 ## Step 3: Update fstab
@@ -156,18 +156,18 @@ nano /mnt/@/etc/fstab
 Find the line that mounts `/` and change it:
 
 **Before:**
-```
+```text {file="/mnt/@/etc/fstab"}
 /dev/mapper/debian--vg-root /               btrfs   relatime,compress,ssd,discard,subvol=@rootfs 0       0
 ```
 
 **After:**
-```
+```text {file="/mnt/@/etc/fstab"}
 /dev/mapper/debian--vg-root /               btrfs   relatime,compress,ssd,discard,subvol=@ 0       0
 ```
 
 Add a new line for `/home`:
 
-```
+```text {file="/mnt/@/etc/fstab"}
 /dev/mapper/debian--vg-root /home           btrfs   relatime,compress,ssd,discard,subvol=@home 0       0
 ```
 
@@ -175,21 +175,21 @@ Your fstab should look similar to this:
 
 ```fish
 cat /mnt/@/etc/fstab
-# /dev/mapper/debian--vg-root /               btrfs   relatime,compress,ssd,discard,subvol=@ 0       0
-# /dev/mapper/debian--vg-root /home           btrfs   relatime,compress,ssd,discard,subvol=@home 0       0
-# # /boot was on /dev/vda2 during installation
-# UUID=2647b326-dd45-4f11-8823-2724d7a02cb8 /boot           ext4    defaults        0       2
-# # /boot/efi was on /dev/vda1 during installation
-# UUID=A03F-21A1  /boot/efi       vfat    umask=0077      0       1
-# /dev/mapper/debian--vg-swap_1 none            swap    sw              0       0
-# /dev/sr0        /media/cdrom0   udf,iso9660 user,noauto     0       0
-# /dev/sr1        /media/cdrom1   udf,iso9660 user,noauto     0       0
+#> /dev/mapper/debian--vg-root /               btrfs   relatime,compress,ssd,discard,subvol=@ 0       0
+#> /dev/mapper/debian--vg-root /home           btrfs   relatime,compress,ssd,discard,subvol=@home 0       0
+#> # /boot was on /dev/vda2 during installation
+#> UUID=2647b326-dd45-4f11-8823-2724d7a02cb8 /boot           ext4    defaults        0       2
+#> # /boot/efi was on /dev/vda1 during installation
+#> UUID=A03F-21A1  /boot/efi       vfat    umask=0077      0       1
+#> /dev/mapper/debian--vg-swap_1 none            swap    sw              0       0
+#> /dev/sr0        /media/cdrom0   udf,iso9660 user,noauto     0       0
+#> /dev/sr1        /media/cdrom1   udf,iso9660 user,noauto     0       0
 ```
 
 {{< callout note >}}
 **Compression:** Optionally, change the `compress` option to `zstd:1` for SSDs or `zstd:3` for HDDs, it is set to `zlib:3` if not otherwise specified.
 
-```
+```fish
 sed -i 's/compress/compress=zstd:1/' /mnt/@/etc/fstab
 ```
 {{< /callout >}}
@@ -205,7 +205,7 @@ mount -o subvol=@ /dev/mapper/debian--vg-root /mnt
 
 Create a chroot environment:
 
-```fish
+```sh
 for i in /dev /dev/pts /proc /sys /run; do mount -B $i /mnt$i; done
 chroot /mnt
 ```
@@ -214,13 +214,13 @@ Mount all filesystems and verify:
 
 ```fish
 mount -av
-# /                        : ignored
-# /home                    : successfully mounted
-# /boot                    : successfully mounted
-# /boot/efi                : successfully mounted
-# none                     : ignored
-# /media/cdrom0            : ignored
-# /media/cdrom1            : ignored
+#> /                        : ignored
+#> /home                    : successfully mounted
+#> /boot                    : successfully mounted
+#> /boot/efi                : successfully mounted
+#> none                     : ignored
+#> /media/cdrom0            : ignored
+#> /media/cdrom1            : ignored
 ```
 
 Update the initramfs and GRUB to apply the changes:
@@ -253,26 +253,26 @@ After logging in, become root and verify the setup:
 ```fish
 su -
 mount -av
-# /                        : ignored
-# /home                    : already mounted
-# /boot                    : already mounted
-# /boot/efi                : already mounted
-# none                     : ignored
-# /media/cdrom0            : ignored
-# /media/cdrom1            : ignored
+#> /                        : ignored
+#> /home                    : already mounted
+#> /boot                    : already mounted
+#> /boot/efi                : already mounted
+#> none                     : ignored
+#> /media/cdrom0            : ignored
+#> /media/cdrom1            : ignored
 ```
 
 Verify the BTRFS mount options:
 
 ```fish
 mount -v | grep btrfs
-# /dev/mapper/debian--vg-root on / type btrfs (rw,relatime,compress=zstd:1,ssd,discard,space_cache=v2,subvolid=257,subvol=/@)
-# /dev/mapper/debian--vg-root on /home type btrfs (rw,relatime,compress=zstd:1,ssd,discard,space_cache=v2,subvolid=258,subvol=/@home)
+#> /dev/mapper/debian--vg-root on / type btrfs (rw,relatime,compress=zstd:1,ssd,discard,space_cache=v2,subvolid=257,subvol=/@)
+#> /dev/mapper/debian--vg-root on /home type btrfs (rw,relatime,compress=zstd:1,ssd,discard,space_cache=v2,subvolid=258,subvol=/@home)
 
 btrfs subvolume list /
-# ID 256 gen 96 top level 5 path @rootfs
-# ID 257 gen 101 top level 5 path @
-# ID 258 gen 101 top level 5 path @home
+#> ID 256 gen 96 top level 5 path @rootfs
+#> ID 257 gen 101 top level 5 path @
+#> ID 258 gen 101 top level 5 path @home
 ```
 
 Enable `fstrim.timer` for SSD/NVMe:
@@ -296,11 +296,11 @@ Optionally, delete the old `@rootfs` subvolume (after confirming everything work
 ```fish
 mount -o subvolid=5 /dev/mapper/debian--vg-root /mnt
 btrfs subvolume delete /mnt/@rootfs
-# Delete subvolume 256 (no-commit): '/mnt/@rootfs'
+#> Delete subvolume 256 (no-commit): '/mnt/@rootfs'
 umount /mnt
 btrfs subvolume list /
-# ID 257 gen 101 top level 5 path @
-# ID 258 gen 101 top level 5 path @home
+#> ID 257 gen 101 top level 5 path @
+#> ID 258 gen 101 top level 5 path @home
 ```
 
 ## Step 6: Snapshot tools
@@ -342,10 +342,10 @@ Simply click the "Create" button and name the label to "Clean Install" (or whate
 In a terminal with root privileges, you can verify the snapshots:
 ```fish
 btrfs subvolume list /
-# ID 257 gen 300 top level 5 path @
-# ID 258 gen 300 top level 5 path @home
-# ID 259 gen 295 top level 5 path timeshift-btrfs/snapshots/2025-12-10_10-00-00/@
-# ID 260 gen 295 top level 5 path timeshift-btrfs/snapshots/2025-12-10_10-00-00/@home
+#> ID 257 gen 300 top level 5 path @
+#> ID 258 gen 300 top level 5 path @home
+#> ID 259 gen 295 top level 5 path timeshift-btrfs/snapshots/2025-12-10_10-00-00/@
+#> ID 260 gen 295 top level 5 path timeshift-btrfs/snapshots/2025-12-10_10-00-00/@home
 ```
 
 ## Step 7: Practice recovery and system rollback
@@ -369,7 +369,7 @@ If you try to reboot, the system will fail.
    ```fish
    sudo -i
    ls /dev/mapper/
-   # control   debian--vg-root   debian--vg-swap_1   luks-[UUID-OF-ENCRYPTED-PARTITION]
+   #> control   debian--vg-root   debian--vg-swap_1   luks-[UUID-OF-ENCRYPTED-PARTITION]
    ```
 4. Install Timeshift:
    ```fish
@@ -388,7 +388,7 @@ If you try to reboot, the system will fail.
    cryptsetup luksOpen /dev/vda3 vda3_crypt
    mount -o subvolid=5 /dev/mapper/debian--vg-root /mnt
    ls /mnt
-   # @ @home timeshift-btrfs
+   #> @ @home timeshift-btrfs
    ```
 2. Move the broken subvolume:
    ```fish

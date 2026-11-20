@@ -50,25 +50,25 @@ Now, I do like to take note of the default partition layout. So, if you want to 
 So, let's open a terminal and have a look on the default partition layout (instead of the terminal commands you can also just use Gparted for this):
 
 ```sh
-# NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-# loop0    7:0    0   2.2G  1 loop /rofs
-# sda      8:0    0  55.9G  0 disk 
-# ├─sda1   8:1    0   498M  0 part 
-# ├─sda2   8:2    0     4G  0 part 
-# ├─sda3   8:3    0  47.4G  0 part 
-# └─sda4   8:4    0     4G  0 part [SWAP]
-# sdb      8:16   0 465.8G  0 disk 
-# ├─sdb1   8:17   0 263.1M  0 part 
-# ├─sdb2   8:18   0 976.6M  0 part 
-# └─sdb3   8:19   0 464.6G  0 part 
-# sdc      8:32   0 223.6G  0 disk 
-# ├─sdc1   8:33   0   100M  0 part 
-# ├─sdc2   8:34   0    16M  0 part 
-# ├─sdc3   8:35   0   223G  0 part 
-# └─sdc4   8:36   0   517M  0 part 
-# sdd      8:48   1  58.9G  0 disk 
-# ├─sdd1   8:49   1  58.8G  0 part 
-# └─sdd2   8:50   1    32M  0 part 
+#> NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+#> loop0    7:0    0   2.2G  1 loop /rofs
+#> sda      8:0    0  55.9G  0 disk 
+#> ├─sda1   8:1    0   498M  0 part 
+#> ├─sda2   8:2    0     4G  0 part 
+#> ├─sda3   8:3    0  47.4G  0 part 
+#> └─sda4   8:4    0     4G  0 part [SWAP]
+#> sdb      8:16   0 465.8G  0 disk 
+#> ├─sdb1   8:17   0 263.1M  0 part 
+#> ├─sdb2   8:18   0 976.6M  0 part 
+#> └─sdb3   8:19   0 464.6G  0 part 
+#> sdc      8:32   0 223.6G  0 disk 
+#> ├─sdc1   8:33   0   100M  0 part 
+#> ├─sdc2   8:34   0    16M  0 part 
+#> ├─sdc3   8:35   0   223G  0 part 
+#> └─sdc4   8:36   0   517M  0 part 
+#> sdd      8:48   1  58.9G  0 disk 
+#> ├─sdd1   8:49   1  58.8G  0 part 
+#> └─sdd2   8:50   1    32M  0 part 
 ```
 I've installed Elementary OS to a SSD which is recognized as `sdb` on my machine. `sda` is another SSD and Windows is installed on `sdc`. Lastly, `sdd` is the USB stick on which I have [Ventoy](https://www.ventoy.net) installed and which contains the ISO of the installer.
 
@@ -76,16 +76,16 @@ So let's have a closer look at the partition layout of `sdb`:
 
 ```sh
 sudo parted /dev/sdb unit MiB print
-# Model: ATA Samsung SSD 840 (scsi)
-# Disk /dev/sdb: 476940MiB
-# Sector size (logical/physical): 512B/512B
-# Partition Table: gpt
-# Disk Flags: 
-# 
-# Number  Start    End        Size       File system  Name  Flags
-#  1      2.00MiB  265MiB     263MiB     fat32              boot, esp
-#  2      265MiB   1242MiB    977MiB     ext4
-#  3      1242MiB  476938MiB  475696MiB
+#> Model: ATA Samsung SSD 840 (scsi)
+#> Disk /dev/sdb: 476940MiB
+#> Sector size (logical/physical): 512B/512B
+#> Partition Table: gpt
+#> Disk Flags: 
+#> 
+#> Number  Start    End        Size       File system  Name  Flags
+#>  1      2.00MiB  265MiB     263MiB     fat32              boot, esp
+#>  2      265MiB   1242MiB    977MiB     ext4
+#>  3      1242MiB  476938MiB  475696MiB
 ```
 
 We have the following 4 partitions:
@@ -98,55 +98,55 @@ Let's have a closer look at the luks2-encrypted `sdb3` partition:
 
 ```sh
 sudo cryptsetup luksDump /dev/sdb3
-# LUKS header information
-# Version:       	2
-# Epoch:         	3
-# Metadata area: 	16384 [bytes]
-# Keyslots area: 	16744448 [bytes]
-# UUID:          	aa371a41-81f4-4f12-800e-8830a9afa8c8
-# Label:         	(no label)
-# Subsystem:     	(no subsystem)
-# Flags:       	(no flags)
-# 
-# Data segments:
-#   0: crypt
-# 	offset: 16777216 [bytes]
-# 	length: (whole device)
-# 	cipher: aes-xts-plain64
-# 	sector: 512 [bytes]
-# 
-# Keyslots:
-#   0: luks2
-# 	Key:        512 bits
-# 	Priority:   normal
-# 	Cipher:     aes-xts-plain64
-# 	Cipher key: 512 bits
-# 	PBKDF:      argon2i
-# 	Time cost:  4
-# 	Memory:     1048576
-# 	Threads:    4
+#> LUKS header information
+#> Version:       	2
+#> Epoch:         	3
+#> Metadata area: 	16384 [bytes]
+#> Keyslots area: 	16744448 [bytes]
+#> UUID:          	aa371a41-81f4-4f12-800e-8830a9afa8c8
+#> Label:         	(no label)
+#> Subsystem:     	(no subsystem)
+#> Flags:       	(no flags)
+#> 
+#> Data segments:
+#>   0: crypt
+#> 	offset: 16777216 [bytes]
+#> 	length: (whole device)
+#> 	cipher: aes-xts-plain64
+#> 	sector: 512 [bytes]
+#> 
+#> Keyslots:
+#>   0: luks2
+#> 	Key:        512 bits
+#> 	Priority:   normal
+#> 	Cipher:     aes-xts-plain64
+#> 	Cipher key: 512 bits
+#> 	PBKDF:      argon2i
+#> 	Time cost:  4
+#> 	Memory:     1048576
+#> 	Threads:    4
 ```
 
 So this basically uses the default options to encrypt a partition with luks version 2 (e.g. running `cryptsetup luksFormat /dev/sdb3`). Now let's have a closer look what is inside the encrypted partition:
 
 ```sh
 sudo cryptsetup luksOpen /dev/sdb3 cryptdata
-# Enter passphrase for /dev/sda3:
+#> Enter passphrase for /dev/sda3:
 ls /dev/mapper
-# control  cryptdata  data-root data-swap
+#> control  cryptdata  data-root data-swap
 sudo pvs
-#   PV                    VG   Fmt  Attr PSize    PFree
-#   /dev/mapper/cryptdata data lvm2 a--  <464.53g    0 
+#>   PV                    VG   Fmt  Attr PSize    PFree
+#>   /dev/mapper/cryptdata data lvm2 a--  <464.53g    0 
 sudo vgs
-#   VG   #PV #LV #SN Attr   VSize    VFree
-#   data   1   2   0 wz--n- <464.53g    0 
+#>   VG   #PV #LV #SN Attr   VSize    VFree
+#>   data   1   2   0 wz--n- <464.53g    0 
 sudo lvs
-#   LV   VG   Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
-#   root data -wi-a----- 460.73g                                                    
-#   swap data -wi-a-----  <3.80g
+#>   LV   VG   Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+#>   root data -wi-a----- 460.73g                                                    
+#>   swap data -wi-a-----  <3.80g
 sudo lsblk /dev/mapper/data-root -f
-# NAME      FSTYPE LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINT
-# data-root ext4         90d9bc34-e97c-45aa-939f-e1a0d3736eed 
+#> NAME      FSTYPE LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINT
+#> data-root ext4         90d9bc34-e97c-45aa-939f-e1a0d3736eed 
 ```
 
 By default, if you do an encrypted install, Elementary OS uses [Logical Volume Management (LVM)](https://askubuntu.com/questions/3596/what-is-lvm-and-what-is-it-used-for), which is a fancy way to combine different disks dynamically into the same partition. In more detail, the encrypted partition (called `cryptdata`) is a physical volume that contains a volume group called `data`. Inside the volume group there are two logical volumes, one is called `root` that contains our actual system files and another one is called `swap` that is used as a swap partition. The `data-root` partition is formatted with ext4. I actually never use any features of LVM, but there is no downside in terms of performance or similar things when using it. More important, the installer requires LVM if you plan to use encryption. Without encryption you don't need the whole LVM stuff.
@@ -157,7 +157,7 @@ sudo cryptsetup luksClose /dev/mapper/data-root
 sudo cryptsetup luksClose /dev/mapper/data-swap
 sudo cryptsetup luksClose /dev/mapper/cryptdata
 ls /dev/mapper
-# control
+#> control
 ```
 
 Now let's continue with the ACTUAL INSTALL with btrfs as the underlying filesystem.
@@ -194,10 +194,10 @@ Let's mount our root partition (the top-level btrfs volume always has root-id 5)
 
 ```sh
 cryptsetup luksOpen /dev/sdb3 data
-# Enter passphrase for /dev/sdb3
+#> Enter passphrase for /dev/sdb3
 
 ls /dev/mapper
-# control  data  data-root  data-swap
+#> control  data  data-root  data-swap
 
 mount -o subvolid=5,defaults,compress=zstd:1,space_cache=v2,discard=async /dev/mapper/data-root /mnt
 ```
@@ -218,32 +218,32 @@ Now we will first create the subvolume `@` and move all files and folders from t
 
 ```sh
 btrfs subvolume create /mnt/@
-# Create subvolume '/mnt/@'
+#> Create subvolume '/mnt/@'
 cd /mnt
 ls | grep -v @ | xargs mv -t @
 # this moves all files that don't have "@" in the name to the @/ folder
 ls -a /mnt
-# . .. @
+#> . .. @
 ls -a /mnt/@
-# .   bin   dev  home  lib32  libx32  mnt  proc  run   srv  tmp  var
-# ..  boot  etc  lib   lib64  media   opt  root  sbin  sys  usr  vmlinuz
+#> .   bin   dev  home  lib32  libx32  mnt  proc  run   srv  tmp  var
+#> ..  boot  etc  lib   lib64  media   opt  root  sbin  sys  usr  vmlinuz
 ```
 
 Now let's create another subvolume called `@home`:
 ```sh
 btrfs subvolume create /mnt/@home
-# Create subvolume '/mnt/@home'
+#> Create subvolume '/mnt/@home'
 ```
 If you did a clean install, there is no user folder yet. However, if you adapted the guide for a manual install and have already created a user, then make sure that any user folder from `/mnt/@/home/` goes into `@home`:
 ```sh
 mv /mnt/@/home/* /mnt/@home/
-# mv: cannot stat '/mnt/@/home/*': No such file or directory
+#> mv: cannot stat '/mnt/@/home/*': No such file or directory
 ```
 Let's see the subvolumes:
 ```sh
 btrfs subvolume list /mnt
-# ID 265 gen 592 top level 5 path @
-# ID 266 gen 592 top level 5 path @home
+#> ID 265 gen 592 top level 5 path @
+#> ID 266 gen 592 top level 5 path @home
 ```
 
 ### Changes to fstab
@@ -273,11 +273,11 @@ Either way your `fstab` should look like this:
 
 ```sh
 cat /mnt/@/etc/fstab
-# PARTUUID=1c290d06-e8c2-40f6-9ad8-034069dd071b  /boot/efi  vfat  umask=0077  0  0
-# UUID=8f652774-cb1e-474d-a114-d8a9c9ccd54d  /boot  ext4  noatime,errors=remount-ro  0  0
-# UUID=8b47e39b-e599-4268-92c3-586c8a4435e4  /  btrfs  defaults,subvol=@,compress=zstd:1,space_cache=v2,discard=async  0  0
-# /dev/mapper/data-swap  none  swap  defaults  0  0
-# UUID=8b47e39b-e599-4268-92c3-586c8a4435e4  /home  btrfs  defaults,subvol=@home,compress=zstd:1,space_cache=v2,discard=async   0 0
+#> PARTUUID=1c290d06-e8c2-40f6-9ad8-034069dd071b  /boot/efi  vfat  umask=0077  0  0
+#> UUID=8f652774-cb1e-474d-a114-d8a9c9ccd54d  /boot  ext4  noatime,errors=remount-ro  0  0
+#> UUID=8b47e39b-e599-4268-92c3-586c8a4435e4  /  btrfs  defaults,subvol=@,compress=zstd:1,space_cache=v2,discard=async  0  0
+#> /dev/mapper/data-swap  none  swap  defaults  0  0
+#> UUID=8b47e39b-e599-4268-92c3-586c8a4435e4  /home  btrfs  defaults,subvol=@home,compress=zstd:1,space_cache=v2,discard=async   0 0
 ```
 
 Note that your PARTUUID and UUID numbers will be different.
@@ -289,7 +289,7 @@ As we use `discard=async`, we need to add `discard` to the `crypttab`:
 ```sh
 sed -i 's/luks/luks,discard/' /mnt/@/etc/crypttab
 cat /mnt/@/etc/crypttab
-# data UUID=aa371a41-81f4-4f12-800e-8830a9afa8c8 none luks,discard
+#> data UUID=aa371a41-81f4-4f12-800e-8830a9afa8c8 none luks,discard
 ```
 
 ### Adjust configuration of grub
@@ -302,7 +302,7 @@ nano /mnt/@/etc/default/grub
 
 Here you need to add `rootflags=subvol=@` to the `GRUB_CMDLINE_LINUX_DEFAULT` options. That is, the uncommented lines of your configuration file should look like this:
 
-```sh
+```bash {file="/mnt/@/etc/default/grub"}
 GRUB_DEFAULT=0
 GRUB_TIMEOUT_STYLE=hidden
 GRUB_TIMEOUT=0
@@ -322,8 +322,8 @@ cd /
 umount -l /mnt
 mount -o subvol=@,defaults,compress=zstd:1,space_cache=v2,discard=async /dev/mapper/data-root /mnt
 ls /mnt
-# bin   dev  home  lib32  libx32  mnt  proc  run   srv  tmp  var
-# boot  etc  lib   lib64  media   opt  root  sbin  sys  usr  vmlinuz
+#> bin   dev  home  lib32  libx32  mnt  proc  run   srv  tmp  var
+#> boot  etc  lib   lib64  media   opt  root  sbin  sys  usr  vmlinuz
 ```
 
 Then the following commands will put us into our system using chroot (taken from System76's help post on how to [Repair the Bootloader](https://support.system76.com/articles/bootloader/#systemd-boot)):
@@ -337,16 +337,16 @@ We are now inside the new system, so let's check whether our `fstab` mounts ever
 
 ```sh
 mount -av
-# /boot                    : successfully mounted
-# /                        : ignored
-# none                     : ignored
-# /home                    : successfully mounted
+#> /boot                    : successfully mounted
+#> /                        : ignored
+#> none                     : ignored
+#> /home                    : successfully mounted
 mount -av
-# /boot/efi                : successfully mounted
-# /boot                    : already mounted
-# /                        : ignored
-# none                     : ignored
-# /home                    : already mounted
+#> /boot/efi                : successfully mounted
+#> /boot                    : already mounted
+#> /                        : ignored
+#> none                     : ignored
+#> /home                    : already mounted
 ```
 Note that I had to run the command twice to make sure that the EFI partition is mounted.
 
@@ -354,17 +354,17 @@ Now we need to update both the initramfs and grub to make it aware of our kernel
 
 ```sh
 update-initramfs -c -k all
-# update-initramfs: Generating /boot/initrd.img-5.11.0-43-generic
+#> update-initramfs: Generating /boot/initrd.img-5.11.0-43-generic
 
 update-grub
-# Sourcing file `/etc/default/grub'
-# Sourcing file `/etc/default/grub.d/init-select.cfg'
-# Generating grub configuration file ...
-# Found linux image: /boot/vmlinuz-5.11.0-43-generic
-# Found initrd image: /boot/initrd.img-5.11.0-43-generic
-# Found Windows Boot Manager on /dev/sdc1@/efi/Microsoft/Boot/bootmgfw.efi
-# Adding boot menu entry for UEFI Firmware Settings
-# done
+#> Sourcing file `/etc/default/grub'
+#> Sourcing file `/etc/default/grub.d/init-select.cfg'
+#> Generating grub configuration file ...
+#> Found linux image: /boot/vmlinuz-5.11.0-43-generic
+#> Found initrd image: /boot/initrd.img-5.11.0-43-generic
+#> Found Windows Boot Manager on /dev/sdc1@/efi/Microsoft/Boot/bootmgfw.efi
+#> Adding boot menu entry for UEFI Firmware Settings
+#> done
 ```
 
 
@@ -384,19 +384,19 @@ Now let's see whether everything is set up correctly. So open a terminal:
 
 ```sh
 sudo mount -av
-# /boot/efi                : already mounted
-# /boot                    : already mounted
-# /                        : ignored
-# none                     : ignored
-# /home                    : already mounted
+#> /boot/efi                : already mounted
+#> /boot                    : already mounted
+#> /                        : ignored
+#> none                     : ignored
+#> /home                    : already mounted
 ```
 
 All the entries in the `fstab` are mounted correctly.
 
 ```sh
 sudo mount -v | grep /dev/mapper
-# /dev/mapper/data-root on / type btrfs (rw,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=265,subvol=/@)
-# /dev/mapper/data-root on /home type btrfs (rw,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=266,subvol=/@home)
+#> /dev/mapper/data-root on / type btrfs (rw,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=265,subvol=/@)
+#> /dev/mapper/data-root on /home type btrfs (rw,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=266,subvol=/@home)
 
 ```
 
@@ -404,21 +404,21 @@ Our optimized btrfs mount options were passed on and are used correctly. Note th
 
 ```sh
 sudo swapon
-# NAME      TYPE      SIZE USED PRIO
-# /dev/dm-2 partition 3.8G   0B   -2
+#> NAME      TYPE      SIZE USED PRIO
+#> /dev/dm-2 partition 3.8G   0B   -2
 ```
 
 The encrypted swap partition is in use.
 
 ```sh
 sudo btrfs filesystem show /
-# Label: none  uuid: 8b47e39b-e599-4268-92c3-586c8a4435e4
-# 	Total devices 1 FS bytes used 7.27GiB
-# 	devid    1 size 460.73GiB used 9.02GiB path /dev/mapper/data-root
+#> Label: none  uuid: 8b47e39b-e599-4268-92c3-586c8a4435e4
+#> 	Total devices 1 FS bytes used 7.27GiB
+#> 	devid    1 size 460.73GiB used 9.02GiB path /dev/mapper/data-root
 
 sudo btrfs subvolume list /
-# ID 265 gen 655 top level 5 path @
-# ID 266 gen 655 top level 5 path @home
+#> ID 265 gen 655 top level 5 path @
+#> ID 266 gen 655 top level 5 path @home
 ```
 These two btrfs commands tell us which disk is in use and which subvolumes are available.
 
@@ -432,8 +432,8 @@ Importantly, for [SSD trimming to work properly](https://www.heise.de/ct/hotline
 
 ```sh
 cat /etc/lvm/lvm.conf | grep issue_discards
-# 	# Configuration option devices/issue_discards.
-# 	issue_discards = 1
+#> 	# Configuration option devices/issue_discards.
+#> 	issue_discards = 1
 ```
 
 If all look's good, let's update and upgrade the system:
@@ -483,7 +483,7 @@ All snapshots are accessible from `/run/timeshift/backup` (this folder will be m
 
 ```sh
 ls /run/timeshift/backup
-# @  @home  timeshift-btrfs
+#> @  @home  timeshift-btrfs
 ```
 
 Note that `/run/timeshift/backup/@` is your `/` folder and `/run/timeshift/backup/@home` your `/home` folder. Your snapshots are accessible via timeshift-btrfs.
@@ -507,23 +507,23 @@ For example, as we have a dedicated `/boot` partition, we should keep `snapshotB
 
 Check if everything is working:
 
-```
+```sh
 sudo timeshift-autosnap-apt
-# Rsyncing /boot into the filesystem before the call to timeshift.
-# Rsyncing /boot/efi into the filesystem before the call to timeshift.
-# Using system disk as snapshot device for creating snapshots in BTRFS mode
-# 
-# /dev/dm-1 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=5,subvol=/
-# 
-# Creating new backup...(BTRFS)
-# Saving to device: /dev/dm-1, mounted at path: /run/timeshift/backup
-# Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2022-06-16_21-33-16
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2022-06-16_21-33-16/@
-# Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2022-06-16_21-33-16/@home
-# Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2022-06-16_21-33-16/info.json
-# BTRFS Snapshot saved successfully (0s)
-# Tagged snapshot '2022-06-16_21-33-16': ondemand
-------------------------------------------------------------------------------
+#> Rsyncing /boot into the filesystem before the call to timeshift.
+#> Rsyncing /boot/efi into the filesystem before the call to timeshift.
+#> Using system disk as snapshot device for creating snapshots in BTRFS mode
+#> 
+#> /dev/dm-1 is mounted at: /run/timeshift/backup, options: rw,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=5,subvol=/
+#> 
+#> Creating new backup...(BTRFS)
+#> Saving to device: /dev/dm-1, mounted at path: /run/timeshift/backup
+#> Created directory: /run/timeshift/backup/timeshift-btrfs/snapshots/2022-06-16_21-33-16
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2022-06-16_21-33-16/@
+#> Created subvolume snapshot: /run/timeshift/backup/timeshift-btrfs/snapshots/2022-06-16_21-33-16/@home
+#> Created control file: /run/timeshift/backup/timeshift-btrfs/snapshots/2022-06-16_21-33-16/info.json
+#> BTRFS Snapshot saved successfully (0s)
+#> Tagged snapshot '2022-06-16_21-33-16': ondemand
+#> ------------------------------------------------------------------------------
 
 ```
 

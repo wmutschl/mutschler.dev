@@ -140,7 +140,7 @@ Note the details of the unlock phase:
 On the **MacBook**, four host aliases in `~/.ssh/config` cover this.
 `dell-wyse` is the Wyse's tailnet name ([section 8.2 of its guide](/linux/wyse-ubuntu-nextcloud-aio/#82-on-the-wyse)); at home, the hop through it costs nothing:
 
-```sshconfig
+```sshconfig {file="~/.ssh/config"}
 Host dell-wyse
     HostName dell-wyse
     User wmutschl
@@ -184,7 +184,7 @@ After a restart, unlock, wait a minute, then open Screen Sharing through an SSH 
 
 ```sh
 ssh mac-mini-unlock
-# asks for the macOS password of wmutschl, unlocks the disk and drops the connection
+#~ asks for the macOS password of wmutschl, unlocks the disk and drops the connection
 
 ssh -N -L 5901:localhost:5900 mac-mini-lan &
 open vnc://localhost:5901
@@ -258,7 +258,7 @@ Set the memory limit, and check that OrbStack keeps its data out of Time Machine
 ```sh
 orb config set memory_mib 24576
 orb config get data_allow_backup
-# false
+#> false
 ```
 
 `data_allow_backup` false means that OrbStack's disk image, and with it every named volume, stays out of Time Machine.
@@ -269,7 +269,7 @@ Docker's default log driver in OrbStack is `json-file` without rotation, and the
 Switch the default to the `local` driver, which rotates by itself, as on the Wyse.
 Add this key to `~/.orbstack/config/docker.json`, next to any keys that are already there:
 
-```json
+```json {file="~/.orbstack/config/docker.json"}
 {
   "log-driver": "local"
 }
@@ -281,7 +281,7 @@ Then restart OrbStack as a whole, which also applies the memory limit, and check
 nano ~/.orbstack/config/docker.json
 orb stop && orb start
 docker info --format '{{.LoggingDriver}}'
-# local
+#> local
 ```
 
 Only containers created afterwards use it; the stacks in this guide are all created later.
@@ -307,7 +307,7 @@ See [Tailscale in Docker](https://tailscale.com/docs/features/containers/docker)
    The certificates are public in the Certificate Transparency logs, so the names `gitea.tailnet-name.ts.net` and `modcraft.tailnet-name.ts.net` become public, although only modCraft answers from the internet.
 2. **Access controls:** add the tags and the Funnel attribute next to any existing entries that other machines depend on:
 
-   ```json
+   ```json {file="Tailscale policy file (excerpt)"}
    "tagOwners": {
      "tag:container": ["autogroup:admin"],
      "tag:gitea":     ["autogroup:admin"],
@@ -321,7 +321,7 @@ See [Tailscale in Docker](https://tailscale.com/docs/features/containers/docker)
    Gitea's login and modCraft's password still protect them.
    These grants allow only HTTPS and SSH to Gitea, and only HTTPS to modCraft:
 
-   ```json
+   ```json {file="Tailscale policy file (excerpt)"}
    "grants": [
      {"src": ["autogroup:member"], "dst": ["tag:gitea"],     "ip": ["tcp:443", "tcp:22"]},
      {"src": ["autogroup:member"], "dst": ["tag:container"], "ip": ["tcp:443"]},
@@ -423,13 +423,13 @@ Start PostgreSQL, Gitea and Gitea's sidecar; `--wait` returns once the health ch
 ```sh
 docker compose up -d --wait gitea-db gitea gitea-tailscale
 docker compose ps --format '{{.Name}}  {{.Status}}'
-# gitea  Up 20 seconds (healthy)
-# gitea-db  Up 26 seconds (healthy)
-# gitea-tailscale  Up 26 seconds
+#> gitea  Up 20 seconds (healthy)
+#> gitea-db  Up 26 seconds (healthy)
+#> gitea-tailscale  Up 26 seconds
 docker exec gitea-tailscale tailscale status
 docker exec gitea-tailscale tailscale serve status
-# https://gitea.tailnet-name.ts.net (tailnet only)
-# |-- / proxy http://gitea:3000
+#> https://gitea.tailnet-name.ts.net (tailnet only)
+#> |-- / proxy http://gitea:3000
 ```
 
 `serve status` also lists the TCP forward of port 22 to `gitea:2222`.
@@ -452,8 +452,8 @@ Registration is closed, so create the admin account on the command line.
 
 ```sh
 docker exec gitea gitea admin user create --admin --username wmutschl --email you@example.org --random-password
-# generated random password is '...'
-# New user 'wmutschl' has been successfully created!
+#> generated random password is '...'
+#> New user 'wmutschl' has been successfully created!
 ```
 
 Sign in with that password and set your own under **Settings → Account**.
@@ -525,13 +525,13 @@ cd ~/scripts/Apple-Mac-mini-M4-Pro
 read -s GITEA_TOKEN && export GITEA_TOKEN
 read -s GITHUB_TOKEN && export GITHUB_TOKEN
 ./gitea-mirror --dry-run github wmutschl
-# fork, skipped:     tidyexplain
-# would mirror:      https://github.com/wmutschl/timeshift-autosnap-apt.git -> github/timeshift-autosnap-apt (private: false, wiki: false, lfs: false)
-# ...
+#> fork, skipped:     tidyexplain
+#> would mirror:      https://github.com/wmutschl/timeshift-autosnap-apt.git -> github/timeshift-autosnap-apt (private: false, wiki: false, lfs: false)
+#> ...
 ./gitea-mirror github wmutschl
-# mirroring:         https://github.com/wmutschl/timeshift-autosnap-apt.git -> github/timeshift-autosnap-apt ...
-#   done
-# ...
+#> mirroring:         https://github.com/wmutschl/timeshift-autosnap-apt.git -> github/timeshift-autosnap-apt ...
+#>   done
+#> ...
 
 read -s GITLAB_TOKEN && export GITLAB_TOKEN
 ./gitea-mirror gitlab wmutschl
@@ -604,10 +604,10 @@ docker exec gitea gitea actions generate-runner-token --scope wmutschl
 nano .env    # GITEA_RUNNER_REGISTRATION_TOKEN=...
 docker compose up -d gitea-runner
 docker logs gitea-runner
-# .runner is missing or not a regular file
-# level=info msg="Registering runner, arch=arm64, os=linux, version=v6.0.0."
-# level=info msg="Runner registered successfully."
-# ... level=info msg="runner: mac-mini-docker, with version: v6.0.0, with labels: [ubuntu-latest ubuntu-26.04 ubuntu-24.04 ubuntu-22.04], declare successfully"
+#> .runner is missing or not a regular file
+#> level=info msg="Registering runner, arch=arm64, os=linux, version=v6.0.0."
+#> level=info msg="Runner registered successfully."
+#> ... level=info msg="runner: mac-mini-docker, with version: v6.0.0, with labels: [ubuntu-latest ubuntu-26.04 ubuntu-24.04 ubuntu-22.04], declare successfully"
 ```
 
 The runner now appears as **online** in Gitea under **Settings → Actions → Runners**.
@@ -625,7 +625,7 @@ docker compose up -d gitea-runner
 Workflows go into `.gitea/workflows/` of a repository; Actions is enabled for new repositories.
 A minimal one:
 
-```yaml
+```yaml {file=".gitea/workflows/ci.yml"}
 # .gitea/workflows/ci.yml
 name: ci
 on: [push, pull_request]
@@ -645,7 +645,7 @@ jobs:
 The runner pulls the image again before each job, so `ubuntu-latest` stays current.
 A job that needs `linux/amd64`, for example for x86-only binaries, runs under Rosetta with a container option:
 
-```yaml
+```yaml {file="Workflow job for linux/amd64"}
   test-amd64:
     runs-on: ubuntu-latest
     container:
@@ -727,7 +727,7 @@ Serve keeps the original `Host` header, and Caddy answers only for the host name
 So that variable must contain the sidecar's MagicDNS name, as plain `http://…:8080`, because HTTPS ends at the sidecar.
 The line in modCraft's `.env`:
 
-```text
+```text {file="~/modCraft/website/.env"}
 MODCRAFT_SITE_ADDRESS='http://modcraft.tailnet-name.ts.net:8080, http://localhost:8080'
 ```
 
@@ -745,11 +745,11 @@ docker compose ps
 cd ~/scripts/Apple-Mac-mini-M4-Pro
 docker compose up -d modcraft-tailscale
 docker exec modcraft-tailscale tailscale funnel status
-# # Funnel on:
-# #     - https://modcraft.tailnet-name.ts.net
-#
-# https://modcraft.tailnet-name.ts.net (Funnel on)
-# |-- / proxy http://host.docker.internal:8080
+#> # Funnel on:
+#> #     - https://modcraft.tailnet-name.ts.net
+#>
+#> https://modcraft.tailnet-name.ts.net (Funnel on)
+#> |-- / proxy http://host.docker.internal:8080
 ```
 
 Check the machine name `modcraft` and the tag `tag:container` in the admin console, as for Gitea.
@@ -800,8 +800,8 @@ Also empty `MODCRAFT_CHECK_FUNNEL` in `~/.config/mac-mini/host.env` ([section 10
 cd ~/scripts/Apple-Mac-mini-M4-Pro
 docker compose up -d modcraft-tailscale
 docker exec modcraft-tailscale tailscale serve status
-# https://modcraft.tailnet-name.ts.net (tailnet only)
-# |-- / proxy http://host.docker.internal:8080
+#> https://modcraft.tailnet-name.ts.net (tailnet only)
+#> |-- / proxy http://host.docker.internal:8080
 ```
 
 Removing a serve file alone does not end Funnel: Tailscale stores the last configuration in the sidecar's state.
@@ -872,11 +872,11 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/local.mac-mini-gitea-bac
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/local.mac-mini-alive.plist
 launchctl kickstart gui/$(id -u)/local.mac-mini-gitea-backup
 tail -f ~/Library/Logs/mac-mini-gitea-backup.log
-# 2026-11-20 10:27:34 stopping gitea
-# 2026-11-20 10:27:34 pg_dump
-# 2026-11-20 10:27:34 gitea dump
-# 2026-11-20 10:27:34 starting gitea
-# 2026-11-20 10:27:37 backup complete: /Users/wmutschl/Backups/gitea/gitea-20261120-102734 (584K)
+#> 2026-11-20 10:27:34 stopping gitea
+#> 2026-11-20 10:27:34 pg_dump
+#> 2026-11-20 10:27:34 gitea dump
+#> 2026-11-20 10:27:34 starting gitea
+#> 2026-11-20 10:27:37 backup complete: /Users/wmutschl/Backups/gitea/gitea-20261120-102734 (584K)
 ```
 
 Press Ctrl-C once the log says `backup complete`.
@@ -885,7 +885,7 @@ Check that Time Machine includes the folder:
 
 ```sh
 tmutil isexcluded ~/Backups/gitea
-# [Included]  /Users/wmutschl/Backups/gitea
+#> [Included]  /Users/wmutschl/Backups/gitea
 ```
 
 macOS announces the new jobs as background items under **System Settings → General → Login Items & Extensions**; leave them allowed.
@@ -935,7 +935,7 @@ For a drill, restore onto **another Mac** with OrbStack, my MacBook, because the
 The drill instance must not sync mirrors: it would fetch with the stored tokens, and its push mirrors would force-push the backup's older state to GitHub.
 A `docker-compose.override.yml` next to the compose file, which compose reads by itself, turns mirroring off:
 
-```yaml
+```yaml {file="docker-compose.override.yml"}
 services:
   gitea:
     environment:
@@ -1018,7 +1018,7 @@ The sidecars' state volumes need no backup: a rebuilt sidecar registers again wi
   ```sh
   cd ~/scripts/Apple-Mac-mini-M4-Pro
   ./mac-mini-gitea-backup
-  # ... backup complete: /Users/wmutschl/Backups/gitea/gitea-YYYYMMDD-HHMMSS (...)
+  #> ... backup complete: /Users/wmutschl/Backups/gitea/gitea-YYYYMMDD-HHMMSS (...)
   ```
 
   Continue only if it ends with `backup complete`.

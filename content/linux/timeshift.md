@@ -85,29 +85,29 @@ chroot /mnt
 
 # get PARTUUID
 echo $(blkid -s PARTUUID -o value /dev/vdb1)
-# df1701f7-6e8b-4db1-8192-3a7931e3a905
+#> df1701f7-6e8b-4db1-8192-3a7931e3a905
 echo $(blkid -s PARTUUID -o value /dev/vdb2)
-# 3560ffd1-39f0-44da-9c3b-a5d98ea43f08
+#> 3560ffd1-39f0-44da-9c3b-a5d98ea43f08
 nano /etc/fstab
 # USE df1701f7-6e8b-4db1-8192-3a7931e3a905 FOR /boot/efi
 # USE 3560ffd1-39f0-44da-9c3b-a5d98ea43f08 FOR /recovery
 cat /etc/fstab
-# PARTUUID=df1701f7-6e8b-4db1-8192-3a7931e3a905  /boot/efi  vfat  umask=0077  0  0
-# PARTUUID=3560ffd1-39f0-44da-9c3b-a5d98ea43f08  /recovery  vfat  umask=0077  0  0
-# UUID=c277ed84-e32f-4204-a211-1d80596e6e15  /  btrfs  defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd  0  0
-# UUID=c277ed84-e32f-4204-a211-1d80596e6e15   /home   btrfs   defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd   0 0
-# /dev/mapper/cryptswap  none  swap  defaults  0  0
+#> PARTUUID=df1701f7-6e8b-4db1-8192-3a7931e3a905  /boot/efi  vfat  umask=0077  0  0
+#> PARTUUID=3560ffd1-39f0-44da-9c3b-a5d98ea43f08  /recovery  vfat  umask=0077  0  0
+#> UUID=c277ed84-e32f-4204-a211-1d80596e6e15  /  btrfs  defaults,subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd  0  0
+#> UUID=c277ed84-e32f-4204-a211-1d80596e6e15   /home   btrfs   defaults,subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd   0 0
+#> /dev/mapper/cryptswap  none  swap  defaults  0  0
 
 mkswap /dev/vdb3
-# Setting up swapspace version 1, size = 4 GiB (4294963200 bytes)
-# no label, UUID=a6a9ec65-a225-4185-8edd-f9dd3c243a2a
+#> Setting up swapspace version 1, size = 4 GiB (4294963200 bytes)
+#> no label, UUID=a6a9ec65-a225-4185-8edd-f9dd3c243a2a
 
 nano /etc/crypttab
 # UNCOMMENT THE NOT WORKING DEVICE AND CHANGE UUID of cryptswap
 cat /etc/crypttab
-# cryptswap UUID=a6a9ec65-a225-4185-8edd-f9dd3c243a2a /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
-# #crypt_vda UUID=9fc916b2-bdd8-4fbd-b557-4c4366f8cd63 none luks
-# crypt_vdb UUID=93fc3643-a687-4a1c-9859-409b090448b9 none luks
+#> cryptswap UUID=a6a9ec65-a225-4185-8edd-f9dd3c243a2a /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
+#> #crypt_vda UUID=9fc916b2-bdd8-4fbd-b557-4c4366f8cd63 none luks
+#> crypt_vdb UUID=93fc3643-a687-4a1c-9859-409b090448b9 none luks
 
 update-initramfs -c -k all
 
@@ -133,9 +133,9 @@ chroot /mnt
 nano /etc/crypttab
 # UNCOMMENT THE NOT WORKING DEVICE
 cat /etc/crypttab
-# cryptswap UUID=03019356-3691-4002-a013-be15f291cde2 /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
-# crypt_vda UUID=9fc916b2-bdd8-4fbd-b557-4c4366f8cd63 none luks
-# #crypt_vdb UUID=93fc3643-a687-4a1c-9859-409b090448b9 none luks
+#> cryptswap UUID=03019356-3691-4002-a013-be15f291cde2 /dev/urandom swap,offset=1024,cipher=aes-xts-plain64,size=512
+#> crypt_vda UUID=9fc916b2-bdd8-4fbd-b557-4c4366f8cd63 none luks
+#> #crypt_vdb UUID=93fc3643-a687-4a1c-9859-409b090448b9 none luks
 
 update-initramfs -c -k all
 

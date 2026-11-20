@@ -59,35 +59,35 @@ Open a terminal and examine the default partition layout (alternatively, use Gpa
 
 ```fish
 sudo lsblk
-# NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
-# loop0         7:0    0   2.4G  1 loop /rofs
-# sda           8:0    0   3.6T  0 disk
-# sdb           8:16   0   3.6T  0 disk
-# sdc           8:32   0 119.2G  0 disk
-# ├─sdc1        8:33   0  1022M  0 part
-# ├─sdc2        8:34   0     4G  0 part
-# ├─sdc3        8:35   0 110.2G  0 part
-# └─sdc4        8:36   0     4G  0 part
-# sdd           8:48   1     0B  0 disk
-# sde           8:64   1     0B  0 disk
-# sdf           8:80   1     0B  0 disk
-# sdg           8:96   1     0B  0 disk
-# sdh           8:112  1  29.3G  0 disk
-# ├─sdh1        8:113  1   2.8G  0 part /cdrom
-# ├─sdh2        8:114  1     4M  0 part
-# └─sdh3        8:115  1  26.5G  0 part /var/crash
-#                                       /var/log
-# sdi           8:128  0   1.4T  0 disk
-# sr0          11:0    1  1024M  0 rom
-# sr1          11:1    1  1024M  0 rom
-# sr2          11:2    1  1024M  0 rom
-# sr3          11:3    1  1024M  0 rom
-# zram0       251:0    0    16G  0 disk [SWAP]
-# nvme0n1     259:0    0   1.7T  0 disk
-# ├─nvme0n1p1 259:1    0    16M  0 part
-# ├─nvme0n1p2 259:2    0  99.6G  0 part
-# ├─nvme0n1p3 259:3    0   9.8G  0 part
-# └─nvme0n1p4 259:4    0   1.6T  0 part
+#> NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+#> loop0         7:0    0   2.4G  1 loop /rofs
+#> sda           8:0    0   3.6T  0 disk
+#> sdb           8:16   0   3.6T  0 disk
+#> sdc           8:32   0 119.2G  0 disk
+#> ├─sdc1        8:33   0  1022M  0 part
+#> ├─sdc2        8:34   0     4G  0 part
+#> ├─sdc3        8:35   0 110.2G  0 part
+#> └─sdc4        8:36   0     4G  0 part
+#> sdd           8:48   1     0B  0 disk
+#> sde           8:64   1     0B  0 disk
+#> sdf           8:80   1     0B  0 disk
+#> sdg           8:96   1     0B  0 disk
+#> sdh           8:112  1  29.3G  0 disk
+#> ├─sdh1        8:113  1   2.8G  0 part /cdrom
+#> ├─sdh2        8:114  1     4M  0 part
+#> └─sdh3        8:115  1  26.5G  0 part /var/crash
+#>                                       /var/log
+#> sdi           8:128  0   1.4T  0 disk
+#> sr0          11:0    1  1024M  0 rom
+#> sr1          11:1    1  1024M  0 rom
+#> sr2          11:2    1  1024M  0 rom
+#> sr3          11:3    1  1024M  0 rom
+#> zram0       251:0    0    16G  0 disk [SWAP]
+#> nvme0n1     259:0    0   1.7T  0 disk
+#> ├─nvme0n1p1 259:1    0    16M  0 part
+#> ├─nvme0n1p2 259:2    0  99.6G  0 part
+#> ├─nvme0n1p3 259:3    0   9.8G  0 part
+#> └─nvme0n1p4 259:4    0   1.6T  0 part
 ```
 
 I have installed Pop!_OS on the 119.2 GB SSD, recognized as `sdc` on my machine. Note that I have several other disks connected, so we must identify the correct disk carefully.
@@ -96,17 +96,17 @@ Let's look closer at the partition layout of `sdc`:
 
 ```fish
 sudo parted /dev/sdc unit MiB print
-# Model: ATA ThinkSystem M.2 (scsi)
-# Disk /dev/sdc: 122040MiB
-# Sector size (logical/physical): 512B/512B
-# Partition Table: gpt
-# Disk Flags:
-#
-# Number  Start      End        Size       File system     Name      Flags
-#  1      2.00MiB    1024MiB    1022MiB    fat32                     boot, esp
-#  2      1024MiB    5120MiB    4096MiB    fat32           recovery  msftdata
-#  3      5120MiB    117942MiB  112822MiB
-#  4      117942MiB  122038MiB  4096MiB    linux-swap(v1)            swap
+#> Model: ATA ThinkSystem M.2 (scsi)
+#> Disk /dev/sdc: 122040MiB
+#> Sector size (logical/physical): 512B/512B
+#> Partition Table: gpt
+#> Disk Flags:
+#>
+#> Number  Start      End        Size       File system     Name      Flags
+#>  1      2.00MiB    1024MiB    1022MiB    fat32                     boot, esp
+#>  2      1024MiB    5120MiB    4096MiB    fat32           recovery  msftdata
+#>  3      5120MiB    117942MiB  112822MiB
+#>  4      117942MiB  122038MiB  4096MiB    linux-swap(v1)            swap
 ```
 
 We have the following 4 partitions:
@@ -120,43 +120,43 @@ Let's examine the encrypted `sdc3` partition:
 
 ```fish
 sudo cryptsetup luksDump /dev/sdc3
-# LUKS header information
-# Version:        2
-# Epoch:          3
-# Metadata area:  16384 [bytes]
-# Keyslots area:  16744448 [bytes]
-# UUID:           0be45abc-4d9f-4682-9a51-17432c068ef2
-# Label:          (no label)
-# Subsystem:      (no subsystem)
-# Flags:          (no flags)
-#
-# Data segments:
-#   0: crypt
-#       offset: 16777216 [bytes]
-#       length: (whole device)
-#       cipher: aes-xts-plain64
-#       sector: 512 [bytes]
+#> LUKS header information
+#> Version:        2
+#> Epoch:          3
+#> Metadata area:  16384 [bytes]
+#> Keyslots area:  16744448 [bytes]
+#> UUID:           0be45abc-4d9f-4682-9a51-17432c068ef2
+#> Label:          (no label)
+#> Subsystem:      (no subsystem)
+#> Flags:          (no flags)
+#>
+#> Data segments:
+#>   0: crypt
+#>       offset: 16777216 [bytes]
+#>       length: (whole device)
+#>       cipher: aes-xts-plain64
+#>       sector: 512 [bytes]
 ```
 
 This confirms the partition is encrypted with LUKS using default options. Now, let's see what is inside the encrypted partition:
 
 ```fish
 sudo cryptsetup luksOpen /dev/sdc3 cryptdata
-# Enter passphrase for /dev/sdc3:
+#> Enter passphrase for /dev/sdc3:
 ls /dev/mapper
-# control  cryptdata  data-root
+#> control  cryptdata  data-root
 sudo pvs
-#  PV                    VG   Fmt  Attr PSize   PFree
-#  /dev/mapper/cryptdata data lvm2 a--  110.16g    0
+#>  PV                    VG   Fmt  Attr PSize   PFree
+#>  /dev/mapper/cryptdata data lvm2 a--  110.16g    0
 sudo vgs
-#  VG   #PV #LV #SN Attr   VSize   VFree
-#  data   1   1   0 wz--n- 110.16g    0
+#>  VG   #PV #LV #SN Attr   VSize   VFree
+#>  data   1   1   0 wz--n- 110.16g    0
 sudo lvs
-#  LV   VG   Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
-#  root data -wi-a----- 110.16g
+#>  LV   VG   Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+#>  root data -wi-a----- 110.16g
 sudo lsblk /dev/mapper/data-root -f
-# NAME      FSTYPE FSVER LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
-# data-root ext4   1.0         2e9d6dac-1ee4-419c-b21c-8212262fdb93
+#> NAME      FSTYPE FSVER LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+#> data-root ext4   1.0         2e9d6dac-1ee4-419c-b21c-8212262fdb93
 ```
 
 By default, when installing with encryption, Pop!_OS uses [Logical Volume Management (LVM)](https://askubuntu.com/questions/3596/what-is-lvm-and-what-is-it-used-for). The encrypted partition (`cryptdata`) is a physical volume containing a volume group called `data`. Inside this volume group, there is a logical volume called `root` containing our system files, formatted with ext4.
@@ -168,7 +168,7 @@ Now that we know the partition layout, let's close everything:
 sudo cryptsetup luksClose /dev/mapper/data-root
 sudo cryptsetup luksClose /dev/mapper/cryptdata
 ls /dev/mapper
-# control
+#> control
 ```
 We are ready to proceed with the second install, which follows the same steps but uses BTRFS as the underlying filesystem.
 
@@ -209,7 +209,7 @@ Mount the root partition (the top-level BTRFS volume always has id 5) with compr
 
 ```fish
 cryptsetup luksOpen /dev/sdc3 cryptdata
-# Enter passphrase for /dev/sdc3
+#> Enter passphrase for /dev/sdc3
 mount -o subvolid=5,defaults,compress=zstd:1 /dev/mapper/data-root /mnt
 ```
 
@@ -232,7 +232,7 @@ If the LVM group is not activated, see [this issue for help](https://github.com/
 First, create the subvolume `@`:
 ```fish
 btrfs subvolume create /mnt/@
-# Create subvolume '/mnt/@'
+#> Create subvolume '/mnt/@'
 ```
 
 Next, move all files and folders from the top-level filesystem into `@`:
@@ -240,7 +240,7 @@ Next, move all files and folders from the top-level filesystem into `@`:
 cd /mnt
 ls | grep -v @ | xargs mv -t @
 ls -a /mnt
-# . .. @
+#> . .. @
 ```
 Since we mounted the drive with compression enabled, the data is automatically compressed as it is moved.
 
@@ -248,19 +248,19 @@ Now, create the `@home` subvolume and move the user folder from `/mnt/@/home/` i
 
 ```fish
 btrfs subvolume create /mnt/@home
-# Create subvolume '/mnt/@home'
+#> Create subvolume '/mnt/@home'
 mv /mnt/@/home/* /mnt/@home/
 ```
 
 Verify that everything has been moved correctly:
 ```fish
 ls -a /mnt/@/home
-# . ..
+#> . ..
 ls -a /mnt/@home
-# . .. wmutschl
+#> . .. wmutschl
 btrfs subvolume list /mnt
-# ID 256 gen 17 top level 5 path @
-# ID 257 gen 17 top level 5 path @home
+#> ID 256 gen 17 top level 5 path @
+#> ID 257 gen 17 top level 5 path @home
 ```
 
 ### Changes to fstab
@@ -282,11 +282,11 @@ Your `fstab` should look like this:
 
 ```fish
 cat /mnt/@/etc/fstab
-# PARTUUID=2a345427-756a-454d-943b-6028c9e5cf55  /boot/efi  vfat  umask=0077  0  0
-# PARTUUID=526a5925-7e0f-44ff-9a69-da10eb0f1c5c  /recovery  vfat  umask=0077  0  0
-# /dev/mapper/cryptswap  none  swap  defaults  0  0
-# UUID=f4190602-7a0b-4d6c-aed5-624a17afaf8f  /  btrfs  defaults,compress=zstd:1,subvol=@  0  0
-# UUID=f4190602-7a0b-4d6c-aed5-624a17afaf8f  /home  btrfs  defaults,compress=zstd:1,subvol=@home   0 0
+#> PARTUUID=2a345427-756a-454d-943b-6028c9e5cf55  /boot/efi  vfat  umask=0077  0  0
+#> PARTUUID=526a5925-7e0f-44ff-9a69-da10eb0f1c5c  /recovery  vfat  umask=0077  0  0
+#> /dev/mapper/cryptswap  none  swap  defaults  0  0
+#> UUID=f4190602-7a0b-4d6c-aed5-624a17afaf8f  /  btrfs  defaults,compress=zstd:1,subvol=@  0  0
+#> UUID=f4190602-7a0b-4d6c-aed5-624a17afaf8f  /home  btrfs  defaults,compress=zstd:1,subvol=@home   0 0
 ```
 
 Note that your UUIDs will be different. The last two lines are the important ones.
@@ -307,36 +307,36 @@ Your configuration file should look like this (add the `rootflags=subvol=@` line
 
 ```fish
 cat /mnt/@/etc/kernelstub/configuration
-# {
-#   "default": {
-#     "kernel_options": [
-#       "quiet",
-#       "splash"
-#     ],
-#     "esp_path": "/boot/efi",
-#     "setup_loader": false,
-#     "manage_mode": false,
-#     "force_update": false,
-#     "live_mode": false,
-#     "config_rev": 3
-#   },
-#   "user": {
-#     "kernel_options": [
-#       "quiet",
-#       "loglevel=0",
-#       "systemd.show_status=false",
-#       "splash",
-#       "rootflags=subvol=@",
-#       ""
-#     ],
-#     "esp_path": "/boot/efi",
-#     "setup_loader": true,
-#     "manage_mode": true,
-#     "force_update": false,
-#     "live_mode": false,
-#     "config_rev": 3
-#   }
-# }
+#> {
+#>   "default": {
+#>     "kernel_options": [
+#>       "quiet",
+#>       "splash"
+#>     ],
+#>     "esp_path": "/boot/efi",
+#>     "setup_loader": false,
+#>     "manage_mode": false,
+#>     "force_update": false,
+#>     "live_mode": false,
+#>     "config_rev": 3
+#>   },
+#>   "user": {
+#>     "kernel_options": [
+#>       "quiet",
+#>       "loglevel=0",
+#>       "systemd.show_status=false",
+#>       "splash",
+#>       "rootflags=subvol=@",
+#>       ""
+#>     ],
+#>     "esp_path": "/boot/efi",
+#>     "setup_loader": true,
+#>     "manage_mode": true,
+#>     "force_update": false,
+#>     "live_mode": false,
+#>     "config_rev": 3
+#>   }
+#> }
 ```
 
 {{< callout warning >}}
@@ -361,10 +361,10 @@ Add `rootflags=subvol=@` to the last line of `Pop_OS_current.conf`:
 ```fish
 sed -i 's/splash/splash rootflags=subvol=@/' /mnt/@/boot/efi/loader/entries/Pop_OS-current.conf
 cat /mnt/@/boot/efi/loader/entries/Pop_OS-current.conf
-# title Pop!_OS
-# linux /EFI/Pop_OS-f4190602-7a0b-4d6c-aed5-624a17afaf8f/vmlinuz.efi
-# initrd /EFI/Pop_OS-f4190602-7a0b-4d6c-aed5-624a17afaf8f/initrd.img
-# options root=UUID=f4190602-7a0b-4d6c-aed5-624a17afaf8f ro quiet loglevel=0 systemd.show_status=false splash rootflags=subvol=@
+#> title Pop!_OS
+#> linux /EFI/Pop_OS-f4190602-7a0b-4d6c-aed5-624a17afaf8f/vmlinuz.efi
+#> initrd /EFI/Pop_OS-f4190602-7a0b-4d6c-aed5-624a17afaf8f/initrd.img
+#> options root=UUID=f4190602-7a0b-4d6c-aed5-624a17afaf8f ro quiet loglevel=0 systemd.show_status=false splash rootflags=subvol=@
 ```
 
 Optionally, add a timeout to the systemd boot menu to easily access the recovery partition:
@@ -372,8 +372,8 @@ Optionally, add a timeout to the systemd boot menu to easily access the recovery
 ```fish
 echo "timeout 3" >> /mnt/@/boot/efi/loader/loader.conf
 cat /mnt/@/boot/efi/loader/loader.conf
-# default Pop_OS-current
-# timeout 3
+#> default Pop_OS-current
+#> timeout 3
 ```
 
 ### Create a chroot environment and update initramfs
@@ -386,12 +386,12 @@ cd /
 umount -l /mnt
 mount -o subvol=@,defaults,compress=zstd:1 /dev/mapper/data-root /mnt
 ls /mnt
-# bin  bin.usr-is-merged  boot  dev  etc  home  lib  lib.usr-is-merged  lib64  media  mnt  opt  proc  recovery  root  run  sbin  sbin.usr-is-merged  srv  sys  tmp  usr  var
+#> bin  bin.usr-is-merged  boot  dev  etc  home  lib  lib.usr-is-merged  lib64  media  mnt  opt  proc  recovery  root  run  sbin  sbin.usr-is-merged  srv  sys  tmp  usr  var
 ```
 
 Mount the necessary system directories and enter chroot (commands from System76's [Repair the Bootloader](https://support.system76.com/articles/bootloader/#systemd-boot) guide):
 
-```fish
+```sh
 for i in /dev /dev/pts /proc /sys /run; do mount -B $i /mnt$i; done
 chroot /mnt
 ```
@@ -400,46 +400,46 @@ Now inside the new system, verify the `fstab` mounts:
 
 ```fish
 mount -av
-# mount: (hint) your fstab has been modified, but systemd still uses
-#        the old version; use 'systemctl daemon-reload' to reload.
-# /boot/efi                : successfully mounted
-# /recovery                : successfully mounted
-# none                     : ignored
-# /                        : ignored
-# /home                    : successfully mounted
+#> mount: (hint) your fstab has been modified, but systemd still uses
+#>        the old version; use 'systemctl daemon-reload' to reload.
+#> /boot/efi                : successfully mounted
+#> /recovery                : successfully mounted
+#> none                     : ignored
+#> /                        : ignored
+#> /home                    : successfully mounted
 ```
 
 Update the initramfs to include the kernelstub changes:
 
 ```fish
 update-initramfs -c -k all
-# update-initramfs: Generating /boot/initrd.img-6.16.3-76061603-generic
-# W: /sbin/fsck.btrfs doesn't exist, can't install to initramfs
-# mount: (hint) your fstab has been modified, but systemd still uses
-#        the old version; use 'systemctl daemon-reload' to reload.
-# Updating kernel version 6.16.3-76061603-generic in systemd-boot...
-# kernelstub.Config    : INFO     Looking for configuration...
-# kernelstub           : INFO     System information:
-#
-#     OS:..................Pop!_OS 24.04
-#     Root partition:....../dev/dm-1
-#     Root FS UUID:........f4190602-7a0b-4d6c-aed5-624a17afaf8f
-#     ESP Path:............/boot/efi
-#     ESP Partition:......./dev/sdc1
-#     ESP Partition #:.....1
-#     NVRAM entry #:.......-1
-#     Boot Variable #:.....0000
-#     Kernel Boot Options:.quiet loglevel=0 systemd.show_status=false splash rootflags=subvol=@
-#     Kernel Image Path:.../boot/vmlinuz-6.16.3-76061603-generic
-#     Initrd Image Path:.../boot/initrd.img-6.16.3-76061603-generic
-#     Force-overwrite:.....False
-#
-# kernelstub.Installer : INFO     Copying Kernel into ESP
-# kernelstub.Installer : INFO     Copying initrd.img into ESP
-# kernelstub.Installer : INFO     Setting up loader.conf configuration
-# kernelstub.Installer : INFO     Making entry file for Pop!_OS
-# kernelstub.Installer : INFO     Backing up old kernel
-# kernelstub.Installer : INFO     No old kernel found, skipping
+#> update-initramfs: Generating /boot/initrd.img-6.16.3-76061603-generic
+#> W: /sbin/fsck.btrfs doesn't exist, can't install to initramfs
+#> mount: (hint) your fstab has been modified, but systemd still uses
+#>        the old version; use 'systemctl daemon-reload' to reload.
+#> Updating kernel version 6.16.3-76061603-generic in systemd-boot...
+#> kernelstub.Config    : INFO     Looking for configuration...
+#> kernelstub           : INFO     System information:
+#>
+#>     OS:..................Pop!_OS 24.04
+#>     Root partition:....../dev/dm-1
+#>     Root FS UUID:........f4190602-7a0b-4d6c-aed5-624a17afaf8f
+#>     ESP Path:............/boot/efi
+#>     ESP Partition:......./dev/sdc1
+#>     ESP Partition #:.....1
+#>     NVRAM entry #:.......-1
+#>     Boot Variable #:.....0000
+#>     Kernel Boot Options:.quiet loglevel=0 systemd.show_status=false splash rootflags=subvol=@
+#>     Kernel Image Path:.../boot/vmlinuz-6.16.3-76061603-generic
+#>     Initrd Image Path:.../boot/initrd.img-6.16.3-76061603-generic
+#>     Force-overwrite:.....False
+#>
+#> kernelstub.Installer : INFO     Copying Kernel into ESP
+#> kernelstub.Installer : INFO     Copying initrd.img into ESP
+#> kernelstub.Installer : INFO     Setting up loader.conf configuration
+#> kernelstub.Installer : INFO     Making entry file for Pop!_OS
+#> kernelstub.Installer : INFO     Backing up old kernel
+#> kernelstub.Installer : INFO     No old kernel found, skipping
 ```
 
 If you see errors, check that you added the comma in the `/etc/kernelstub/configuration` file.
@@ -471,19 +471,19 @@ Next, we verify the setup in a terminal:
 
 ```fish
 sudo mount -av
-# /boot/efi                : already mounted
-# /recovery                : already mounted
-# none                     : ignored
-# /                        : ignored
-# /home                    : already mounted
+#> /boot/efi                : already mounted
+#> /recovery                : already mounted
+#> none                     : ignored
+#> /                        : ignored
+#> /home                    : already mounted
 ```
 
 Check that the optimized mount options are active (note that you cannot have different mount options on the same partition):
 
 ```fish
 sudo mount -v | grep /dev/mapper
-# /dev/mapper/data-root on / type btrfs (rw,relatime,compress=zstd:1,space_cache=v2,subvolid=256,subvol=/@)
-# /dev/mapper/data-root on /home type btrfs (rw,relatime,compress=zstd:1,space_cache=v2,subvolid=257,subvol=/@home)
+#> /dev/mapper/data-root on / type btrfs (rw,relatime,compress=zstd:1,space_cache=v2,subvolid=256,subvol=/@)
+#> /dev/mapper/data-root on /home type btrfs (rw,relatime,compress=zstd:1,space_cache=v2,subvolid=257,subvol=/@home)
 ```
 
 Verify swap is working:
@@ -492,9 +492,9 @@ Run `sudo swapon` to check if both the swap partition and the zram device are ac
 
 ```fish
 sudo swapon
-# NAME       TYPE      SIZE USED PRIO
-# /dev/dm-2  partition   4G   0B   -2
-# /dev/zram0 partition  16G   0B 1000
+#> NAME       TYPE      SIZE USED PRIO
+#> /dev/dm-2  partition   4G   0B   -2
+#> /dev/zram0 partition  16G   0B 1000
 ```
 
 Pop!_OS uses **two swap mechanisms**:
@@ -517,13 +517,13 @@ Inspect BTRFS subvolumes:
 
 ```fish
 sudo btrfs filesystem show /
-# Label: none  uuid: f4190602-7a0b-4d6c-aed5-624a17afaf8f
-#         Total devices 1 FS bytes used 7.91GiB
-#         devid    1 size 110.16GiB used 12.02GiB path /dev/mapper/data-root
+#> Label: none  uuid: f4190602-7a0b-4d6c-aed5-624a17afaf8f
+#>         Total devices 1 FS bytes used 7.91GiB
+#>         devid    1 size 110.16GiB used 12.02GiB path /dev/mapper/data-root
 
 sudo btrfs subvolume list /
-# ID 256 gen 96 top level 5 path @
-# ID 257 gen 96 top level 5 path @home
+#> ID 256 gen 96 top level 5 path @
+#> ID 257 gen 96 top level 5 path @home
 ```
 
 If using an SSD or NVMe, enable `fstrim.timer`:
@@ -536,8 +536,8 @@ Make sure `issue_discards=1` is set in `/etc/lvm/lvm.conf` (usually default):
 
 ```fish
 cat /etc/lvm/lvm.conf | grep issue_discards
-# 	# Configuration option devices/issue_discards.
-# 	issue_discards = 1
+#> 	# Configuration option devices/issue_discards.
+#> 	issue_discards = 1
 ```
 
 Finally, update the system including the recovery partition and flatpak applications:
@@ -608,10 +608,10 @@ In a terminal, you can verify the snapshots:
 
 ```fish
 sudo btrfs subvolume list /
-# ID 256 gen 160 top level 5 path @
-# ID 257 gen 157 top level 5 path @home
-# ID 258 gen 153 top level 5 path timeshift-btrfs/snapshots/2025-12-09_10-37-12/@
-# ID 259 gen 153 top level 5 path timeshift-btrfs/snapshots/2025-12-09_10-37-12/@home
+#> ID 256 gen 160 top level 5 path @
+#> ID 257 gen 157 top level 5 path @home
+#> ID 258 gen 153 top level 5 path timeshift-btrfs/snapshots/2025-12-09_10-37-12/@
+#> ID 259 gen 153 top level 5 path timeshift-btrfs/snapshots/2025-12-09_10-37-12/@home
 ```
 
 ## Step 6: Practice recovery and system rollback
@@ -646,7 +646,7 @@ For both, first open the File Manager, go to **Other Locations**, select your en
     sudo -i
     cd /media/recovery/<YOUR-UUID>
     ls
-    # @ @home timeshift-btrfs
+    #> @ @home timeshift-btrfs
     ```
 2.  Move the broken subvolume:
     ```fish
