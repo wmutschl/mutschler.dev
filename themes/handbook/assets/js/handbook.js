@@ -601,9 +601,13 @@
   // contents and explanations (still "# " comments), never output.
   window.codeText = function (block) {
     if (!block.hasAttribute("data-roles")) return null;
-    var text = $$(".line", block).filter(function (l) { return /\br-(cmd|here|com|blank)\b/.test(l.className); })
-      .map(function (l) { return l.textContent.replace(/\n$/, ""); }).join("\n").replace(/^\n+|\n+$/g, "");
-    return text || null; // a listing with nothing to run copies as it always did
+    var lines = $$(".line", block);
+    var join = function (ls) {
+      return ls.map(function (l) { return l.textContent.replace(/\n$/, ""); }).join("\n").replace(/^\n+|\n+$/g, "");
+    };
+    // A listing with nothing to run (only output) copies as it is written, output with its "#". Not innerText: the
+    // hidden "#" of each output line would come out on a line of its own.
+    return join(lines.filter(function (l) { return /\br-(cmd|here|com|blank)\b/.test(l.className); })) || join(lines);
   };
   // The output boxes of panels cover the shading that shows a listing scrolls sideways (handbook.css draws it from
   // the listing's background), so the CSS draws it again on top, from these two classes. layout() runs it again.
