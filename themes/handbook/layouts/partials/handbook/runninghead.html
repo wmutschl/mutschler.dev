@@ -1,0 +1,32 @@
+{{- /* Running head: handbook title, chapter (on chapters), navigation, search and theme. Context: page. */ -}}
+{{- $entry := partial "handbook/entry-for.html" . -}}
+{{- $g := partial "base/guide.html" . -}}
+{{- $isIndex := or (eq .Kind "taxonomy") (eq .Kind "term") -}}
+<header class="rh" data-rh>
+  <div class="rh__inner">
+    <a class="rh__title" href="{{ "/" | relURL }}">mutschler.dev</a>
+    {{- if $entry }}
+    <p class="rh__chapter"><span class="rh__no{{ if eq $entry.kind "earlier" }} rh__no--earlier{{ end }}">{{ $entry.num }}</span> {{ $g.short | default .Title }}</p>
+    {{- else if and .IsPage (not .IsHome) }}
+    <p class="rh__chapter">{{ .Title }}</p>
+    {{- end }}
+    {{- if and .IsPage .TableOfContents (findRE "<li>" .TableOfContents 2) }}
+    <button class="rh__section" type="button" data-toc-open aria-haspopup="dialog" hidden>
+      <span class="vh">Sections of this {{ if $g }}chapter{{ else }}page{{ end }}, current: </span><span class="rh__section-text" data-rh-section></span>{{ partial "base/icon.html" "menu" }}
+    </button>
+    {{- end }}
+    <nav class="rh__nav" aria-label="Handbook">
+      <ul>
+        <li><a href="{{ "/" | relURL }}"{{ if .IsHome }} aria-current="page"{{ end }}>Contents</a></li>
+        <li><a href="{{ "tags/" | relURL }}"{{ if eq .Kind "taxonomy" }} aria-current="page"{{ else if $isIndex }} aria-current="true"{{ end }}>Index</a></li>
+        <li class="rh__about"><a href="{{ "/" | relURL }}#author">About</a></li>
+      </ul>
+    </nav>
+    <button class="rh__button rh__search" type="button" data-search-open aria-haspopup="dialog" aria-keyshortcuts="/">
+      {{ partial "base/icon.html" "search" }}<span class="rh__label">Search</span><kbd class="rh__kbd" aria-hidden="true">/</kbd>
+    </button>
+    <button class="rh__button rh__theme" type="button" data-theme-toggle aria-label="Switch to dark theme">
+      <span class="rh__icon-dark">{{ partial "base/icon.html" "moon" }}</span><span class="rh__icon-light">{{ partial "base/icon.html" "sun" }}</span>
+    </button>
+  </div>
+</header>

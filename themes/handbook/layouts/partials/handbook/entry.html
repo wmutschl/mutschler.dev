@@ -1,0 +1,28 @@
+{{- /*
+  One contents entry. Context: a chapter dict from handbook/chapters.html.
+  The line under the title answers "is this the guide for my system, and is it current?":
+  - chapters written for a release: the release and the date of the last revision (git), or of publication
+    when the chapter has not been revised since;
+  - notes chapters (no release): their summary, which is one short sentence;
+  - earlier editions: the catalogue note that says why the chapter is kept.
+*/ -}}
+{{- $p := .page -}}
+{{- $g := partial "base/guide.html" $p -}}
+{{- $earlier := eq .kind "earlier" -}}
+<li class="entry{{ if $earlier }} entry--earlier{{ end }}">
+  <span class="entry__no"><span class="vh">{{ if $earlier }}Earlier edition {{ else }}Chapter {{ end }}</span>{{ .num }}</span>
+  <a class="entry__title" href="{{ $p.RelPermalink }}"><span class="entry__text">{{ $g.short | default $p.Title }}</span></a>
+  {{- if $earlier }}
+  <span class="entry__right"><span class="vh">, first published </span><time datetime="{{ $p.Date.Format "2006-01-02" }}">{{ $p.Date.Format "2006" }}</time></span>
+  <p class="entry__summary">{{ with $g.note }}{{ . }}{{ end }}</p>
+  {{- else }}
+  <span class="entry__right"><span class="vh">, reading time </span>{{ $p.ReadingTime }} min</span>
+  {{- with $g.release }}
+  {{- $revised := and (not $p.Lastmod.IsZero) (ne ($p.Lastmod.Format "2006-01-02") ($p.Date.Format "2006-01-02")) -}}
+  {{- $d := cond $revised $p.Lastmod $p.Date }}
+  <p class="entry__summary">Written for {{ . }}; {{ if $revised }}revised{{ else }}published{{ end }} <time datetime="{{ $d.Format "2006-01-02" }}">{{ replace ($d.Format "2 January 2006") " " " " }}</time>.</p>
+  {{- else }}
+  <p class="entry__summary">{{ with $p.Params.summary }}{{ . | markdownify | plainify | htmlUnescape }}{{ end }}</p>
+  {{- end }}
+  {{- end }}
+</li>

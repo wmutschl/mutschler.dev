@@ -1,0 +1,45 @@
+{{ define "title" }}Index – {{ site.Title }}{{ end }}
+{{ define "main" }}
+{{- $chapters := partialCached "handbook/chapters.html" . "chapters" -}}
+{{- $nEarlier := len (where $chapters "kind" "earlier") -}}
+<div class="page page--index">
+  <header class="pagehead">
+    <h1 class="pagehead__title">Index</h1>
+    <p class="pagehead__lead">Every term the chapters are tagged with, followed by the numbers of the chapters that use it, as in the index of a printed book. Numbers that start with A are earlier editions{{ if $nEarlier }} (A.1 to A.{{ $nEarlier }}){{ end }}.</p>
+  </header>
+  {{ partial "handbook/search.html" (dict "id" "index" "inline" true) }}
+  <div class="index">
+    {{- $current := "" -}}
+    {{- range .Data.Terms.Alphabetical -}}
+      {{- $name := .Page.LinkTitle -}}
+      {{- $letter := upper (substr $name 0 1) -}}
+      {{- if findRE `^[0-9]` $letter }}{{ $letter = "0–9" }}{{ end -}}
+      {{- if ne $letter $current -}}
+        {{- if ne $current "" }}
+    </ul>
+  </section>
+        {{- end }}
+  <section class="index__group" aria-label="Terms starting with {{ $letter }}">
+    <h2 class="index__letter" aria-hidden="true">{{ $letter }}</h2>
+    <ul class="index__terms" role="list">
+        {{- $current = $letter -}}
+      {{- end -}}
+      {{- $keys := slice -}}
+      {{- range .Pages }}{{ with .File }}{{ $keys = $keys | append .ContentBaseName }}{{ end }}{{ end -}}
+      {{- $locs := slice -}}
+      {{- range $chapters -}}
+        {{- if in $keys .key -}}
+          {{- $g := partial "base/guide.html" .page -}}
+          {{- $label := printf "%s %s: %s" (cond (eq .kind "earlier") "Earlier edition" "Chapter") .num ($g.short | default .page.Title) -}}
+          {{- $locs = $locs | append (printf `<a class="term__loc%s" href="%s" title="%s" aria-label="%s">%s</a>` (cond (eq .kind "earlier") " term__loc--earlier" "") .page.RelPermalink ($g.short | default .page.Title) $label .num) -}}
+        {{- end -}}
+      {{- end }}
+      <li class="term"><a class="term__name" href="{{ .Page.RelPermalink }}">{{ $name }}</a><span class="term__locs">{{ delimit $locs ", " | safeHTML }}</span></li>
+    {{- end }}
+    {{- if ne $current "" }}
+    </ul>
+  </section>
+    {{- end }}
+  </div>
+</div>
+{{ end }}

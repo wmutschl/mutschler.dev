@@ -1,0 +1,21 @@
+{{- /*
+  Markdown links. Every link goes where it was written to go. Relative links ("../btrfs/") are resolved against
+  the page's own address, exactly as a browser resolves them, so they become root-relative ("/linux/btrfs/").
+  On screen nothing changes; on paper the print stylesheet can then name the site address after every internal
+  link. External links, mailto: links, root-relative links and in-page anchors ("#…") are left as written.
+  There is no redirect map: links that pointed into the old site's structure were fixed in the Markdown
+  (18 November 2026), and the link check of the build reports any link that resolves to nothing.
+*/ -}}
+{{- $u := .Destination -}}
+{{- if and $u (not (findRE `^([a-zA-Z][a-zA-Z0-9+.-]*:|/|#|\?)` $u 1)) -}}
+  {{- $path := $u -}}
+  {{- $rest := "" -}}
+  {{- with findRESubmatch `^([^#?]*)([#?].*)$` $u 1 }}{{ $path = index (index . 0) 1 }}{{ $rest = index (index . 0) 2 }}{{ end -}}
+  {{- if $path -}}
+    {{- $abs := path.Join .Page.RelPermalink $path -}}
+    {{- if and (hasSuffix $path "/") (ne $abs "/") }}{{ $abs = printf "%s/" $abs }}{{ end -}}
+    {{- $u = printf "%s%s" $abs $rest -}}
+  {{- end -}}
+{{- end -}}
+<a href="{{ $u | safeURL }}"{{ with .Title }} title="{{ . }}"{{ end }}>{{ .Text | safeHTML }}</a>
+{{- /* trailing */ -}}

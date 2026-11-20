@@ -1,0 +1,1795 @@
+/* ==========================================================================
+   Handbook: mutschler.dev typeset as a handbook.
+   Ink on cool paper, one spot colour (carmine), Literata + Atkinson Hyperlegible Mono.
+   See themes/handbook/DESIGN.md for the system.
+   ========================================================================== */
+
+/* ---------- 1. Tokens ---------- */
+
+:root {
+  --paper: #FFFFFF;   /* round 6: Docs' white (until then #F6F7F8, a cool grey) */
+  --tint: #E8EBEE;
+  --ink: #1C1F24;
+  --pencil: #4A515B;
+  --leader: #9AA1AA;
+  --rule: #C9CED4;
+  --spot: #B0122C;
+  /* the Caution's colour (round 6): carmine like the accent, a token of its own so that a warning never depends on it */
+  --warn: #B0122C;
+  --on-warn: #FFFFFF;
+  /* the ground a table or diagram sits on: the scroll covers of .table-wrap and pre.mermaid are painted in it, so
+     they vanish on the paper and inside a note, a Caution or the notice alike (review of 20 November) */
+  --ground: var(--paper);
+  --selection: #F3D3D9;
+  --backdrop: rgba(28, 31, 36, .42);
+  --shade: rgba(28, 31, 36, .16);
+
+  /* Washes behind notes, Cautions and the earlier-edition notice (round 4, DESIGN.md 17): between the paper and
+     the listing tint, one hue each (OKLCH L .960–.963, C .013–.016, about half the chroma of Console's boxes); ink
+     keeps at least 14.6:1 on them, pencil 7.1:1. note-ink is the note mark in a washed box (6:1). */
+  --note-wash: #F5F9FD;   /* round 7: half as strong on the white paper (until then #ECF4FB) */
+  --note-bar: #91AFC9;
+  --note-ink: #335E89;
+  --caution-wash: #FBEEEF;
+  --notice-wash: #F8F2E7;
+
+  /* Listings (round 2): commands stay ink; output and comments are a lighter pencil; flags, strings, variables
+     and numbers each take a muted printing-ink colour. Carmine is never a token colour: it means chapter
+     numbers and Caution. Contrast on --tint is listed in DESIGN.md ("Listing colours"). */
+  --code-comment: #545D67;
+  --code-flag: #2A517E;
+  --code-string: #235D42;
+  --code-var: #6A3D7E;
+  --code-number: #6E4C10;
+
+  --text-font: "Literata", Georgia, Cambria, "Times New Roman", serif;
+  --mono: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Bringhurst steps: 14 16 18 21 24 30 36 48 72 */
+  --s0: .875rem;
+  --s1: 1rem;
+  --s2: 1.125rem;
+  --s3: 1.3125rem;
+  --s4: 1.5rem;
+  --s5: 1.875rem;
+  --s6: 2.25rem;
+  --s7: 3rem;
+  --s9: 4.5rem;
+
+  --measure: 35rem;   /* about 66 characters of Literata (measured capacity 66); from 1280 px it widens to 74 (round 3) */
+  /* The single column of the contents, section, index, tag and 404 pages: 46rem, and it widens with the text
+     column (round 3), so these pages keep their proportions to the chapters. */
+  --page-w: calc(var(--measure) / 35 * 46);
+  --pad: 1rem;        /* page side padding */
+  --hang: 0px;        /* room for hanging numbers; set where there is a gutter */
+  --side-w: 15rem;    /* left margin (TOC); 13.5rem from 64rem, 15rem from 80rem */
+  --gutter: 4rem;     /* hanging numbers; 3.5rem from 64rem, 4rem from 80rem */
+  --gap: 3rem;
+  --note-w: 15rem;
+  /* The width of the page's text block. The running head and the colophon use it too, so that everything
+     ranges left on one edge: the contents column, or on chapters the TOC column. Set per page kind below. */
+  --frame: 80rem;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1A1C1F;
+    --tint: #272C33;
+    --ink: #E3E5E8;
+    --pencil: #A7AEB7;
+    --leader: #5E6670;
+    --rule: #3A4048;
+    --spot: #F27D8F;
+    --warn: #F27D8F;
+    --on-warn: #1A1C1F;
+    --selection: #5A2A33;
+    --backdrop: rgba(0, 0, 0, .55);
+    --shade: rgba(0, 0, 0, .5);
+    --code-comment: #99A1AC;
+    --code-flag: #91B8E4;
+    --code-string: #81C2A1;
+    --code-var: #CDA7DD;
+    --code-number: #D3B068;
+    --note-wash: #1B2329;
+    --note-bar: #486781;
+    --note-ink: #9EC2E7;
+    --caution-wash: #312323;
+    --notice-wash: #2C271C;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #1A1C1F;
+  --tint: #272C33;
+  --ink: #E3E5E8;
+  --pencil: #A7AEB7;
+  --leader: #5E6670;
+  --rule: #3A4048;
+  --spot: #F27D8F;
+  --warn: #F27D8F;
+  --on-warn: #1A1C1F;
+  --selection: #5A2A33;
+  --backdrop: rgba(0, 0, 0, .55);
+  --shade: rgba(0, 0, 0, .5);
+  --code-comment: #99A1AC;
+  --code-flag: #91B8E4;
+  --code-string: #81C2A1;
+  --code-var: #CDA7DD;
+  --code-number: #D3B068;
+  --note-wash: #1B2329;
+  --note-bar: #486781;
+  --note-ink: #9EC2E7;
+  --caution-wash: #312323;
+  --notice-wash: #2C271C;
+  color-scheme: dark;
+}
+
+/* ---------- 2. Base ---------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: 1.5rem;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--text-font);
+  font-size: var(--s2);
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-wrap: break-word;
+}
+
+::selection { background: var(--selection); color: var(--ink); }
+
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: var(--spot);
+  text-decoration-thickness: 1px;
+  text-underline-offset: .2em;
+}
+a:hover { color: var(--spot); text-decoration-thickness: 2px; }
+
+:focus-visible {
+  outline: 2px solid var(--spot);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+main:focus { outline: none; }
+
+img { max-width: 100%; height: auto; }
+
+button { font: inherit; color: inherit; }
+
+code, kbd, pre, samp { font-family: var(--mono); }
+/* Code shows the characters it holds: no ligatures. Atkinson Hyperlegible Mono has none to turn off; the rule is there
+   for any other face (round 5: JetBrains Mono drew -> as an arrow and |- as a turnstile). The diagram is a pre only
+   by its markup: its labels are text and keep the text's ligatures. */
+:is(code, kbd, samp, pre:not(.mermaid)) { font-variant-ligatures: none; }
+
+.vh {
+  position: absolute !important;
+  width: 1px !important; height: 1px !important;
+  margin: -1px !important; padding: 0 !important; border: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+}
+
+/* Without JavaScript the search and the theme toggle cannot work: hide them (the theme still follows the
+   system setting, and the index at /tags/ still finds terms). */
+html:not(.js) .rh__search, html:not(.js) .rh__theme { display: none; }
+
+/* Page frames (see --frame) */
+.kind-home, .kind-section, .kind-taxonomy, .kind-term, .kind-404 { --frame: calc(var(--page-w) + 2 * var(--pad)); }
+.kind-page { --frame: calc(var(--measure) + 2 * var(--pad)); }
+
+.skip {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  padding: .5rem .85rem;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  font-size: var(--s0);
+}
+.skip:focus { top: .75rem; }
+
+.icon { width: 1.05em; height: 1.05em; vertical-align: -.16em; flex: none; }
+
+/* ---------- 3. Running head ---------- */
+
+.rh {
+  position: relative;
+  z-index: 20;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--s0);
+  line-height: 1.3;
+}
+.rh__inner {
+  max-width: var(--frame);
+  margin: 0 auto;
+  padding: .55rem var(--pad);
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+.rh__title {
+  flex: none;
+  font-weight: 600;
+  font-size: var(--s1);
+  letter-spacing: .005em;
+  text-decoration: none;
+}
+.rh__chapter {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  color: var(--pencil);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rh__no {
+  font-style: normal;
+  color: var(--spot);
+  font-variant-numeric: lining-nums tabular-nums;
+  margin-right: .3em;
+}
+/* Earlier editions carry their number in pencil everywhere: contents, opener, running head, pager, index, search */
+.rh__no--earlier { color: var(--pencil); }
+.rh__section {
+  display: none;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: .4rem;
+  padding: .35rem .5rem .35rem 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  font-style: italic;
+  cursor: pointer;
+}
+.rh__section-text { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rh__section .secno-inline { font-style: normal; color: var(--spot); margin-right: .1em; font-variant-numeric: lining-nums tabular-nums; }
+.rh__section .icon { color: var(--pencil); }
+.rh__nav { margin-left: auto; }
+.rh__nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 1.25rem; }
+.rh__nav a { text-decoration: none; padding: .3rem 0; }
+.rh__nav a:hover { text-decoration: underline; text-decoration-color: var(--spot); }
+.rh__nav a[aria-current] {
+  text-decoration: underline;
+  text-decoration-color: var(--spot);
+  text-decoration-thickness: 2px;
+  text-underline-offset: .35em;
+}
+.rh__button {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  min-height: 2.25rem;
+  padding: .3rem .5rem;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: none;
+  cursor: pointer;
+}
+.rh__button:hover { border-color: var(--rule); }
+.rh__kbd {
+  font-family: var(--mono);
+  font-size: .75rem;
+  line-height: 1;
+  padding: .15rem .35rem;
+  border: 1px solid var(--leader);
+  border-radius: 3px;
+  color: var(--pencil);
+}
+.rh__theme { padding: .3rem .45rem; }
+.rh__icon-light { display: none; }
+:root[data-theme="dark"] .rh__icon-dark { display: none; }
+:root[data-theme="dark"] .rh__icon-light { display: inline; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .rh__icon-dark { display: none; }
+  :root:not([data-theme="light"]) .rh__icon-light { display: inline; }
+}
+
+/* ---------- 4. Shared page frame ---------- */
+
+.page, .home {
+  max-width: calc(var(--page-w) + 2 * var(--pad));
+  margin: 0 auto;
+  padding: 0 var(--pad);
+}
+
+.pagehead { padding-top: 3.5rem; margin-bottom: 2.5rem; }
+.pagehead__title {
+  margin: 0;
+  font-size: var(--s7);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -.015em;
+}
+.pagehead__lead {
+  max-width: var(--measure);
+  margin: 1rem 0 0;
+  font-size: var(--s3);
+  line-height: 1.45;
+  color: var(--pencil);
+}
+
+.section-title {
+  margin: 0 0 1rem;
+  font-size: var(--s6);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+}
+
+/* ---------- 5. Contents page ---------- */
+
+.titlepage { padding-top: 4.5rem; margin-bottom: 4.5rem; }
+.titlepage__title {
+  margin: 0;
+  font-size: var(--s9);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -.025em;
+}
+.titlepage__subtitle {
+  max-width: 34rem;
+  margin: 1.25rem 0 0;
+  font-size: var(--s4);
+  line-height: 1.38;
+}
+.titlepage__author {
+  margin: 1.25rem 0 0;
+  font-size: var(--s2);
+  font-style: italic;
+}
+.titlepage__author a { font-style: normal; text-decoration-color: var(--pencil); }
+.titlepage__author a:hover { text-decoration-color: var(--spot); }
+.titlepage__revision {
+  margin: .35rem 0 0;
+  font-size: var(--s0);
+  color: var(--pencil);
+}
+
+.contents__title { margin: 0; font-size: var(--s6); font-weight: 600; line-height: 1.1; letter-spacing: -.01em; }
+.contents__colhead, .part__colhead {
+  margin: 0;
+  font-size: var(--s0);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--pencil);
+  text-align: right;
+}
+.contents__colhead { margin-top: -1.15rem; }
+.part__colhead { margin-left: auto; padding-left: 1rem; white-space: nowrap; align-self: flex-end; letter-spacing: 0; }
+
+.part { margin-top: 2.25rem; }
+.part__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: .6rem;
+  margin: 0 0 .85rem;
+  font-size: var(--s3);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.part__no { font-style: italic; font-weight: 400; color: var(--pencil); }
+.part__intro {
+  max-width: var(--measure);
+  margin: -.35rem 0 1rem;
+  font-size: var(--s1);
+  color: var(--pencil);
+}
+.part__group {
+  margin: 1.5rem 0 .5rem;
+  font-size: var(--s1);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--pencil);
+}
+.contents--section .part:first-child, .contents--section .contents__colhead + .part { margin-top: 0; }
+
+.entries { list-style: none; margin: 0; padding: 0; }
+.entry {
+  --entry-hang: 2.5rem;
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--entry-hang) minmax(0, 1fr) auto;
+  margin: 0 0 .9rem;
+}
+.entry__no {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: baseline;
+  padding-right: .75rem;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--spot);
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 1.4;
+}
+.entry--earlier .entry__no { color: var(--pencil); }
+.entry__title {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: baseline;
+  line-height: 1.4;
+  font-weight: 500;
+  text-decoration: none;
+  /* dotted leader on the last line of the title */
+  background-image: radial-gradient(circle, var(--leader) 1px, transparent 1.4px);
+  background-size: 7px 4px;
+  background-repeat: repeat-x;
+  background-position: 0 calc(100% - .33em);
+}
+.entry__title::after { content: ""; position: absolute; inset: 0; }
+.entry__text {
+  background: var(--paper);
+  padding-right: .45em;
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .2em;
+}
+.entry:hover .entry__text { text-decoration-color: var(--spot); }
+.entry__title:focus-visible { outline: none; }
+.entry__title:focus-visible .entry__text { outline: 2px solid var(--spot); outline-offset: 2px; }
+.entry--earlier .entry__title { font-weight: 400; }
+.entry__right {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: end;
+  padding-left: .45em;
+  line-height: 1.4;
+  font-size: var(--s1);
+  white-space: nowrap;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--ink);
+}
+.entry--earlier .entry__right { color: var(--pencil); }
+.entry__summary {
+  grid-column: 2 / 4;
+  grid-row: 2;
+  margin: .15rem 0 0;
+  font-size: .9375rem;
+  line-height: 1.45;
+  font-style: italic;
+  color: var(--pencil);
+}
+.entry__summary:empty { display: none; }
+
+/* Revision history */
+.revisions { margin-top: 5rem; }
+.revisions__intro { margin: 0 0 1.25rem; font-size: var(--s1); color: var(--pencil); max-width: var(--measure); }
+.revisions__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9375rem;
+  line-height: 1.45;
+  border-top: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
+}
+.revisions__table th {
+  text-align: left;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--pencil);
+  padding: .5rem 1rem .45rem 0;
+  border-bottom: 1px solid var(--ink);
+}
+.revisions__table td {
+  padding: .55rem 1rem .55rem 0;
+  vertical-align: top;
+  border-bottom: 1px solid var(--rule);
+}
+.revisions__table tr:last-child td { border-bottom: 0; }
+.rev__date { white-space: nowrap; font-variant-numeric: lining-nums tabular-nums; }
+.rev__chapter a { text-decoration: none; }
+.rev__chapter a:hover { text-decoration: underline; text-decoration-color: var(--spot); }
+.rev__no { color: var(--spot); font-variant-numeric: lining-nums tabular-nums; margin-right: .3em; }
+.rev__no--earlier { color: var(--pencil); }
+.rev__change a { text-decoration-color: var(--pencil); }
+.rev__change a:hover { text-decoration-color: var(--spot); }
+
+/* About the author */
+.author { margin-top: 5rem; }
+.author__body { display: grid; gap: 1.5rem; }
+.author__photo { margin: 0; }
+.author__img { display: block; width: 100%; height: auto; border-radius: 2px; }
+.author__name { margin: 0; font-size: var(--s4); font-weight: 600; line-height: 1.25; }
+.author__role { margin: .35rem 0 1rem; font-style: italic; color: var(--pencil); line-height: 1.45; }
+.author__about { font-size: var(--s1); line-height: 1.6; }
+.author__about p { margin: 0 0 .85rem; }
+.author__links {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: .85rem 0 0;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1.5rem;
+  font-size: var(--s1);
+}
+
+/* ---------- 6. Chapter ---------- */
+
+.chapter {
+  max-width: calc(var(--measure) + 2 * var(--pad));
+  margin: 0 auto;
+  padding: 0 var(--pad);
+}
+
+/* Earlier-edition notice: set between ink rules on a sand wash (round 4), its label hangs in the margin like the numbers */
+.notice {
+  position: relative;
+  margin: 2rem 0 0;
+  padding: .8rem 1rem .9rem;
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  background: var(--notice-wash);
+  --ground: var(--notice-wash);
+  font-size: var(--s1);
+  line-height: 1.55;
+}
+.notice__label { margin: 0 0 .2rem; font-weight: 700; }
+.notice__text { margin: .2rem 0 0; max-width: var(--measure); }
+
+/* Opener */
+.opener { padding-top: 2.5rem; margin-bottom: 2rem; }
+.chapter--earlier .opener { padding-top: 2rem; }
+.opener__head { display: flex; flex-direction: column; }
+.opener__no {
+  margin: 0 0 .5rem;
+  font-size: var(--s7);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--spot);
+  font-variant-numeric: lining-nums;
+  letter-spacing: -.02em;
+}
+.opener__no--earlier { color: var(--pencil); }
+.opener__title { margin: 0; font-weight: 600; }
+.opener__main {
+  display: block;
+  font-size: var(--s5);
+  line-height: 1.12;
+  letter-spacing: -.012em;
+}
+.opener__sub {
+  display: block;
+  margin-top: .45rem;
+  font-size: var(--s3);
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+.opener__sub::first-letter { text-transform: uppercase; }
+.opener__standfirst {
+  max-width: var(--measure);
+  margin-top: 1.4rem;
+  font-size: 1.1875rem;
+  line-height: 1.55;
+  color: var(--pencil);
+}
+.opener__standfirst p { margin: 0 0 .75rem; }
+.opener__standfirst p:last-child { margin-bottom: 0; }
+.opener__standfirst code { font-size: .84em; background: var(--tint); padding: .05em .28em; border-radius: 3px; color: var(--ink); }
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem 2.25rem;
+  margin: 1.6rem 0 0;
+  padding: .9rem 0 0;
+  border-top: 1px solid var(--rule);
+}
+.facts__item { min-width: 0; }
+.facts dt { font-size: var(--s0); font-style: italic; color: var(--pencil); line-height: 1.35; }
+.facts dd { margin: .1rem 0 0; font-size: var(--s1); line-height: 1.35; font-variant-numeric: lining-nums tabular-nums; }
+
+/* Phone TOC (details) */
+.toc-phone {
+  margin: 0 0 2rem;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.toc-phone__summary {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .75rem 0;
+  font-style: italic;
+  cursor: pointer;
+  list-style: none;
+}
+.toc-phone__summary::-webkit-details-marker { display: none; }
+.toc-phone__summary::before {
+  content: "";
+  width: .5rem; height: .5rem;
+  border-right: 1.5px solid var(--spot);
+  border-bottom: 1.5px solid var(--spot);
+  transform: rotate(-45deg);
+  margin-right: .25rem;
+}
+.toc-phone[open] .toc-phone__summary::before { transform: rotate(45deg); }
+.toc-phone .toc { padding: 0 0 1rem; }
+
+.side { display: none; }
+
+/* TOC lists (side, phone, dialog) */
+.toc { font-size: var(--s0); line-height: 1.35; }
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc li { margin: 0; }
+.toc a {
+  display: block;
+  padding: .3rem .5rem .3rem .75rem;
+  border-left: 2px solid transparent;
+  color: var(--pencil);
+  text-decoration: none;
+}
+.toc a.has-no { display: flex; gap: .55rem; }
+.toc .tocno {
+  flex: none;
+  min-width: 1.6rem;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.toc ul ul .tocno { min-width: 2.1rem; }
+.toc .toctext { min-width: 0; }
+.toc .tocopt { font-style: italic; }
+.toc code { font-size: .86em; }
+.toc ul ul a { padding-left: 1.5rem; }
+.toc a:hover { color: var(--ink); text-decoration: underline; text-decoration-color: var(--spot); }
+.toc a[aria-current] { color: var(--ink); border-left-color: var(--spot); }
+.toc a[aria-current] .tocno { color: var(--spot); }
+.toc--numbered > ul > li > a:not(.has-no) { padding-left: calc(.75rem + 1.6rem + .55rem); }
+/* An unnumbered sub-section of a numbered section ("Changes to fstab" under "3 Configure BTRFS …") lines up
+   with the text of numbered sub-sections ("3.1 …"), so it reads as one level below its parent. */
+.toc--numbered ul ul a:not(.has-no) { padding-left: calc(1.5rem + 2.1rem + .55rem); }
+
+.toc__title {
+  margin: 0 0 .5rem .75rem;
+  font-size: var(--s0);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--pencil);
+}
+
+.side__links {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: .85rem 0 0 .75rem;
+  border-top: 1px solid var(--rule);
+  font-size: var(--s0);
+  line-height: 1.35;
+  color: var(--pencil);
+}
+.side__links li + li { margin-top: .35rem; }
+.side__links a { text-decoration-color: var(--pencil); }
+.side__links a:hover { text-decoration-color: var(--spot); }
+
+/* ---------- 7. Prose ---------- */
+
+.prose { min-width: 0; font-size: var(--s2); line-height: 1.65; }
+.prose::after { content: ""; display: block; clear: both; }
+
+.prose p { margin: 0 0 1rem; }
+.prose strong { font-weight: 650; }
+
+.prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  position: relative;
+  font-weight: 600;
+  letter-spacing: -.005em;
+}
+.prose h2 { margin: 3.25rem 0 1rem; font-size: var(--s5); line-height: 1.2; }
+.prose h3 { margin: 2.5rem 0 .8rem; font-size: var(--s3); line-height: 1.3; }
+.prose h4, .prose h5, .prose h6 { margin: 2rem 0 .6rem; font-size: var(--s2); line-height: 1.35; font-style: italic; }
+
+/* No single word left alone on the last line of display type; paragraphs avoid very short last lines */
+.titlepage__subtitle, .pagehead__title, .opener__main, .opener__sub, .part__title,
+.prose h2, .prose h3, .endmatter__title, .contents__title, .section-title { text-wrap: balance; }
+.prose p, .pagehead__lead, .opener__standfirst, .entry__summary, .part__intro, .revisions__intro, .notice__text { text-wrap: pretty; }
+.prose > h2:first-child, .prose > .toc-inline + h2 { margin-top: 0; }
+
+.secno {
+  color: var(--spot);
+  font-weight: 400;
+  font-style: normal;
+  font-variant-numeric: lining-nums tabular-nums;
+  margin-right: .45em;
+}
+.secopt { font-style: italic; font-weight: 400; color: var(--pencil); }
+
+.heading-anchor {
+  margin-left: .35em;
+  color: var(--pencil);
+  font-weight: 400;
+  font-style: normal;
+  text-decoration: none;
+  opacity: 0;
+}
+.heading-anchor::after { content: "§"; }
+.prose :is(h2, h3, h4, h5, h6):hover .heading-anchor,
+.heading-anchor:focus-visible { opacity: 1; }
+.heading-anchor:hover { color: var(--spot); }
+/* On touch screens the anchors stay hidden (the TOC links give every section's address); keyboard focus still shows them. */
+
+.prose ul, .prose ol { margin: 0 0 1rem; padding-left: 1.45em; }
+.prose li { margin: .3rem 0; }
+.prose li > ul, .prose li > ol { margin: .3rem 0 .4rem; }
+.prose li::marker { color: var(--pencil); font-variant-numeric: lining-nums tabular-nums; }
+.prose li > p { margin-bottom: .5rem; }
+
+.prose code {
+  font-size: .84em;
+  padding: .06em .28em;
+  border-radius: 3px;
+  background: var(--tint);
+  overflow-wrap: anywhere;
+}
+.prose a code { text-decoration: inherit; }
+.prose :is(h2, h3, h4) code { font-size: .8em; font-weight: 500; }
+
+kbd {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: .76em;
+  line-height: 1.3;
+  padding: .02em .38em;
+  border: 1px solid var(--leader);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--paper);
+  white-space: nowrap;
+}
+
+.prose blockquote {
+  margin: 1.5rem 0;
+  padding: 0 0 0 1.25rem;
+  border-left: 2px solid var(--rule);
+  font-style: italic;
+  color: var(--pencil);
+}
+.prose hr {
+  width: 6rem;
+  height: 1px;
+  margin: 2.5rem 0;
+  border: 0;
+  background: var(--leader);
+}
+
+.prose img { display: block; }
+.prose sup { line-height: 0; font-size: .72em; }
+.footnote-ref { text-decoration: none; color: var(--spot); padding: 0 .1em; font-variant-numeric: lining-nums; }
+
+/* The base shortcode's inline TOC: the handbook always shows its own TOC (side on wide screens, collapsible on phones). */
+.toc-inline--hide-xl { display: none; }
+
+/* Figures */
+.figure { margin: 1.75rem 0; }
+.figure__img { display: block; width: 100%; height: auto; border-radius: 2px; }
+/* dark mode dims photos on screen only; print shows them as they are */
+@media screen {
+  :root[data-theme="dark"] .figure__img, :root[data-theme="dark"] .author__img { filter: brightness(.86); }
+}
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .figure__img, :root:not([data-theme="light"]) .author__img { filter: brightness(.86); }
+}
+.figure__caption {
+  margin-top: .55rem;
+  font-size: var(--s0);
+  line-height: 1.45;
+  font-style: italic;
+  color: var(--pencil);
+}
+.figure__caption a { color: inherit; }
+
+/* Video: click to load */
+.video {
+  position: relative;
+  margin: 1.75rem 0;
+  aspect-ratio: 16 / 9;
+  background: var(--tint);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.video__open {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.video__play {
+  position: relative;
+  width: 4rem; height: 4rem;
+  margin-bottom: .5rem;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+.video__play::after {
+  /* a triangle; drawn with clip-path because the CSS minifier rewrites currentColor inside border-color */
+  content: "";
+  position: absolute;
+  left: 1.45rem; top: 1.12rem;
+  width: 1.35rem; height: 1.55rem;
+  background: currentColor;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.video__label { font-weight: 600; }
+.video__note { font-size: var(--s0); font-style: italic; color: var(--pencil); }
+.video__open:hover { color: var(--spot); }
+.video__open:hover .video__label { text-decoration: underline; }
+.video__frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* Listings */
+.codeblock {
+  position: relative;
+  margin: 1.4rem calc(-1 * var(--pad)) 1.4rem;
+  padding-top: 1.95rem;
+  background: var(--tint);
+}
+.codeblock::before {
+  content: attr(data-lang);
+  position: absolute;
+  top: .5rem;
+  left: var(--pad);
+  font-family: var(--text-font);
+  font-size: var(--s0);
+  font-style: italic;
+  line-height: 1.2;
+  color: var(--pencil);
+}
+.codeblock[data-lang=""]::before { content: none; }
+.codeblock pre, .codeblock .highlight pre {
+  margin: 0;
+  padding: .15rem var(--pad) 1rem;
+  overflow-x: auto;
+  font-size: .875rem;
+  line-height: 1.6;
+  tab-size: 4;
+  scrollbar-width: thin;
+  scrollbar-color: var(--leader) transparent;
+}
+.codeblock .highlight { margin: 0; }
+/* edge shading appears only while a long line can still scroll that way */
+.codeblock pre, .codeblock .highlight pre {
+  background:
+    linear-gradient(to right, var(--tint) 35%, transparent) left center / 2rem 100% no-repeat local,
+    linear-gradient(to left, var(--tint) 35%, transparent) right center / 2rem 100% no-repeat local,
+    linear-gradient(to right, var(--shade), transparent) left center / .8rem 100% no-repeat scroll,
+    linear-gradient(to left, var(--shade), transparent) right center / .8rem 100% no-repeat scroll;
+  background-color: var(--tint);
+}
+.codeblock pre code { font: inherit; background: none; padding: 0; border-radius: 0; overflow-wrap: normal; }
+.codeblock__copy {
+  position: absolute;
+  top: .25rem;
+  right: calc(var(--pad) - .55rem);
+  padding: .25rem .55rem;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: none;
+  font-family: var(--text-font);
+  font-size: var(--s0);
+  font-style: italic;
+  line-height: 1.2;
+  color: var(--pencil);
+  cursor: pointer;
+}
+.codeblock__copy:hover { color: var(--ink); border-color: var(--leader); }
+.codeblock__copy.is-copied { color: var(--spot); }
+
+/* Listing colours (round 2). Ink means "type this": commands are plain text in sh and bash and nf in fish, so
+   both share the strongest colour and fish and bash listings look alike. Comments, which in these guides are
+   mostly the expected output, are a lighter pencil: clearly secondary, still easy to read. Flags (na in fish;
+   in sh and bash the code-block hook marks them), strings, variables and numbers each take a muted printing-ink
+   colour; keywords and builtins stay bold ink. No italics. Chroma's lexing errors (err) are plain text. */
+.chroma { color: var(--ink); }
+.chroma .c, .chroma .c1, .chroma .cm, .chroma .ch, .chroma .cs, .chroma .cpf, .chroma .cp { color: var(--code-comment); }
+.chroma .k, .chroma .kc, .chroma .kd, .chroma .kn, .chroma .kp, .chroma .kr, .chroma .kt, .chroma .nb, .chroma .bp { font-weight: 700; }
+.chroma .na { color: var(--code-flag); }
+.chroma .s, .chroma .sa, .chroma .sb, .chroma .sc, .chroma .dl, .chroma .sd, .chroma .s2, .chroma .sh, .chroma .sx, .chroma .sr, .chroma .s1, .chroma .ss { color: var(--code-string); }
+.chroma .nv, .chroma .vc, .chroma .vg, .chroma .vi, .chroma .vm, .chroma .si, .chroma .nt { color: var(--code-var); }
+.chroma .m, .chroma .mb, .chroma .mf, .chroma .mh, .chroma .mi, .chroma .il, .chroma .mo { color: var(--code-number); }
+.chroma .err { color: inherit; background: none; }
+.chroma .gd { color: var(--code-number); text-decoration: line-through; }
+.chroma .gi { color: var(--code-string); }
+.chroma .gh, .chroma .gu { font-weight: 700; }
+
+/* Tables */
+.table-wrap {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  background:
+    linear-gradient(to right, var(--ground) 35%, transparent) left center / 2rem 100% no-repeat local,
+    linear-gradient(to left, var(--ground) 35%, transparent) right center / 2rem 100% no-repeat local,
+    linear-gradient(to right, var(--shade), transparent) left center / .8rem 100% no-repeat scroll,
+    linear-gradient(to left, var(--shade), transparent) right center / .8rem 100% no-repeat scroll;
+}
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9375rem;
+  line-height: 1.45;
+  border-top: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
+  font-variant-numeric: lining-nums;
+}
+.prose th {
+  padding: .45rem .9rem .45rem 0;
+  border-bottom: 1px solid var(--ink);
+  text-align: left;
+  vertical-align: bottom;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--pencil);
+}
+.prose td {
+  padding: .5rem .9rem .5rem 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+.prose tr:last-child td { border-bottom: 0; }
+.prose th:last-child, .prose td:last-child { padding-right: 0; }
+.prose td code { overflow-wrap: anywhere; }
+/* First columns (round 3). handbook.js measures every first-column label on one line: a label up to 15.5em wide
+   is marked is-label and never wraps; a table with longer labels lets those wrap, but its first column keeps at
+   least 9.5em for the text (plus the cell's padding), so it never collapses to its longest word. Phones keep their
+   reflowed rows (below 40rem). A table too narrow for whole labels and the paths in its other columns lets its
+   labels wrap after all (handbook.js, relieveTables; is-relieved). */
+@media (min-width: 40rem) {
+  .prose .is-label { white-space: nowrap; }
+  .prose .has-long-labels tr > :first-child { min-width: calc(9.5em + .9rem); }
+}
+
+/* Notes and cautions. Round 4 (DESIGN.md 17): a very light wash behind notes in the text column (blue, with a 2px
+   blue bar), Cautions (red, between the carmine rules) and the earlier-edition notice (sand); listings and inline
+   code keep their own tint, a step darker than any wash. A note's label starts with a circled "i", drawn like the
+   Caution's triangle; a note with its own label carries the mark before that label. Margin notes stay plain. */
+.callout { margin: 1.5rem 0; }
+.callout__body > :first-child { margin-top: 0; }
+.callout__body > :last-child { margin-bottom: 0; }
+
+.callout--note {
+  padding: .7rem 1rem .75rem 1.1rem;
+  border-left: 2px solid var(--note-bar);
+  border-radius: 0 3px 3px 0;
+  background: var(--note-wash);
+  --ground: var(--note-wash);
+  font-size: var(--s1);
+  line-height: 1.6;
+}
+.callout--note .callout__label {
+  display: block;
+  margin-bottom: .2rem;
+  font-style: italic;
+  font-weight: 600;
+}
+.callout--note.callout--runin .callout__label { float: left; margin: 0 .45em 0 0; }
+.callout--note.callout--runin .callout__label::after { content: "."; }
+.callout--note .codeblock { margin-left: 0; margin-right: 0; }
+.callout--note .codeblock::before { left: 1rem; }
+.callout--note .codeblock pre { padding-left: 1rem; padding-right: 1rem; }
+.callout--note .codeblock__copy { right: .45rem; }
+
+.callout--warning {
+  margin: 2rem 0;
+  padding: 0 1rem .95rem;
+  border-top: 2px solid var(--warn);
+  border-bottom: 1px solid var(--warn);
+  background: var(--caution-wash);
+  --ground: var(--caution-wash);
+}
+.callout--warning .callout__label {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  margin: 0 0 .8rem -1rem;
+  padding: .22rem .65rem .26rem .55rem;
+  border-radius: 0 0 3px 3px;
+  background: var(--warn);
+  color: var(--on-warn);
+  font-size: var(--s0);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: .01em;
+}
+.callout__mark { width: 1.05em; height: 1.05em; flex: none; }
+.callout__mark--note { display: inline-block; margin-right: .3em; vertical-align: -.17em; color: var(--note-ink); }
+.callout--warning .callout__body { font-size: var(--s2); }
+.callout--warning .codeblock { margin-left: 0; margin-right: 0; }
+
+/* Footnotes */
+.footnotes {
+  margin-top: 3rem;
+  font-size: var(--s0);
+  line-height: 1.5;
+  color: var(--pencil);
+}
+.footnotes hr { width: 6rem; margin: 0 0 1rem; border: 0; height: 1px; background: var(--leader); }
+.footnotes ol { padding-left: 1.2rem; }
+.footnote-backref { text-decoration: none; margin-left: .25em; }
+
+.sidenote { display: none; }
+
+/* Mermaid diagram (stuff/backup). Mermaid shrinks its SVG to the column, which set the backup diagram's labels
+   at 7 px. Here it keeps a minimum width (labels about 11.5 px), scrolls sideways inside its box with edge
+   shading where the screen is narrower, and on wide screens also takes the empty right margin. */
+.prose pre.mermaid {
+  margin: 1.75rem 0;
+  padding: 0 0 .5rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--leader) transparent;
+  background:
+    linear-gradient(to right, var(--ground) 35%, transparent) left center / 2rem 100% no-repeat local,
+    linear-gradient(to left, var(--ground) 35%, transparent) right center / 2rem 100% no-repeat local,
+    linear-gradient(to right, var(--shade), transparent) left center / .8rem 100% no-repeat scroll,
+    linear-gradient(to left, var(--shade), transparent) right center / .8rem 100% no-repeat scroll;
+  font-family: var(--text-font);
+  font-size: var(--s0);
+  text-align: center;
+}
+.prose pre.mermaid > svg { display: block; max-width: none !important; min-width: 55rem; height: auto; margin: 0 auto; }
+/* A drawn SVG inlined by the svg-figure shortcode (the backup map) is set like the Mermaid diagram: a minimum
+   width so its 13 px labels stay legible, sideways scrolling with edge shading, the right margin on wide screens.
+   Its colours come from the tokens, so it follows the theme toggle. The caption stays in the text column. */
+.prose .diagram__scroll {
+  padding: 0 0 .5rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--leader) transparent;
+  background:
+    linear-gradient(to right, var(--ground) 35%, transparent) left center / 2rem 100% no-repeat local,
+    linear-gradient(to left, var(--ground) 35%, transparent) right center / 2rem 100% no-repeat local,
+    linear-gradient(to right, var(--shade), transparent) left center / .8rem 100% no-repeat scroll,
+    linear-gradient(to left, var(--shade), transparent) right center / .8rem 100% no-repeat scroll;
+}
+.prose .diagram__scroll > svg { display: block; width: 100%; min-width: 55rem; height: auto; }
+/* Its type and colours come from the handbook's tokens, so it follows the theme toggle. The selectors also match
+   where Mermaid measures the labels before it places the SVG, so the boxes are sized for Literata. */
+svg[id^="mermaid"], svg[id^="mermaid"] :is(.label, .nodeLabel, .edgeLabel, span, p) { font-family: var(--text-font) !important; }
+svg[id^="mermaid"] .node :is(rect, circle, ellipse, polygon, path) { fill: var(--paper) !important; stroke: var(--ink) !important; stroke-width: 1px !important; }
+svg[id^="mermaid"] :is(.flowchart-link, .edgePath .path) { stroke: var(--pencil) !important; stroke-width: 1.25px !important; }
+svg[id^="mermaid"] .marker { fill: var(--pencil) !important; stroke: var(--pencil) !important; }
+svg[id^="mermaid"] :is(.nodeLabel, .node .label) { color: var(--ink) !important; fill: var(--ink) !important; }
+svg[id^="mermaid"] .edgeLabel { color: var(--pencil) !important; background-color: var(--paper) !important; }
+svg[id^="mermaid"] .edgeLabel rect { fill: var(--paper) !important; opacity: 1 !important; }
+
+/* The Impressum address keeps the line breaks it has in the source */
+.chapter--plain .prose p:has(> a[href^="mailto:"]) { white-space: pre-line; }
+
+/* section lists produced by the list_children shortcode */
+.children { list-style: none; padding: 0; }
+.children__item { margin: 0 0 1rem; }
+.children__summary { margin: .2rem 0 0; font-size: var(--s1); color: var(--pencil); }
+
+/* ---------- 8. End matter ---------- */
+
+.endmatter {
+  margin-top: 4rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--rule);
+}
+.endmatter__title { margin: 0 0 .6rem; font-size: var(--s3); font-weight: 600; line-height: 1.3; }
+.endmatter__feedback { max-width: var(--measure); font-size: var(--s1); line-height: 1.6; }
+.endmatter__feedback p { margin: 0 0 .6rem; }
+.endmatter__coffee .icon { color: var(--pencil); margin-right: .2rem; }
+
+.pager {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2.25rem;
+  padding-bottom: 1rem;
+}
+.pager__link {
+  display: block;
+  padding: .7rem 0 .2rem;
+  border-top: 1px solid var(--ink);
+  text-decoration: none;
+}
+.pager__link:hover { color: inherit; }
+.pager__link:hover .pager__title { text-decoration: underline; text-decoration-color: var(--spot); }
+.pager__dir { display: block; font-size: var(--s0); font-style: italic; color: var(--pencil); }
+.pager__entry { display: block; margin-top: .2rem; font-weight: 500; line-height: 1.4; }
+.pager__no { color: var(--spot); font-variant-numeric: lining-nums tabular-nums; margin-right: .3em; }
+.pager__no--earlier { color: var(--pencil); }
+.pager__link--next { text-align: right; }
+
+/* ---------- 9. Index, search, 404 ---------- */
+
+.index { margin-top: 2.5rem; }
+@media (min-width: 48rem) {
+  .index { columns: 2; column-gap: 3.5rem; }
+}
+.index__group { break-inside: avoid; margin: 0 0 1.75rem; }
+.index__letter {
+  margin: 0 0 .35rem;
+  font-size: var(--s4);
+  font-weight: 300;
+  line-height: 1.2;
+  color: var(--spot);
+}
+.index__terms { list-style: none; margin: 0; padding: 0; }
+.term {
+  padding-left: 1.25rem;
+  text-indent: -1.25rem;
+  margin: 0 0 .3rem;
+  line-height: 1.45;
+}
+.term__name { text-decoration-color: var(--pencil); }
+.term__name:hover { text-decoration-color: var(--spot); }
+.term__locs { margin-left: .55rem; font-size: .9375rem; font-variant-numeric: lining-nums tabular-nums; }
+.term__loc { text-decoration-line: underline; text-decoration-style: dotted; text-decoration-color: var(--pencil); }
+.term__loc:hover { text-decoration-style: solid; text-decoration-color: var(--spot); }
+.term__loc--earlier { color: var(--pencil); }
+/* On touch screens each locator is at least 24 × 24 px (WCAG 2.5.8), and the lines open up to match */
+@media (pointer: coarse) {
+  .term { line-height: 1.9; }
+  .term__loc {
+    display: inline-block;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+    line-height: 1.5rem;
+    text-align: right; /* the comma stays against its number; the extra room falls after the comma */
+    text-indent: 0;
+  }
+}
+
+.search__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: .4rem 1rem;
+}
+.search__label {
+  flex: 1 0 100%;
+  font-size: var(--s0);
+  font-style: italic;
+  color: var(--pencil);
+}
+.search__input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  padding: .45rem 0 .4rem;
+  border: 0;
+  border-bottom: 1.5px solid var(--ink);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--text-font);
+  font-size: var(--s3);
+  line-height: 1.3;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.search__input::placeholder { color: var(--pencil); opacity: .85; font-style: italic; }
+.search__input:focus { outline: none; border-bottom-color: var(--spot); box-shadow: 0 1.5px 0 var(--spot); }
+.search__input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.search__close {
+  flex: none;
+  padding: .35rem .7rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: none;
+  font-size: var(--s0);
+  cursor: pointer;
+}
+.search__close:hover { border-color: var(--ink); }
+.search__status { margin: .75rem 0 .5rem; min-height: 1.4em; font-size: var(--s0); color: var(--pencil); }
+.search__status:empty { margin: 0; min-height: 0; }
+.search__results { list-style: none; margin: 0; padding: 0; }
+.result a {
+  display: grid;
+  grid-template-columns: 3.1rem minmax(0, 1fr);
+  padding: .55rem .5rem .6rem 0;
+  border-top: 1px solid var(--rule);
+  text-decoration: none;
+}
+.result:first-child a { border-top: 0; }
+.result a:hover .result__title, .result a:focus-visible .result__title { text-decoration: underline; text-decoration-color: var(--spot); }
+.result a:focus-visible { outline-offset: -2px; }
+.result__no {
+  grid-row: 1 / 3;
+  padding-right: .7rem;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--spot);
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 1.4;
+}
+.result--earlier .result__no { color: var(--pencil); }
+.result__title { line-height: 1.4; font-weight: 500; }
+.result__where { font-size: var(--s0); font-style: italic; color: var(--pencil); line-height: 1.4; margin-top: .1rem; }
+.search mark { background: none; color: inherit; text-decoration: underline; text-decoration-color: var(--spot); text-decoration-thickness: 2px; }
+
+.search--inline {
+  margin: 0 0 1rem;
+  padding: 1.25rem 0 0;
+  border-top: 1px solid var(--rule);
+}
+.search--inline .search__results { max-width: var(--measure); }
+
+.page--404 { min-height: 50vh; }
+.page--404 .search--inline { max-width: var(--measure); }
+
+/* ---------- 10. Dialogs (search, phone TOC) ---------- */
+
+.dialog {
+  width: min(40rem, calc(100vw - 2rem));
+  max-height: min(40rem, 86vh);
+  max-height: min(40rem, 86dvh); /* the visible viewport on phones, with their toolbars */
+  margin: 7vh auto auto;
+  padding: 1.25rem 1.25rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 1.5rem 3rem rgba(17, 20, 24, .22);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.dialog::backdrop { background: var(--backdrop); }
+.dialog__head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: .75rem; }
+.dialog__title { margin: 0; font-size: var(--s2); font-weight: 600; }
+.dialog__close {
+  padding: .35rem .7rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: none;
+  font-size: var(--s0);
+  cursor: pointer;
+}
+.dialog__close:hover { border-color: var(--ink); }
+.dialog__foot { margin: 1rem 0 0; padding-top: .75rem; border-top: 1px solid var(--rule); font-size: var(--s0); }
+.dialog--toc .toc { font-size: var(--s1); }
+.dialog--toc .toc a { padding-top: .4rem; padding-bottom: .4rem; }
+.dialog--toc .toc a:focus-visible { outline-offset: -2px; }
+/* Title, Close and the search field stay in view; only the list of sections or results scrolls.
+   [open] keeps the browser's display: none for closed dialogs. */
+.dialog--toc[open], .dialog--search[open] { display: flex; flex-direction: column; overflow: hidden; }
+.dialog--toc .dialog__head, .dialog--toc .dialog__foot { flex: none; }
+.dialog--toc .toc, .dialog--search .search__results {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.dialog--search .search { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.dialog--search .search__bar, .dialog--search .search__status { flex: none; }
+
+/* ---------- 11. Colophon ---------- */
+
+.colophon {
+  margin-top: 5rem;
+  border-top: 1px solid var(--rule);
+  font-size: var(--s0);
+  line-height: 1.5;
+  color: var(--pencil);
+}
+.colophon__inner {
+  max-width: var(--frame);
+  margin: 0 auto;
+  padding: 1.5rem var(--pad) 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem 2rem;
+}
+.colophon p { margin: 0; }
+.colophon__copy { flex: 1 1 100%; color: var(--ink); }
+.colophon__links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem 1.5rem; }
+.colophon__type { font-style: italic; }
+
+/* ---------- 12. Phones ---------- */
+
+@media (max-width: 63.999rem) {
+  .rh { position: sticky; top: 0; }
+  html { scroll-padding-top: 4.25rem; }
+  .rh__inner { padding: .4rem var(--pad); gap: .5rem; }
+  .rh__chapter { display: none; }
+  .rh__nav { margin-left: auto; }
+  .rh__nav .rh__about { display: none; }
+  .rh__label, .rh__kbd { display: none; }
+  .rh__nav ul { gap: .9rem; }
+  .rh__button { padding: .4rem; min-width: 2.4rem; min-height: 2.4rem; justify-content: center; }
+  .rh.is-reading .rh__title, .rh.is-reading .rh__nav { display: none; }
+  .rh.is-reading .rh__section:not([hidden]) { display: flex; }
+}
+
+@media (max-width: 23.999rem) {
+  /* the site title already leads to the contents */
+  .rh__nav li:first-child { display: none; }
+}
+
+@media (max-width: 39.999rem) {
+  :root { --pad: 1rem; }
+  body { font-size: 1.0625rem; }
+  .prose { font-size: 1.0625rem; line-height: 1.62; }
+  .titlepage { padding-top: 2.5rem; margin-bottom: 3rem; }
+  .titlepage__title { font-size: var(--s7); }
+  .titlepage__subtitle { font-size: var(--s3); }
+  .pagehead { padding-top: 2.25rem; margin-bottom: 2rem; }
+  .pagehead__title { font-size: var(--s6); }
+  .pagehead__lead { font-size: var(--s2); }
+  .section-title, .contents__title { font-size: var(--s5); }
+  .part__title { font-size: var(--s2); }
+  .entry { --entry-hang: 2.5rem; }
+  .entry__no { padding-right: .55rem; }
+  .entry--earlier .entry__no { font-size: var(--s0); }
+  .entry__summary { font-size: var(--s0); }
+  .opener__no { font-size: var(--s6); }
+  .opener__main { font-size: var(--s4); }
+  .opener__sub { font-size: var(--s2); }
+  .opener__standfirst { font-size: var(--s1); line-height: 1.5; }
+  .facts { gap: .75rem 1.5rem; }
+  .facts__item { flex: 1 1 calc(50% - 1.5rem); }
+  .prose h2 { font-size: var(--s4); margin-top: 2.75rem; }
+  .prose h3 { font-size: 1.1875rem; }
+  .codeblock pre, .codeblock .highlight pre { font-size: .875rem; }
+  .callout--warning .callout__body { font-size: var(--s1); }
+  .pager__link--next { text-align: left; }
+
+  /* Revision table and three-column tables reflow into labelled rows */
+  .revisions__table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .revisions__table, .revisions__table tbody, .revisions__table tr, .revisions__table td { display: block; }
+  .revisions__table tr { padding: .6rem 0; border-bottom: 1px solid var(--rule); }
+  .revisions__table tr:last-child { border-bottom: 0; }
+  .revisions__table td { padding: .05rem 0; border: 0; }
+  .rev__date { font-size: var(--s0); font-style: italic; color: var(--pencil); }
+
+  .prose table.is-reflow thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .prose table.is-reflow, .prose table.is-reflow tbody, .prose table.is-reflow tr, .prose table.is-reflow td { display: block; width: auto; }
+  .prose table.is-reflow tr { padding: .55rem 0; border-bottom: 1px solid var(--rule); }
+  .prose table.is-reflow tr:last-child { border-bottom: 0; }
+  .prose table.is-reflow td { padding: .1rem 0; border: 0; }
+  .prose table.is-reflow td:empty { display: none; }
+  .prose table.is-reflow td[data-label]:not(:first-child)::before {
+    content: attr(data-label) ": ";
+    font-style: italic;
+    color: var(--pencil);
+  }
+}
+
+/* ---------- 13. Wide screens: margins, hanging numbers, side TOC ---------- */
+
+@media (min-width: 40rem) {
+  :root { --pad: 1.5rem; }
+  .author__body { grid-template-columns: minmax(0, 17rem) minmax(0, 1fr); gap: 2rem; align-items: start; }
+  .pager { grid-template-columns: 1fr 1fr; }
+  .pager__link--next { grid-column: 2; }
+  .codeblock { border-radius: 3px; margin-left: -1rem; margin-right: -1rem; }
+  .codeblock::before { left: 1rem; }
+  .codeblock pre, .codeblock .highlight pre { padding-left: 1rem; padding-right: 1rem; }
+  .codeblock__copy { right: .45rem; }
+}
+
+/* Computers (round 2): the type grows with the window. Every size and width in this file is in rem, so the
+   whole page grows with the root size: text about 18 px from 1024 to 1280 px, 19.2 at 1440, 20.3 at 1680,
+   21.7 at 2000 and 22.5 px from about 2200 px on. The rem in these formulas is the browser's default size
+   (16 px unless the reader changed it), and so are the rem breakpoints. Phones and tablets keep 16 px. */
+@media (min-width: 64rem) {
+  html { font-size: clamp(1rem, .9rem + .15625vw, 1.025rem); }
+}
+@media (min-width: 80rem) {
+  html { font-size: clamp(1.025rem, .705rem + .4vw, 1.25rem); }
+}
+
+@media (min-width: 64rem) {
+  /* From 1024 px a fourth column takes what the window has left to the right of the text, up to 12rem; only
+     listings, wide tables and the diagram use it (notes join the margin from 1280 px). --break is how far
+     they reach. The privacy page is not a chapter: its opener stays with the text column. */
+  :root { --hang: 3.25rem; --side-w: 13.5rem; --gutter: 3.5rem; --over-w: clamp(4rem, 100vw - 58rem, 12rem); --break: var(--over-w); }
+  .kind-page { --frame: calc(var(--side-w) + var(--gutter) + var(--measure) + var(--over-w) + 2 * var(--pad)); }
+  .home, .page { max-width: calc(var(--page-w) + 2 * var(--pad)); }
+  .entry { --entry-hang: 3.25rem; margin-left: calc(-1 * var(--entry-hang)); }
+  .entries + .part__group, .part__group { margin-left: 0; }
+
+  .rh.is-reading .rh__section { display: none; }
+
+  .chapter {
+    max-width: var(--frame);
+    display: grid;
+    grid-template-columns: var(--side-w) var(--gutter) minmax(0, var(--measure)) var(--over-w);
+    grid-template-areas:
+      ". . notice notice"
+      ". . opener opener"
+      "side . text ."
+      ". . end .";
+  }
+
+  /* Listings break out of the text column to the right edge of the frame: into the free fourth column here,
+     across the gap and the margin from 1280 px. */
+  .prose .codeblock { margin-right: calc(-1 * var(--break)); }
+  .prose pre.mermaid, .prose .diagram__scroll { margin-right: calc(-1 * var(--break)); }
+  /* So does a table that does not fit the text column (handbook.js marks it), no wider than it needs to be;
+     a table that fits stays in the column. */
+  .prose .table-wrap--wide { margin-right: calc(-1 * var(--break)); }
+  .prose .table-wrap--wide > table { width: auto; min-width: calc(100% - var(--break)); }
+  /* Inside a note or a Caution panel they stay in the tinted box and scroll there if they have to (round 4,
+     DESIGN.md 17; round 2 let a note's listing run on past the open right side of its hairline, review 13).
+     handbook.js leaves them out of what crosses the margin. */
+  .prose :is(.callout--note, .callout--warning) :is(.codeblock, pre.mermaid, .diagram__scroll, .table-wrap--wide) { margin-right: 0; }
+  .prose :is(.callout--note, .callout--warning) .table-wrap--wide > table { width: 100%; min-width: 0; }
+  /* The margin note wins (round 3): a listing, wide table or diagram that would cross the margin beside a margin
+     note yields and stays in the text column; a listing then scrolls inside with its edge shading, a table wraps
+     as a table in the column does. handbook.js marks only those that overlap a note (DESIGN.md 14.2). */
+  .prose .codeblock.is-yielding, .prose pre.mermaid.is-yielding, .prose .diagram__scroll.is-yielding, .prose .table-wrap--wide.is-yielding { margin-right: 0; }
+  .prose .table-wrap--wide.is-yielding > table { width: 100%; min-width: 0; }
+  .chapter--plain .opener { grid-column: 3; }
+  .notice { grid-area: notice; }
+  .opener { grid-area: opener; min-width: 0; }
+  .prose { grid-area: text; }
+  .endmatter { grid-area: end; }
+  .toc-phone { display: none; }
+
+  .side { display: block; grid-area: side; min-width: 0; }
+  .side__sticky {
+    position: sticky;
+    top: 1.5rem;
+    max-height: calc(100vh - 3rem);
+    display: flex;
+    flex-direction: column;
+    padding-bottom: .5rem;
+  }
+  .toc--side { min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--rule) transparent; margin-left: -.75rem; }
+  .toc--side .toc__title { margin-left: .75rem; }
+  .side__links { margin-left: -.75rem; padding-left: .75rem; }
+  .js .toc--side > ul > li > ul { display: none; }
+  .js .toc--side > ul > li.is-open > ul { display: block; }
+
+  /* Chapter numeral and section numbers hang to the left of the text column */
+  .opener__head { flex-direction: row; align-items: baseline; }
+  .opener__no {
+    flex: none;
+    width: 12rem;
+    margin: 0 0 0 -12rem;
+    padding-right: .9rem;
+    text-align: right;
+    font-size: var(--s9);
+  }
+  .opener__main { font-size: var(--s6); }
+  .opener__sub { font-size: var(--s4); }
+  .notice__label {
+    position: absolute;
+    right: 100%;
+    top: .8rem;
+    margin: 0 .9rem 0 0;
+    white-space: nowrap;
+    font-style: italic;
+  }
+  .prose .secno {
+    position: absolute;
+    right: 100%;
+    top: 0;
+    margin: 0 .75em 0 0;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 80rem) {
+  /* The contents column and the margin also grow with the window, faster than the type, so that wide windows
+     are filled with balanced outer margins. The text column widens too (round 3): 35rem (about 66 characters)
+     at 1280 px, then 11.375 % of every further pixel of window on top of the growing type, up to 39.25rem
+     (about 74 characters) from 2000 px; it grows in px with the type until about 2200 px. The frame is 94 % of
+     the window at 1280 px, 91 % at 1440, 88 % at 1680, 85 % at 2000 and 76 % at 2560, where the growth stops.
+     A margin note is at most 23rem wide (about 52 characters); listings use the whole margin. */
+  :root {
+    --measure: clamp(35rem, 35rem + (100vw - 1280px) * .11375, 39.25rem);
+    --side-w: clamp(14.5rem, 60px + 13.28vw, 20rem);
+    --gutter: 4rem;
+    --note-w: clamp(14rem, 25.78vw - 100px, 28rem);
+    --note-box: min(var(--note-w), 23rem);
+    --break: calc(var(--gap) + var(--note-w));
+  }
+  .kind-page { --frame: calc(var(--side-w) + var(--gutter) + var(--measure) + var(--gap) + var(--note-w) + 2 * var(--pad)); }
+  .chapter {
+    max-width: var(--frame);
+    grid-template-columns: var(--side-w) var(--gutter) minmax(0, var(--measure)) var(--gap) var(--note-w);
+    grid-template-areas:
+      ". . notice notice notice"
+      ". . opener opener opener"
+      "side . text . ."
+      ". . end . .";
+  }
+  .opener__standfirst { max-width: var(--measure); }
+
+  /* A diagram uses the right margin, like a wide figure in a printed book (rule with the listings, above).
+     Margin notes: short notes without code, lists or tables (and notes marked "margin" in the Markdown) sit in
+     the right margin, at the left of the margin column. handbook.js sets each level with what it comments on;
+     a listing, wide table or diagram beside it stays in the text column (DESIGN.md, 14.2). Without JavaScript
+     the notes stay in the text column, as below 1280 px. */
+  .js .prose .callout--margin {
+    float: right;
+    clear: right;
+    width: var(--note-box);
+    margin: .3rem calc(-1 * (var(--note-box) + var(--gap))) 1rem 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    --ground: var(--paper);
+    font-size: var(--s0);
+    line-height: 1.5;
+    color: var(--pencil);
+  }
+  /* plain in the margin (round 4): the carmine rule marks the note, its circled "i" stays grey */
+  .js .prose .callout--margin .callout__mark--note { color: var(--pencil); }
+  .js .prose .callout--margin .callout__label {
+    float: none;
+    display: block;
+    margin: 0 0 .15rem;
+    padding-top: .45rem;
+    border-top: 1px solid var(--spot);
+    width: 1.5rem;
+    white-space: nowrap;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .js .prose .callout--margin .callout__label::after { content: none; }
+  /* A note that opens with its own label ("Note on GRUB:") keeps the carmine rule without the word "Note" */
+  .js .prose .callout--margin.callout--self::before {
+    content: "";
+    display: block;
+    width: 1.5rem;
+    padding-top: .45rem;
+    border-top: 1px solid var(--spot);
+  }
+  .js .prose .callout--margin p { margin-bottom: .5rem; }
+  .js .prose .callout--margin code { font-size: .82em; }
+  .js .prose .callout--margin strong { color: var(--ink); }
+  /* Code, lists and tables reach the margin only when the Markdown asks for it ({{< callout note margin >}}).
+     They stay inside the note: a listing one step smaller, scrolling inside when its lines are longer. */
+  .js .prose .callout--margin .codeblock { margin: .6rem 0; }
+  .js .prose .callout--margin .codeblock::before { left: .6rem; }
+  .js .prose .callout--margin .codeblock pre { padding-left: .6rem; padding-right: .6rem; font-size: .8125rem; }
+  .js .prose .callout--margin .codeblock pre code { font-size: inherit; } /* not the .82em of inline code above */
+  .js .prose .callout--margin .codeblock__copy { right: .1rem; }
+  .js .prose .callout--margin :is(ul, ol) { margin: 0 0 .5rem; padding-left: 1.2em; }
+  .js .prose .callout--margin .table-wrap { margin: .6rem 0; }
+  .js .prose .callout--margin table { font-size: .8125rem; }
+  .js .prose .callout--margin .figure { margin: .6rem 0; }
+
+  /* Footnotes become sidenotes */
+  .js .prose .sidenote {
+    display: block;
+    float: right;
+    clear: right;
+    width: var(--note-box);
+    margin: .3rem calc(-1 * (var(--note-box) + var(--gap))) 1rem 0;
+    font-size: var(--s0);
+    line-height: 1.5;
+    color: var(--pencil);
+  }
+  .sidenote__no { color: var(--spot); font-variant-numeric: lining-nums; margin-right: .35em; }
+}
+
+/* ---------- 14. Motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+/* ---------- Round 7: code blocks (DESIGN.md 20) ----------
+   On pages that use the role markup the hook marks every line of a shell listing: r-cmd (r-cont for a line that goes
+   on with the command before it), r-com, r-out, r-exp, r-here; groups carry r-first / r-last, labelled ones r-file,
+   data-file and data-mode. Two ways to set them, one class on <html> from params.code (baseof.html):
+   code-panels   (Willi's choice, 20 November 2026) explanations set as text in Literata after a "#", output in white
+                 boxes, files written labelled on a rule
+   code-session  (kept as the alternative) a terminal session: a prompt before each command, output from the left
+                 edge without "#", explanations in italics, files labelled with their path
+   The "#" of output is hidden visually but stays in the text, so a hand selection pastes it as a comment and never
+   runs output as commands. Pages without the markup keep their listings as they were. */
+:root:is(.code-session, .code-panels) .codeblock[data-roles] code { display: block; width: max-content; min-width: 100%; }
+:root:is(.code-session, .code-panels) .codeblock[data-roles] .line { display: block; }
+:root:is(.code-session, .code-panels) .codeblock[data-roles] :is(.r-out, .r-exp) .pfx {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: pre;
+}
+/* output keeps the colour round 2 gave it (#545D67 light) */
+:root:is(.code-session, .code-panels) .codeblock[data-roles] .r-out .c1 { color: var(--code-comment); }
+/* a fence that names its file or output shows the name in place of the language; every other listing keeps its
+   language ("sh"; Willi kept it) */
+.codeblock[data-file]::before { content: attr(data-file); }
+.codeblock[data-output]::before { content: attr(data-output); }
+/* a comment at the end of a command ("# should print nothing") is an explanation too */
+:root:is(.code-session, .code-panels) .codeblock[data-roles] .r-cmd .c1 { font-style: italic; }
+
+/* files labelled with their path (a heredoc written with tee, > or >>; the output of cat FILE) on a thin rule:
+   the terminal session for every file, panels for the files written (its white boxes are output) */
+.code-session .codeblock[data-roles] .r-file,
+.code-panels .codeblock[data-roles] .r-here.r-file { box-shadow: inset 2px 0 var(--rule); padding-left: calc(2ch + .6rem); }
+.code-session .codeblock[data-roles] .r-file.r-first::before,
+.code-panels .codeblock[data-roles] .r-here.r-file.r-first::before {
+  content: attr(data-file);
+  display: block;
+  margin: .15rem 0 .05rem;
+  font-family: var(--text-font);
+  font-size: .8125rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--pencil);
+}
+:root:is(.code-session, .code-panels) .codeblock[data-roles] .r-here.r-file.r-first[data-mode="append"]::before { content: "appended to " attr(data-file); }
+
+/* code-panels: explanations as text after a "#", output in white boxes with a hairline, one "Output" label per
+   listing */
+.code-panels .codeblock[data-roles] .r-com { font-family: var(--text-font); font-style: italic; color: var(--pencil); }
+.code-panels .codeblock[data-roles] .r-com .c1 { color: inherit; }
+/* the "# " stays in front, in the code face, so an explanation still reads as a shell comment (Willi, 20 November) */
+.code-panels .codeblock[data-roles] .r-com .pfx { font-family: var(--mono); font-style: normal; }
+.code-panels .codeblock[data-roles] :is(.r-out, .r-exp) {
+  margin: 0 -.65rem;
+  padding: 0 .65rem;
+  background: var(--paper);
+  box-shadow: inset 1px 0 var(--rule), inset -1px 0 var(--rule);
+}
+.code-panels .codeblock[data-roles] :is(.r-out, .r-exp).r-first {
+  margin-top: .3rem;
+  padding-top: .3rem;
+  border-radius: 3px 3px 0 0;
+  box-shadow: inset 1px 0 var(--rule), inset -1px 0 var(--rule), inset 0 1px var(--rule);
+}
+.code-panels .codeblock[data-roles] :is(.r-out, .r-exp).r-last {
+  margin-bottom: .3rem;
+  padding-bottom: .35rem;
+  border-radius: 0 0 3px 3px;
+  box-shadow: inset 1px 0 var(--rule), inset -1px 0 var(--rule), inset 0 -1px var(--rule);
+}
+.code-panels .codeblock[data-roles] :is(.r-out, .r-exp).r-first.r-last {
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px var(--rule);
+}
+.code-panels .codeblock[data-roles] :is(.r-out, .r-exp).r-first::before {
+  content: "Output";
+  display: block;
+  margin-bottom: .05rem;
+  font-family: var(--text-font);
+  font-size: .8125rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--pencil);
+}
+.code-panels .codeblock[data-roles] .r-out.r-first:not(.r-file) ~ .r-out.r-first:not(.r-file)::before { content: none; }
+.code-panels .codeblock[data-roles] .r-exp.r-first::before { content: "Expected output"; }
+.code-panels .codeblock[data-roles] .r-out.r-file.r-first::before { content: attr(data-file); }
+.code-panels .codeblock[data-roles] .r-exp { font-family: var(--text-font); font-style: italic; color: var(--pencil); }
+.code-panels .codeblock[data-roles] .r-exp .c1 { color: inherit; }
+/* the boxes would cover the listing's sideways-scroll shading, so panels draw it on top (handbook.js sets the classes) */
+.code-panels .codeblock[data-roles] .highlight { position: relative; }
+.code-panels .codeblock[data-roles] .highlight::before,
+.code-panels .codeblock[data-roles] .highlight::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: .8rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s;
+}
+.code-panels .codeblock[data-roles] .highlight::before { left: 0; background: linear-gradient(to right, var(--shade), transparent); }
+.code-panels .codeblock[data-roles] .highlight::after { right: 0; background: linear-gradient(to left, var(--shade), transparent); }
+.code-panels .codeblock.is-more-left .highlight::before,
+.code-panels .codeblock.is-more-right .highlight::after { opacity: 1; }
+
+/* code-session: commands, explanations and a program's input after a prompt column; output from the left edge;
+   explanations and described output in the mono's own italic */
+.code-session .codeblock[data-roles] :is(.r-com, .r-exp) .c1 { font-style: italic; }
+.code-session .codeblock[data-roles] :is(.r-cmd, .r-com, .r-here:not(.r-file)) { padding-left: 2ch; }
+.code-session .codeblock[data-roles] .r-cmd:not(.r-cont)::before {
+  content: "$";
+  display: inline-block;
+  width: 2ch;
+  margin-left: -2ch;
+  color: var(--leader);
+  user-select: none;
+}
+.code-session .codeblock[data-roles] .r-exp.r-first::before { content: "→ "; color: var(--leader); }
+.code-session .codeblock[data-roles] .r-exp:not(.r-first) { padding-left: 2ch; }
+
+/* ---------- 15. Print ---------- */
+
+@media print {
+  @page { margin: 16mm 15mm 18mm; }
+  /* Paper is always light: the middle selector outranks the dark tokens of a system in dark mode. Listings
+     print in the light token colours (each at least 6:1 on the listing tint) and stay legible in greyscale. */
+  :root, :root:not([data-theme="light"]), :root[data-theme="dark"] {
+    --paper: #fff; --tint: #f0f1f3; --ink: #000; --pencil: #333; --leader: #888; --rule: #bbb; --spot: #9e1027; --warn: #9e1027; --on-warn: #fff;
+    --code-comment: #545D67; --code-flag: #2A517E; --code-string: #235D42; --code-var: #6A3D7E; --code-number: #6E4C10;
+    --note-wash: #F5F9FD; --note-bar: #91AFC9; --note-ink: #335E89; --caution-wash: #FBEEEF; --notice-wash: #F8F2E7;
+    color-scheme: light;
+  }
+  /* Print keeps the 16 px root and the one-column listing even when a small print scale widens the page */
+  html { font-size: 100%; }
+  body { font-size: 10.5pt; line-height: 1.45; background: #fff; }
+  .rh, .skip, .side, .toc-phone, .colophon__links, .colophon__type, .dialog, .codeblock__copy, .heading-anchor,
+  .pager, .search, .sidenote, .endmatter__coffee .icon { display: none !important; }
+  /* round 7: long lines of a listing with line roles wrap on paper as in every other listing */
+  .codeblock[data-roles] code { width: auto !important; min-width: 0 !important; }
+  .chapter, .page, .home { display: block; max-width: none; padding: 0; }
+  .prose, .opener__standfirst { font-size: 10.5pt; }
+  .opener { padding-top: 0; }
+  .opener__head { display: block; }
+  .opener__no { position: static; width: auto; margin: 0 0 4pt; padding: 0; text-align: left; font-size: 28pt; }
+  .opener__main { font-size: 20pt; }
+  .opener__sub { font-size: 13pt; }
+  .prose .secno { position: static; margin-right: .5em; }
+  .prose h2 { font-size: 15pt; margin-top: 18pt; }
+  .prose h3 { font-size: 12pt; }
+  h2, h3, h4, .callout__label { break-after: avoid; page-break-after: avoid; }
+  p, li { orphans: 3; widows: 3; }
+  .prose a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .82em; color: #333; word-break: break-all; }
+  .prose a[href^="/"]::after { content: " (mutschler.dev" attr(href) ")"; font-size: .82em; color: #333; word-break: break-all; }
+  .codeblock, .prose .codeblock { margin: 8pt 0; break-inside: avoid; page-break-inside: avoid; border: .5pt solid #bbb; background: #f4f5f6; }
+  .codeblock pre, .codeblock .highlight pre { white-space: pre-wrap; word-break: break-all; overflow: visible; font-size: 8.5pt; padding: 0 8pt 6pt; }
+  .codeblock::before { left: 8pt; }
+  .table-wrap { overflow: visible; }
+  .prose table { font-size: 9pt; }
+  /* !important: on screen handbook.js sets the column widths of a series of tables for the screen's width. On
+     paper every table takes the page width and lays itself out, with the first-column rule; a series stays
+     aligned, its columns at their width in em (--print-w) and the last one taking the rest. */
+  .prose table { table-layout: auto !important; width: 100% !important; min-width: 0 !important; }
+  .prose col { width: auto !important; }
+  .prose table.is-series { table-layout: fixed !important; }
+  .prose table.is-series col { width: var(--print-w, auto) !important; }
+  .prose tr { break-inside: avoid; }
+  /* !important: on screen handbook.js sets each margin note's offset inline; on paper the notes are inline */
+  .prose .callout--margin, .js .prose .callout--margin { float: none; width: auto; margin: 10pt 0 !important; font-size: 9.5pt; color: #000; }
+  /* Inline notes are asides: one step below the 10.5 pt text, like the margin notes (on screen 1rem printed 12 pt) */
+  .callout--note { font-size: 9.5pt; }
+  .callout { break-inside: avoid; }
+  /* browsers print no backgrounds by default: the tab is outlined, its text and triangle in the Caution colour */
+  .callout--warning .callout__label { background: none; color: var(--warn); border: 1pt solid var(--warn); }
+  /* the tab and the rules carry the emphasis; the text stays at body size, as in the rest of the document */
+  .callout--warning .callout__body { font-size: 1em; }
+  .prose pre.mermaid { overflow: visible; margin-right: 0; background: none; break-inside: avoid; }
+  .prose pre.mermaid > svg { min-width: 0; max-width: 100% !important; }
+  .prose .diagram__scroll { overflow: visible; margin-right: 0; background: none; }
+  .prose .diagram { break-inside: avoid; }
+  .prose .diagram__scroll > svg { min-width: 0; }
+  .video { aspect-ratio: auto; background: none; border: .5pt solid #bbb; padding: 6pt 8pt; }
+  .video__open { position: static; display: block; color: #000; }
+  .video__play, .video__note { display: none; }
+  .video__open::after { content: " " attr(href); font-size: .85em; }
+  .figure, .author__photo { break-inside: avoid; }
+  .figure__img { width: auto; max-width: 100%; max-height: 70mm; margin: 0 auto; filter: none; }
+  .endmatter { border-top: .5pt solid #999; margin-top: 18pt; }
+  .entry__title::after { content: none; }
+  .colophon { margin-top: 18pt; border-top: .5pt solid #999; }
+}

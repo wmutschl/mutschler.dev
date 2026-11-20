@@ -1,0 +1,38 @@
+{{- /*
+  End of a chapter: feedback, support, previous and next in contents order. Context: dict "page" "entry" "links".
+  Previous and next stay on their side of the book: chapters lead to chapters, earlier editions to earlier
+  editions, so the last chapter does not lead into the appendix (A.1 is a guide for an end-of-life release).
+*/ -}}
+{{- $p := .page -}}{{- $e := .entry -}}{{- $l := .links -}}
+{{- $chapters := partialCached "handbook/chapters.html" $p "chapters" -}}
+<footer class="endmatter">
+  <div class="endmatter__feedback">
+    <h2 class="endmatter__title">Something wrong or out of date?</h2>
+    <p>The source of this chapter is on GitHub. <a href="{{ $l.edit }}">Suggest an edit</a> or <a href="{{ $l.issues }}">open an issue</a>; comments, issues and pull requests are all welcome.</p>
+    <p class="endmatter__coffee">{{ partial "base/icon.html" "coffee" }} If this chapter saved you time, you can <a href="{{ $l.coffee }}">buy me a coffee</a>.</p>
+  </div>
+  {{- if $e }}
+  {{- $prev := false -}}{{- $next := false -}}
+  {{- if gt $e.pos 0 }}{{ with index $chapters (sub $e.pos 1) }}{{ if eq .kind $e.kind }}{{ $prev = . }}{{ end }}{{ end }}{{ end -}}
+  {{- if lt $e.pos (sub (len $chapters) 1) }}{{ with index $chapters (add $e.pos 1) }}{{ if eq .kind $e.kind }}{{ $next = . }}{{ end }}{{ end }}{{ end -}}
+  {{- $earlier := eq $e.kind "earlier" -}}
+  {{- if or $prev $next }}
+  <nav class="pager" aria-label="{{ if $earlier }}Previous and next earlier edition{{ else }}Previous and next chapter{{ end }}">
+    {{- with $prev }}
+    {{- $pg := partial "base/guide.html" .page }}
+    <a class="pager__link pager__link--prev" href="{{ .page.RelPermalink }}" rel="prev">
+      <span class="pager__dir">{{ if $earlier }}Previous in the appendix{{ else }}Previous chapter{{ end }}</span>
+      <span class="pager__entry"><span class="pager__no{{ if $earlier }} pager__no--earlier{{ end }}">{{ .num }}</span> <span class="pager__title">{{ $pg.short | default .page.Title }}</span></span>
+    </a>
+    {{- end }}
+    {{- with $next }}
+    {{- $ng := partial "base/guide.html" .page }}
+    <a class="pager__link pager__link--next" href="{{ .page.RelPermalink }}" rel="next">
+      <span class="pager__dir">{{ if $earlier }}Next in the appendix{{ else }}Next chapter{{ end }}</span>
+      <span class="pager__entry"><span class="pager__no{{ if $earlier }} pager__no--earlier{{ end }}">{{ .num }}</span> <span class="pager__title">{{ $ng.short | default .page.Title }}</span></span>
+    </a>
+    {{- end }}
+  </nav>
+  {{- end }}
+  {{- end }}
+</footer>

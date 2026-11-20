@@ -1,0 +1,51 @@
+{{- /*
+  Parts and appendix of the contents, optionally limited to some pages.
+  Context: dict
+    "all"    true to list every chapter
+    "keys"   otherwise: slice of content file names to include
+    "level"  heading level of the part headings (3 on the contents page, 2 on section and index pages)
+    "ctx"    the current page
+*/ -}}
+{{- $chapters := partialCached "handbook/chapters.html" .ctx "chapters" -}}
+{{- $hb := site.Data.handbook -}}
+{{- $only := .keys -}}
+{{- $lvl := .level | default 3 -}}
+{{- $sel := slice -}}
+{{- range $chapters -}}
+  {{- if or $.all (and $only (in $only .key)) }}{{ $sel = $sel | append . }}{{ end -}}
+{{- end -}}
+
+{{- /* Parts that have at least one selected chapter, in order */ -}}
+{{- $partIds := slice -}}
+{{- range where $sel "kind" "chapter" -}}
+  {{- if not (in $partIds .part.id) }}{{ $partIds = $partIds | append .part.id }}{{ end -}}
+{{- end -}}
+{{- if $partIds }}
+<p class="contents__colhead" aria-hidden="true">reading time</p>
+{{- end -}}
+{{- range $pid := $partIds -}}
+  {{- $items := where (where $sel "kind" "chapter") "part.id" $pid -}}
+  {{- $part := (index $items 0).part }}
+<section class="part" id="{{ $pid }}" aria-labelledby="{{ $pid }}-title">
+  <h{{ $lvl }} class="part__title" id="{{ $pid }}-title">{{ with $part.numeral }}<span class="part__no">Part {{ . }}</span> {{ end }}{{ $part.title }}</h{{ $lvl }}>
+  <ol class="entries" role="list">
+    {{- range $items }}{{ partial "handbook/entry.html" . }}{{ end }}
+  </ol>
+</section>
+{{- end -}}
+
+{{- $earlier := where $sel "kind" "earlier" -}}
+{{- with $earlier }}
+<section class="part part--appendix" id="{{ $hb.appendix.id }}" aria-labelledby="{{ $hb.appendix.id }}-title">
+  <h{{ $lvl }} class="part__title" id="{{ $hb.appendix.id }}-title"><span class="part__no">Appendix {{ $hb.appendix.letter }}</span> {{ $hb.appendix.title }}<span class="part__colhead" aria-hidden="true">first published</span></h{{ $lvl }}>
+  <p class="part__intro">{{ $hb.appendix.intro }}</p>
+  {{- $groups := slice -}}
+  {{- range . }}{{ if not (in $groups .group) }}{{ $groups = $groups | append .group }}{{ end }}{{ end -}}
+  {{- range $gname := $groups }}
+  <h{{ add $lvl 1 }} class="part__group">{{ $gname }}</h{{ add $lvl 1 }}>
+  <ol class="entries" role="list">
+    {{- range where $earlier "group" $gname }}{{ partial "handbook/entry.html" . }}{{ end }}
+  </ol>
+  {{- end }}
+</section>
+{{- end -}}

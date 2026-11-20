@@ -1,0 +1,10 @@
+{{ define "title" }}Not in the contents – {{ site.Title }}{{ end }}
+{{ define "main" }}
+<div class="page page--404">
+  <header class="pagehead">
+    <h1 class="pagehead__title">This page is not in the contents</h1>
+    <p class="pagehead__lead">The address may come from an older version of the site or have a typo in it. Search the handbook, or open the <a href="{{ "/" | relURL }}#contents">contents</a>.</p>
+  </header>
+  {{ partial "handbook/search.html" (dict "id" "nf" "inline" true) }}
+</div>
+{{ end }}

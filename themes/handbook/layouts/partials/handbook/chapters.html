@@ -1,0 +1,76 @@
+{{- /*
+  Every chapter of the handbook in contents order (parts first, then the appendix of earlier editions).
+  Returns a slice of dicts:
+    key   content file name (catalogue key)
+    page  the page
+    num   "1" … "12" for chapters, "A.1" … for earlier editions
+    kind  "chapter" | "earlier"
+    part  the part (dict from data/handbook.yaml) for chapters
+    group platform name (earlier editions only)
+    pos   0-based position in the whole list (for previous/next)
+  Usage: {{ $chapters := partialCached "handbook/chapters.html" . "chapters" }}
+*/ -}}
+{{- $cat := site.Data.catalog -}}
+{{- $hb := site.Data.handbook -}}
+
+{{- /* content file name -> page */ -}}
+{{- $sc := newScratch -}}
+{{- range $p := site.RegularPages -}}
+  {{- with $p.File -}}{{- $sc.SetInMap "pages" .ContentBaseName $p -}}{{- end -}}
+{{- end -}}
+{{- $pages := $sc.Get "pages" -}}
+
+{{- $out := slice -}}
+{{- $listed := slice -}}
+{{- $n := 0 -}}
+
+{{- /* Parts, in the curated order */ -}}
+{{- range $part := $hb.parts -}}
+  {{- range $key := $part.guides -}}
+    {{- $listed = $listed | append $key -}}
+    {{- with index $pages $key -}}
+      {{- $n = add $n 1 -}}
+      {{- $out = $out | append (dict "key" $key "page" . "num" (string $n) "kind" "chapter" "part" $part "group" "" "pos" (len $out)) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Current guides or notes the curated parts do not list yet */ -}}
+{{- $extra := slice -}}
+{{- range $key, $g := $cat.guides -}}
+  {{- if and (ne $g.status "previous") (not (in $listed $key)) -}}
+    {{- with index $pages $key }}{{ $extra = $extra | append (dict "key" $key "page" .) }}{{ end -}}
+  {{- end -}}
+{{- end -}}
+{{- if $extra -}}
+  {{- $other := dict "id" "part-other" "numeral" "" "title" "Other chapters" -}}
+  {{- range sort $extra "page.Date" "desc" -}}
+    {{- $n = add $n 1 -}}
+    {{- $out = $out | append (dict "key" .key "page" .page "num" (string $n) "kind" "chapter" "part" $other "group" "" "pos" (len $out)) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Appendix: earlier editions, by platform in catalogue order; installation guides first, newest first */ -}}
+{{- $a := 0 -}}
+{{- range $cat.platforms -}}
+  {{- $pid := .id -}}
+  {{- $pname := .name -}}
+  {{- $installs := slice -}}
+  {{- $others := slice -}}
+  {{- range $key, $g := $cat.guides -}}
+    {{- if and (eq $g.platform $pid) (eq $g.status "previous") -}}
+      {{- with index $pages $key -}}
+        {{- if eq $g.kind "install" }}{{ $installs = $installs | append (dict "key" $key "page" .) }}{{ else }}{{ $others = $others | append (dict "key" $key "page" .) }}{{ end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $group := slice -}}
+  {{- range sort $installs "page.Date" "desc" }}{{ $group = $group | append . }}{{ end -}}
+  {{- range sort $others "page.Date" "desc" }}{{ $group = $group | append . }}{{ end -}}
+  {{- range $group -}}
+    {{- $a = add $a 1 -}}
+    {{- $out = $out | append (dict "key" .key "page" .page "num" (printf "%s.%d" $hb.appendix.letter $a) "kind" "earlier" "part" (dict) "group" $pname "groupId" $pid "pos" (len $out)) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- return $out -}}

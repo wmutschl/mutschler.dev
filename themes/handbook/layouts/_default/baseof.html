@@ -1,0 +1,52 @@
+{{- /* listings with line roles (round 7, DESIGN.md 20): "panels" (the default) or "session", from params.code */ -}}
+{{- $code := site.Params.code | default "panels" -}}
+{{- if not (in (slice "panels" "session") $code) -}}
+  {{- warnf "params.code is %q; use \"panels\" or \"session\". Using \"panels\"." $code -}}
+  {{- $code = "panels" -}}
+{{- end -}}
+<!doctype html>
+<html lang="{{ site.LanguageCode | default "en" }}" class="code-{{ $code }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>document.documentElement.classList.add("js");(function(){try{var t=localStorage.getItem("handbook-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}})();</script>
+  <title>{{ block "title" . }}{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .LinkTitle }} – {{ site.Title }}{{ end }}{{ end }}</title>
+  {{- $desc := site.Params.description -}}
+  {{- if .IsHome -}}
+    {{- $desc = site.Data.handbook.subtitle -}}
+  {{- else -}}
+    {{- with .Params.summary }}{{ $desc = . | markdownify | plainify | htmlUnescape | replaceRE `\s+` " " | truncate 300 "…" }}{{ end -}}
+  {{- end }}
+  <meta name="description" content="{{ $desc }}">
+  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" data-theme-color="light">
+  <meta name="theme-color" content="#1A1C1F" media="(prefers-color-scheme: dark)" data-theme-color="dark">
+  {{- /* a stored theme gets its toolbar colour on the first paint, as handbook.js (syncThemeUI) sets it later */}}
+  <script>(function(){var t=document.documentElement.getAttribute("data-theme");if(t)document.querySelectorAll("meta[data-theme-color]").forEach(function(m){m.content=t==="dark"?"#1A1C1F":"#FFFFFF"})})();</script>
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="{{ "handbook-mark.svg" | relURL }}" type="image/svg+xml">
+  <link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ "index.xml" | relURL }}">
+  {{- if and (eq .Kind "section") (.OutputFormats.Get "rss") }}
+  <link rel="alternate" type="application/rss+xml" title="{{ .LinkTitle }} – {{ site.Title }}" href="{{ (.OutputFormats.Get "rss").RelPermalink }}">
+  {{- end }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,400..700;1,400..700&family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..800&display=swap">
+  {{- $css := resources.Get "css/handbook.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+</head>
+<body class="kind-{{ .Kind }}">
+  <a class="skip" href="#main">Skip to the text</a>
+  {{ partial "handbook/runninghead.html" . }}
+  <main id="main" tabindex="-1">
+    {{- block "main" . }}{{ end }}
+  </main>
+  {{ partial "handbook/colophon.html" . }}
+  <dialog class="dialog dialog--search" id="search-dialog" aria-label="Search the handbook" data-search-dialog>
+    {{ partial "handbook/search.html" (dict "id" "dlg" "inline" false) }}
+  </dialog>
+  {{- block "dialogs" . }}{{ end }}
+  {{ partial "base/scripts.html" . }}
+  {{- $js := resources.Get "js/handbook.js" | js.Build (dict "minify" true "target" "es2018") | fingerprint }}
+  <script src="{{ $js.RelPermalink }}" defer></script>
+</body>
+</html>

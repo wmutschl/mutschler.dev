@@ -1,0 +1,13 @@
+{{- /* Footer, set as a book's colophon. */ -}}
+{{- $l := partial "base/links.html" . -}}
+<footer class="colophon">
+  <div class="colophon__inner">
+    <p class="colophon__copy">© 2020–{{ now.Year }} Willi Mutschler. The text is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="license">CC BY-SA 4.0</a>.</p>
+    <ul class="colophon__links">
+      <li><a href="{{ "privacy/" | relURL }}">Privacy and Impressum</a></li>
+      <li><a href="{{ $l.repo }}">Source on GitHub</a></li>
+      <li><a href="{{ $l.rss }}">RSS feed</a></li>
+    </ul>
+    <p class="colophon__type">Set in Literata and Atkinson Hyperlegible Mono.</p>
+  </div>
+</footer>

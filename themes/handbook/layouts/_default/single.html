@@ -1,0 +1,86 @@
+{{ define "main" }}
+{{- $entry := partial "handbook/entry-for.html" . -}}
+{{- $g := partial "base/guide.html" . -}}
+{{- $s := partial "base/stats.html" . -}}
+{{- $l := partial "base/links.html" . -}}
+{{- $hasToc := gt (len (findRE "<li>" .TableOfContents 2)) 1 -}}
+{{- $earlier := eq $g.status "previous" -}}
+{{- $content := partial "base/content.html" . | string -}}
+{{- $content = replaceRE `<table>` `<div class="table-wrap" tabindex="0" role="region" aria-label="Table"><table>` $content -}}
+{{- $content = replaceRE `</table>` `</table></div>` $content -}}
+{{- $t := partial "handbook/split-title.html" .Title -}}
+{{- $toc := "" -}}
+{{- if $hasToc }}{{ $toc = partial "handbook/toc.html" . }}{{ end -}}
+{{- $tocClass := cond (strings.Contains (string $toc) "tocno") " toc--numbered" "" -}}
+{{- /* The privacy page is not a chapter: its TOC is named for a page. */ -}}
+{{- $tocSide := cond (not $g) "On this page" "In this chapter" -}}
+{{- $tocName := cond (not $g) "Sections of this page" "Sections of this chapter" }}
+<article class="chapter{{ if $hasToc }} chapter--toc{{ end }}{{ if $earlier }} chapter--earlier{{ end }}{{ if not $g }} chapter--plain{{ end }}">
+  {{- if $earlier }}
+  {{ partial "handbook/notice.html" (dict "g" $g "page" .) }}
+  {{- end }}
+  <header class="opener" data-opener>
+    <div class="opener__head">
+      {{- with $entry.num }}
+      <p class="opener__no{{ if eq $entry.kind "earlier" }} opener__no--earlier{{ end }}" aria-hidden="true">{{ . }}</p>
+      {{- end }}
+      <h1 class="opener__title">
+        {{- with $entry.num }}<span class="vh">{{ if eq $entry.kind "earlier" }}Earlier edition {{ else }}Chapter {{ end }}{{ . }}: </span>{{ end -}}
+        <span class="opener__main">{{ $t.main }}</span>
+        {{- with $t.sub }}<span class="vh">: </span><span class="opener__sub">{{ . }}</span>{{ end -}}
+      </h1>
+    </div>
+    {{- with .Params.summary }}
+    <div class="opener__standfirst">{{ . | markdownify }}</div>
+    {{- end }}
+    {{ partial "handbook/facts.html" (dict "page" . "g" $g "s" $s) }}
+  </header>
+  {{- if $hasToc }}
+  <details class="toc-phone">
+    <summary class="toc-phone__summary">{{ $tocName }}</summary>
+    <nav class="toc toc--phone{{ $tocClass }}" aria-label="{{ $tocName }}" data-toc>
+      {{ $toc }}
+    </nav>
+  </details>
+  <aside class="side" aria-label="{{ if $g }}Chapter navigation{{ else }}Page navigation{{ end }}">
+    <div class="side__sticky">
+      <nav class="toc toc--side{{ $tocClass }}" aria-labelledby="toc-side-title" data-toc data-toc-side>
+        <h2 class="toc__title" id="toc-side-title">{{ $tocSide }}</h2>
+        {{ $toc }}
+      </nav>
+      {{- if $g }}
+      <ul class="side__links">
+        <li><a href="{{ $l.edit }}">Suggest an edit</a></li>
+        <li><a href="{{ $l.issues }}">Open an issue</a></li>
+        <li><a href="{{ $l.coffee }}">Buy me a coffee</a></li>
+      </ul>
+      {{- end }}
+    </div>
+  </aside>
+  {{- end }}
+  <div class="prose" id="text" data-prose>
+    {{ $content | safeHTML }}
+  </div>
+  {{- if $g }}
+  {{ partial "handbook/endmatter.html" (dict "page" . "entry" $entry "links" $l) }}
+  {{- end }}
+</article>
+{{ end }}
+
+{{ define "dialogs" }}
+{{- if gt (len (findRE "<li>" .TableOfContents 2)) 1 }}
+{{- $g := partial "base/guide.html" . -}}
+{{- $tocName := cond (not $g) "Sections of this page" "Sections of this chapter" }}
+<dialog class="dialog dialog--toc" id="toc-dialog" aria-labelledby="toc-dialog-title" data-toc-dialog>
+  <div class="dialog__head">
+    <h2 class="dialog__title" id="toc-dialog-title">{{ $tocName }}</h2>
+    <button class="dialog__close" type="button" data-dialog-close>Close</button>
+  </div>
+  {{- $toc := partial "handbook/toc.html" . }}
+  <nav class="toc toc--dialog{{ if strings.Contains (string $toc) "tocno" }} toc--numbered{{ end }}" aria-labelledby="toc-dialog-title" data-toc>
+    {{ $toc }}
+  </nav>
+  <p class="dialog__foot"><a href="{{ "/" | relURL }}#contents">Contents of the handbook</a></p>
+</dialog>
+{{- end }}
+{{ end }}

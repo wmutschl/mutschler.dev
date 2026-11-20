@@ -1,0 +1,29 @@
+{{- /*
+  Headings with Willi's own section numbers typeset as structure:
+  "3.1 General" and "Step 2 (optional): Install …" become a number span (hung in the gutter on wide screens)
+  and a title span. "Step" stays in the accessible name; "(optional)" moves to the end in italic.
+  Headings without a number are left as written. The id is unchanged, so existing links keep working.
+*/ -}}
+{{- $text := string .Text -}}
+{{- $no := "" -}}
+{{- $step := false -}}
+{{- $opt := false -}}
+{{- $rest := $text -}}
+{{- with findRESubmatch `^(?i:step)\s+(\d+[a-z]?)\s*(\((?i:optional)\))?\s*:\s*(.+)$` $text 1 -}}
+  {{- $m := index . 0 -}}
+  {{- $no = index $m 1 -}}
+  {{- $step = true -}}
+  {{- $opt = ne (index $m 2) "" -}}
+  {{- $rest = index $m 3 -}}
+{{- else -}}
+  {{- with findRESubmatch `^(\d+(?:\.\d+)*)\s+(.+)$` $text 1 -}}
+    {{- $m := index . 0 -}}
+    {{- $no = index $m 1 -}}
+    {{- $rest = index $m 2 -}}
+  {{- end -}}
+{{- end -}}
+<h{{ .Level }} id="{{ .Anchor | safeURL }}"{{ with .Attributes.class }} class="{{ . }}"{{ end }}{{ with $no }} data-no="{{ . }}"{{ end }}>
+{{- with $no }}<span class="secno">{{ if $step }}<span class="vh">Step </span>{{ end }}{{ . }}</span>{{ if $step }}<span class="vh">:</span>{{ end }} {{ end -}}
+<span class="sectitle">{{ $rest | safeHTML }}</span>{{ if $opt }} <span class="secopt">(optional)</span>{{ end -}}
+<a class="heading-anchor" href="#{{ .Anchor | safeURL }}" aria-label="Link to this section"></a></h{{ .Level }}>
+{{- /* trailing */ -}}

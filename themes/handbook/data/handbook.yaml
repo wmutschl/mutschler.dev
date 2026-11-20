@@ -1,0 +1,34 @@
+# The handbook's contents, curated from the catalogue (themes/base/data/catalog.yaml).
+# Chapter numbers follow this order. Every catalogue guide with status "previous" is collected
+# automatically into the appendix of earlier editions, grouped by platform in catalogue order,
+# installation guides first, newest first. A current guide that is missing here is still listed,
+# in a final part called "Other chapters", so nothing drops out of the contents.
+
+subtitle: "Step-by-step guides to installing Linux with encryption and snapshots, setting up Linux and macOS after installation, and running a home server."
+
+parts:
+  - id: part-1
+    numeral: "I"
+    title: "Installing Linux with encryption and snapshots"
+    guides: [pop-os-btrfs-24-04, debian-btrfs-trixie]
+  - id: part-2
+    numeral: "II"
+    title: "After installation"
+    guides: [pop-os-post-install, ubuntu-post-install, debian-post-install, macos-post-install]
+  - id: part-3
+    numeral: "III"
+    title: "Home servers"
+    guides: [wyse-hardware, wyse-ubuntu-nextcloud-aio, raspi-home-assistant-os]
+  - id: part-4
+    numeral: "IV"
+    title: "Snapshots and backups"
+    guides: [btrfs, timeshift, backup]
+
+appendix:
+  id: appendix-a
+  letter: "A"
+  title: "Earlier editions"
+  intro: "Guides for releases that have reached end of life or that a newer guide has replaced. They stay here for reference; each one says why it is here."
+
+# How many chapters the revision history on the contents page lists.
+revisions: 8

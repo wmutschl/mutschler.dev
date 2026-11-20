@@ -1,0 +1,13 @@
+{{- /* Search box. Context: dict "id" (unique prefix) "inline" (bool). The dialog version lives in baseof. */ -}}
+{{- $id := .id -}}
+<div class="search{{ if .inline }} search--inline{{ end }}" data-search>
+  <div class="search__bar">
+    <label class="search__label" for="{{ $id }}-input">Search the handbook</label>
+    <input class="search__input" id="{{ $id }}-input" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="Try luks, nextcloud or timeshift" data-search-input aria-describedby="{{ $id }}-status">
+    {{- if not .inline }}
+    <button class="search__close" type="button" data-search-close>Close</button>
+    {{- end }}
+  </div>
+  <p class="search__status" id="{{ $id }}-status" role="status" data-search-status></p>
+  <ol class="search__results" data-search-results></ol>
+</div>

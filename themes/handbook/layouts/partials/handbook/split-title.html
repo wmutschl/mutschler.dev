@@ -1,0 +1,12 @@
+{{- /*
+  Splits a long title at its last colon into a title and a subtitle, as a book would set it
+  ("Pop!_OS 24.04" / "installation guide with BTRFS, …"). Titles without a short lead before a colon stay whole.
+  Returns dict "main" "sub" (sub may be "").
+*/ -}}
+{{- $t := . | string -}}
+{{- $res := dict "main" $t "sub" "" -}}
+{{- with findRESubmatch `^(.{2,45}):\s+(.+)$` $t 1 -}}
+  {{- $m := index . 0 -}}
+  {{- $res = dict "main" (index $m 1) "sub" (index $m 2) -}}
+{{- end -}}
+{{- return $res -}}

@@ -1,0 +1,21 @@
+{{- /* Notice at the top of an earlier-edition chapter. Context: dict "g" (catalogue) "page". */ -}}
+{{- $g := .g -}}
+<aside class="notice" aria-labelledby="notice-label">
+  <p class="notice__label" id="notice-label">Earlier edition</p>
+  <p class="notice__text">This chapter is kept from an earlier edition of the handbook. {{ with $g.note }}{{ . }}{{ if not (findRE `[.!?]$` .) }}.{{ end }}{{ end }}</p>
+  {{- with $g.successorPage }}
+  {{- $succ := . -}}
+  {{- $se := partial "handbook/entry-for.html" $succ -}}
+  {{- $sg := partial "base/guide.html" $succ -}}
+  <p class="notice__text">
+    {{- /* notes (essays such as the backup strategy) do not age with a release: a successor in notes is current */ -}}
+    {{- if in (slice "current" "notes") $sg.status -}}
+    The current edition is <a href="{{ $succ.RelPermalink }}">chapter {{ $se.num }}, {{ $sg.short | default $succ.Title }}</a>.
+    {{- else -}}
+    A newer edition is <a href="{{ $succ.RelPermalink }}">{{ $se.num }}, {{ $sg.short | default $succ.Title }}</a>, itself kept as an earlier edition.
+    {{- end -}}
+  </p>
+  {{- else }}
+  <p class="notice__text">The <a href="{{ "/" | relURL }}#contents">contents</a> list the current chapters.</p>
+  {{- end }}
+</aside>

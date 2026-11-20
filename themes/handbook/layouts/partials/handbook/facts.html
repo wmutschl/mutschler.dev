@@ -1,0 +1,24 @@
+{{- /* The facts a reader needs to decide and plan, as labelled fields. Context: dict "page" "g" (catalogue) "s" (stats). */ -}}
+{{- $p := .page -}}{{- $g := .g -}}{{- $s := .s -}}
+{{- /* A ```mermaid fence is a diagram, not something to type: leave it out of "Code blocks". */ -}}
+{{- $code := sub $s.commands (len (findRE "(?m)^[ \t]*```mermaid" $p.RawContent)) -}}
+<dl class="facts">
+  {{- with $g.release }}
+  <div class="facts__item"><dt>Written for</dt><dd>{{ . }}</dd></div>
+  {{- end }}
+  {{- if $g }}
+  <div class="facts__item"><dt>First published</dt><dd><time datetime="{{ $s.published.Format "2006-01-02" }}">{{ $s.published.Format "2 January 2006" }}</time></dd></div>
+  {{- end }}
+  {{- if or $s.updatedDiffers (not $g) }}
+  <div class="facts__item"><dt>Last revised</dt><dd><time datetime="{{ $s.updated.Format "2006-01-02" }}">{{ $s.updated.Format "2 January 2006" }}</time></dd></div>
+  {{- end }}
+  {{- if $g }}
+  <div class="facts__item"><dt>Reading time</dt><dd>{{ $s.minutes }} {{ cond (eq $s.minutes 1) "minute" "minutes" }}</dd></div>
+  {{- if gt $code 0 }}
+  <div class="facts__item"><dt>Code blocks</dt><dd>{{ $code }}</dd></div>
+  {{- end }}
+  {{- with $s.video }}
+  <div class="facts__item"><dt>Video</dt><dd><a href="https://www.youtube.com/watch?v={{ . }}">Watch on YouTube</a></dd></div>
+  {{- end }}
+  {{- end }}
+</dl>

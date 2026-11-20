@@ -1,0 +1,57 @@
+{{- /*
+  Callout box: {{< callout note >}} … {{< /callout >}} (overrides themes/base).
+  Handbook rule for notes and cautions:
+  - A note whose text is at most 500 characters and holds no code block, list, table, figure or video
+    gets the class callout--margin: on screens 80rem (1280 px) and wider it is set in the right margin as a
+    sidenote, level with the block it comments on; a listing, wide table or diagram beside it stays in the
+    text column (handbook.js). Every other note stays in the text column.
+  - A second parameter overrides that rule, as a purely editorial choice (round 3):
+      {{< callout note margin >}}  in the margin, whatever it holds (from 1280 px; in the text column below
+                                   that, in print and without JavaScript, like every note)
+      {{< callout note inline >}}  in the text column
+    Plain {{< callout note >}} keeps the rule. The base theme reads only the first parameter, so other themes
+    keep working with the same Markdown.
+  - A warning is always a "Caution" panel in the text column, because it must interrupt the procedure;
+    "margin" on a warning is ignored (with a build warning).
+  - A note that already opens with Willi's own label ("**Note on GRUB:** …") keeps that label: the theme's
+    "Note" label is then visually hidden (screen readers still hear it), so it never reads "Note. Note on …".
+  - A note's label starts with a circled "i", drawn like the Caution's triangle (round 4, DESIGN.md 17); a note with
+    its own label gets the mark before that label.
+  Markup stays compatible with the base API: aside.callout.callout--<type>[data-callout] > span.callout__label + div.callout__body.
+*/ -}}
+{{- $type := .Get 0 | default "note" -}}
+{{- $place := .Get 1 | default "" -}}
+{{- with $place -}}
+  {{- if not (in (slice "margin" "inline") .) -}}
+    {{- warnf "%s: callout placement %q is unknown; use margin or inline" $.Position . -}}
+  {{- else if and (eq . "margin") (ne $type "note") -}}
+    {{- warnf "%s: only notes go in the margin; this %s stays in the text column" $.Position $type -}}
+  {{- end -}}
+{{- end -}}
+{{- $body := .Inner | .Page.RenderString (dict "display" "block") -}}
+{{- $plain := $body | plainify | htmlUnescape -}}
+{{- $structured := findRE `<(pre|ul|ol|table|figure|div)[\s>]` (string $body) 1 -}}
+{{- /* characters, not bytes: len would count a dash, arrow or curly quote as three */ -}}
+{{- $auto := and (le (strings.RuneCount $plain) 500) (not $structured) -}}
+{{- $margin := and (eq $type "note") (ne $place "inline") (or (eq $place "margin") $auto) -}}
+{{- /* only a note that opens with a paragraph carries its own label (the mark goes into that paragraph) */ -}}
+{{- $self := and (eq $type "note") (hasPrefix (trim (string $body) " \n\t") "<p>") (findRE `^(?i)note\b` (trim $plain " \n\t") 1) -}}
+{{- $runin := and (not $self) (hasPrefix (trim (string $body) " \n\t") "<p>") -}}
+{{- $noteMark := `<svg class="callout__mark callout__mark--note" width="1em" height="1em" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7.4v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="4.75" r="1" fill="currentColor"/></svg>` -}}
+{{- if $self -}}
+  {{- $body = replaceRE `^(\s*<p>)` (printf "${1}%s" $noteMark) (string $body) | safeHTML -}}
+{{- end -}}
+{{- $labels := dict "note" "Note" "warning" "Caution" "tip" "Tip" "important" "Important" -}}
+<aside class="callout callout--{{ $type }}{{ if $margin }} callout--margin{{ end }}{{ if $runin }} callout--runin{{ end }}{{ if $self }} callout--self{{ end }}" data-callout="{{ $type }}"{{ if and (eq $type "note") (in (slice "margin" "inline") $place) }} data-place="{{ $place }}"{{ end }}>
+  <span class="callout__label{{ if $self }} vh{{ end }}">
+    {{- if eq $type "warning" -}}
+    <svg class="callout__mark" width="1em" height="1em" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1.6 15.2 14.4H.8z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 6.2v3.9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="12.2" r="1" fill="currentColor"/></svg>
+    {{- else if and (eq $type "note") (not $self) -}}
+    {{ $noteMark | safeHTML }}
+    {{- end -}}
+    {{ index $labels $type | default (title $type) }}</span>
+  <div class="callout__body">
+    {{- $body -}}
+  </div>
+</aside>
+{{- /* trailing */ -}}

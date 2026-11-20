@@ -1,0 +1,76 @@
+{{ define "main" }}
+{{- $hb := site.Data.handbook -}}
+{{- $chapters := partialCached "handbook/chapters.html" . "chapters" -}}
+{{- $l := partial "base/links.html" . -}}
+{{- $latest := (index $chapters 0).page.Lastmod -}}
+{{- $first := (index $chapters 0).page.Date -}}
+{{- $pages := slice -}}
+{{- range $chapters -}}
+  {{- $pages = $pages | append .page -}}
+  {{- if .page.Lastmod.After $latest }}{{ $latest = .page.Lastmod }}{{ end -}}
+  {{- if .page.Date.Before $first }}{{ $first = .page.Date }}{{ end -}}
+{{- end -}}
+{{- $current := where $chapters "kind" "chapter" -}}
+{{- $earlier := where $chapters "kind" "earlier" -}}
+<div class="home">
+  <header class="titlepage">
+    <h1 class="titlepage__title">{{ site.Title }}</h1>
+    <p class="titlepage__subtitle">{{ $hb.subtitle }}</p>
+    <p class="titlepage__author">by <a href="#author">Willi Mutschler</a></p>
+    <p class="titlepage__revision">Revised <time datetime="{{ $latest.Format "2006-01-02" }}">{{ replace ($latest.Format "2 January 2006") " " " " }}</time>; first published <time datetime="{{ $first.Format "2006-01" }}">{{ replace ($first.Format "January 2006") " " " " }}</time>. {{ len $current }}&nbsp;chapters and {{ len $earlier }}&nbsp;earlier editions.</p>
+  </header>
+
+  <section class="contents" id="contents" aria-labelledby="contents-title">
+    <h2 class="contents__title" id="contents-title">Contents</h2>
+    {{ partial "handbook/contents.html" (dict "ctx" . "all" true "level" 3) }}
+  </section>
+
+  <section class="revisions" id="revisions" aria-labelledby="revisions-title">
+    <h2 class="section-title" id="revisions-title">Revision history</h2>
+    <p class="revisions__intro">The {{ $hb.revisions }} most recently revised chapters, with their last change from the site’s git history.</p>
+    <table class="revisions__table">
+      <thead>
+        <tr><th scope="col">Date</th><th scope="col">Chapter</th><th scope="col">Last change</th></tr>
+      </thead>
+      <tbody>
+        {{- range first $hb.revisions (sort $pages "Lastmod" "desc") }}
+        {{- $e := partial "handbook/entry-for.html" . -}}
+        {{- $g := partial "base/guide.html" . }}
+        <tr>
+          <td class="rev__date" data-label="Date"><time datetime="{{ .Lastmod.Format "2006-01-02" }}">{{ .Lastmod.Format "2 Jan 2006" }}</time></td>
+          <td class="rev__chapter" data-label="Chapter"><a href="{{ .RelPermalink }}"><span class="rev__no{{ if eq $e.kind "earlier" }} rev__no--earlier{{ end }}">{{ $e.num }}</span> {{ $g.short | default .Title }}</a></td>
+          <td class="rev__change" data-label="Last change">{{ with .GitInfo }}<a href="{{ $l.repo }}/commit/{{ .Hash }}">{{ .Subject }}</a>{{ end }}</td>
+        </tr>
+        {{- end }}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="author" id="author" aria-labelledby="author-title">
+    <h2 class="section-title" id="author-title">About the author</h2>
+    {{- with partial "base/author.html" . }}
+    <div class="author__body">
+      {{- with resources.Get "media/YouTubePicture2.jpg" }}
+      <figure class="author__photo">
+        {{ partial "base/img.html" (dict "img" . "alt" "Willi Mutschler at his desk with a podcast microphone" "class" "author__img" "sizes" "(min-width: 60rem) 20rem, (min-width: 40rem) 60vw, 100vw" "widths" (slice 480 800 1200)) }}
+      </figure>
+      {{- end }}
+      <div class="author__text">
+        <p class="author__name">{{ .Title }}</p>
+        <p class="author__role">{{ .Params.role | safeHTML }}</p>
+        {{- /* Willi's about text, word for word. Its colour emoji (and the space before each) are left out when it
+               is set here, as a handbook would not print them; to show them, use {{ .Content }} instead. */}}
+        <div class="author__about">{{ .Content | replaceRE `\s?(?:[#*0-9]\x{FE0F}?\x{20E3}|[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}]\x{FE0F}?(?:\x{200D}[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}]\x{FE0F}?)*)` "" | safeHTML }}</div>
+        <ul class="author__links">
+          <li><a href="{{ $l.youtube }}">YouTube</a></li>
+          <li><a href="{{ $l.github }}">GitHub</a></li>
+          <li><a href="{{ $l.gitlab }}">GitLab</a></li>
+          <li><a href="mailto:{{ $l.email }}">Email</a></li>
+          <li><a href="{{ $l.coffee }}">Buy me a coffee</a></li>
+        </ul>
+      </div>
+    </div>
+    {{- end }}
+  </section>
+</div>
+{{ end }}

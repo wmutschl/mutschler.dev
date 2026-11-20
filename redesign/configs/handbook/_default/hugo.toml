@@ -1,0 +1,46 @@
+# Redesign prototype "handbook". Run: hugo server --configDir redesign/configs/handbook
+baseURL = "/"
+title = "mutschler.dev"
+languageCode = "en-us"
+theme = ["handbook", "base"]
+enableGitInfo = true
+enableEmoji = true
+summaryLength = 30
+disableKinds = []
+resourceDir = "redesign/resources/handbook"
+# Keep taxonomy terms as they are written in the content ("btrfs", "dell wyse"), as an index would.
+titleCaseStyle = "none"
+
+[taxonomies]
+  tag = "tags"
+
+[permalinks]
+  tags = "/tag/:slug/"
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+  section = ["HTML", "RSS"]
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = true
+  [markup.highlight]
+    noClasses = false
+    guessSyntax = false
+    lineNos = false
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 3
+    ordered = false
+
+[params]
+  description = "Tech blog of Willi Mutschler"
+  repo = "https://github.com/wmutschl/mutschler.dev"
+  coffee = "https://buymeacoffee.com/mutschler"
+  youtube = "https://www.youtube.com/c/wmutschl"
+  github = "https://github.com/wmutschl"
+  gitlab = "https://gitlab.com/wmutschl"
+  email = "willi@mutschler.dev"
+  # Listings with line roles (#> output, #~ described output; themes/handbook/DESIGN.md 20): "panels" sets
+  # explanations as text and output in boxes, "session" sets them as a terminal session.
+  code = "panels"

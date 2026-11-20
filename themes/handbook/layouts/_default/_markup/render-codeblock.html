@@ -1,0 +1,248 @@
+{{- /*
+  Fenced code blocks (overrides themes/base; same markup: div.codeblock[data-lang] around Chroma's output).
+  Hugo passes .Inner without its final newline. Chroma's fish lexer only recognises a comment that ends in a
+  newline, so the last line of expected output ("# └─nvme0n1p4 …") was lexed as a command and set in command
+  ink. Highlighting the block with its newline restored keeps that line a comment (pencil), like every other
+  output line. No blank line is added; fences without a language are rendered as before.
+  Flags (round 2): Chroma's fish lexer marks "-y" and "--now" as Name.Attribute (class na); its bash lexer
+  leaves them in the plain text of the command. In sh and bash listings, a word that starts with "-" or "--"
+  and a letter, after a space, in plain text (never inside a comment, string, variable or other token), gets
+  the same class, so flags look the same in every shell. The text itself is unchanged. Each pass marks one
+  flag per stretch of plain text; eight passes cover every listing in the guides.
+  ```mermaid fences keep their own hook (render-codeblock-mermaid.html in themes/base).
+
+  Line roles (round 7, DESIGN.md 20). A page that uses the markup below in its own shell fences (sh, bash, shell,
+  zsh, fish), or sets codeRoles: true, gets a role class on every line of those listings. handbook.css sets them as
+  panels by default (Willi's choice of 20 November 2026): explanations as text after their "#", output in white
+  boxes, files written labelled. params.code = "session" sets them as a terminal session instead: commands after a
+  "$", output from the left edge, explanations in italics. Listings of other pages render as before:
+    # text       an explanation                                                     r-com
+    #> text      output, as the terminal prints it                                  r-out
+    #~ text      the output described in words                                      r-exp
+    <<EOF … EOF  the body of a heredoc: a file being written (labelled with the     r-here, r-file for a file
+                 tee, > or >> target, data-mode="append" for tee -a and >>) or a
+                 script fed to a program (no label)
+    cat FILE     its output is that file's content, labelled with FILE              r-out r-file
+    other lines  commands (r-cmd); a line that goes on with the command before it   r-cont
+                 gets r-cont: after a trailing \, |, ||, &&, do, then, else, { or (,
+                 inside a string left open on an earlier line, inside do…done,
+                 if…fi, case…esac or { … }, and after a heredoc whose start line went
+                 on with && or |; heredoc end lines are r-cont too
+  Every marker is a shell comment, so a pasted block still runs. "#>" and "#~" are highlighted as "#" (only on
+  output lines, never inside a file's body); the hook wraps the "#" of each explanation and output line in span.pfx:
+  the CSS hides it on output, where it stays in the copied text, and sets it in the code face before an explanation.
+  Groups of output, described output and heredoc lines get
+  r-first / r-last and, for a file, data-file and data-mode on their first line and r-file on every line. A shell
+  fence that names a file (```sh {file="…"}) is a file, not a session: it keeps the plain rendering. Fences of other
+  languages can name what they show: ```json {file="…"} or ```text {output="…"}.
+*/ -}}
+{{- $lang := .Type | default "" -}}
+{{- $inner := .Inner -}}
+{{- /* opt-in, worked out once per page: codeRoles in the front matter (Hugo reads it lowercase) or a #> / #~ line in
+  one of the page's own shell fences */ -}}
+{{- if not (.Page.Scratch.Get "codeRolesKnown") -}}
+  {{- $on := .Page.Params.coderoles | default false -}}
+  {{- if not $on -}}
+    {{- range findRE "(?ms)^[ \\t]*```(?:sh|bash|shell|zsh|fish)\\b[^\\n]*\\n.*?^[ \\t]*```" .Page.RawContent -}}
+      {{- if findRE `(?m)^[ \t]*#[>~]` . 1 }}{{ $on = true }}{{ end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- .Page.Scratch.Set "codeRoles" $on -}}
+  {{- .Page.Scratch.Set "codeRolesKnown" true -}}
+{{- end -}}
+{{- $shell := and (.Page.Scratch.Get "codeRoles") (in (slice "sh" "bash" "shell" "zsh" "fish") $lang) (not .Attributes.file) -}}
+{{- $roles := slice -}}
+{{- $conts := slice -}}
+{{- $files := slice -}}
+{{- $modes := slice -}}
+{{- if $shell -}}
+  {{- $heredoc := "" -}}
+  {{- $herePath := "" -}}
+  {{- $hereMode := "" -}}
+  {{- $afterHere := false -}}
+  {{- $catPath := "" -}}
+  {{- $cont := false -}}
+  {{- $contBS := false -}}
+  {{- $cmdText := "" -}}
+  {{- $inS := false -}}
+  {{- $inD := false -}}
+  {{- $depth := 0 -}}
+  {{- $src := slice -}}
+  {{- range $l := split $inner "\n" -}}
+    {{- $t := trim $l " \t" -}}
+    {{- $role := "cmd" -}}
+    {{- $isCont := false -}}
+    {{- $file := "" -}}
+    {{- $mode := "" -}}
+    {{- if $heredoc -}}
+      {{- if eq (strings.TrimLeft "\t" $l) $heredoc -}}
+        {{- $isCont = true -}}
+        {{- $heredoc = "" -}}
+        {{- $cont = $afterHere -}}
+        {{- $afterHere = false -}}
+      {{- else -}}
+        {{- $role = "here" -}}
+        {{- $file = $herePath -}}
+        {{- $mode = $hereMode -}}
+      {{- end -}}
+    {{- else -}}
+      {{- $inString := or $inS $inD -}}
+      {{- if $inString -}}
+        {{- $isCont = true -}}
+      {{- else if eq $t "" -}}
+        {{- $role = "blank" -}}
+        {{- /* a blank line ends a command continued with a backslash (not one continued with && | do …) */ -}}
+        {{- if $contBS }}{{ $cont = false }}{{ $contBS = false }}{{ end -}}
+      {{- else if hasPrefix $t "#>" -}}
+        {{- $role = "out" -}}
+        {{- $file = $catPath -}}
+      {{- else if hasPrefix $t "#~" -}}
+        {{- $role = "exp" -}}
+      {{- else if and (hasPrefix $t "#") (not (hasPrefix $t "#!")) -}}
+        {{- $role = "com" -}}
+        {{- /* so does a comment line: bash reads it as the end of that command */ -}}
+        {{- if $contBS }}{{ $cont = false }}{{ $contBS = false }}{{ end -}}
+      {{- else -}}
+        {{- $isCont = or $cont (gt $depth 0) -}}
+      {{- end -}}
+      {{- if eq $role "cmd" -}}
+        {{- if $isCont }}{{ $cmdText = print $cmdText " " $l }}{{ else }}{{ $cmdText = $l }}{{ end -}}
+        {{- if not $isCont -}}
+          {{- $catPath = "" -}}
+          {{- with findRESubmatch `^(?:sudo\s+)?cat\s+(?:-[A-Za-z]+\s+)*("[^"]+"|'[^']+'|[^\s|<>;&'"]+)$` (replaceRE `\s+#.*$` "" $t) 1 -}}
+            {{- $catPath = index (index . 0) 1 | replaceRE `^["']|["']$` "" -}}
+          {{- end -}}
+        {{- end -}}
+        {{- /* the line's code outside strings and comments; a string left open runs on to the next line */ -}}
+        {{- $rest := $l -}}
+        {{- if $inS -}}
+          {{- with findRE `^[^']*'` $rest 1 }}{{ $rest = substr $rest (len (index . 0)) }}{{ $inS = false }}{{ else }}{{ $rest = "" }}{{ end -}}
+        {{- else if $inD -}}
+          {{- with findRE `^(?:[^"\\]|\\.)*"` $rest 1 }}{{ $rest = substr $rest (len (index . 0)) }}{{ $inD = false }}{{ else }}{{ $rest = "" }}{{ end -}}
+        {{- end -}}
+        {{- $code := replaceRE `'[^']*'|"(?:[^"\\]|\\.)*"` "S" $rest -}}
+        {{- with findRESubmatch `^([^'"]*)(['"])` $code 1 -}}
+          {{- $code = index (index . 0) 1 -}}
+          {{- if eq (index (index . 0) 2) "'" }}{{ $inS = true }}{{ else }}{{ $inD = true }}{{ end -}}
+        {{- end -}}
+        {{- $code = replaceRE `(^|\s)#.*$` "" $code -}}
+        {{- $tail := strings.TrimRight " \t" $code -}}
+        {{- $trail := or (hasSuffix $tail "\\") (gt (len (findRE `(\|\||&&|\||\bdo|\bthen|\belse|\{|\()$` $tail 1)) 0) -}}
+        {{- $opens := len (findRE `(?:^|[;&|(])\s*(?:for|while|until|if|case)\s|\{$` $tail -1) -}}
+        {{- $closes := len (findRE `(?:^|[;&|])\s*(?:done|fi|esac)(?:\s|;|$|\)|&|\|)|^\s*\}` $code -1) -}}
+        {{- $depth = add $depth (sub $opens $closes) -}}
+        {{- if lt $depth 0 }}{{ $depth = 0 }}{{ end -}}
+        {{- $cont = $trail -}}
+        {{- $contBS = hasSuffix $tail "\\" -}}
+        {{- /* a heredoc starts here: its body follows; whatever the start line went on with applies after its end */ -}}
+        {{- if and (findRE `<<` $code 1) (not (findRE `\$\(\(` $code 1)) -}}
+          {{- with findRESubmatch `(?:^|[^<])<<-?\s*['"]?([A-Za-z_][A-Za-z0-9_]*)['"]?` $l 1 -}}
+            {{- $heredoc = index (index . 0) 1 -}}
+            {{- $herePath = "" -}}
+            {{- $hereMode = "" -}}
+            {{- /* the target can sit on an earlier line of the same command (sudo tee FILE \ … <<EOF) */ -}}
+            {{- with findRESubmatch `\btee\s+((?:-{1,2}[A-Za-z-]+\s+)*)([^\s<>|&;\\-][^\s<>|&;\\]*)` $cmdText 1 -}}
+              {{- $herePath = index (index . 0) 2 -}}
+              {{- if findRE `(^|\s)(-a|--append)(\s|$)` (index (index . 0) 1) 1 }}{{ $hereMode = "append" }}{{ end -}}
+            {{- end -}}
+            {{- if not $herePath -}}
+              {{- range findRESubmatch `(?:^|[^0-9&>])(>>?)\s*([^\s<>|&;]+)` $cmdText -1 -}}
+                {{- if and (not $herePath) (ne (index . 2) "/dev/null") -}}
+                  {{- $herePath = index . 2 -}}
+                  {{- if eq (index . 1) ">>" }}{{ $hereMode = "append" }}{{ end -}}
+                {{- end -}}
+              {{- end -}}
+            {{- end -}}
+            {{- $herePath = replaceRE `^["']|["']$` "" $herePath -}}
+            {{- /* after the heredoc the command goes on if its start line did (&&, |) or left a $( or ( open */ -}}
+            {{- $afterHere = or $cont (gt (len (findRE `\(` $code -1)) (len (findRE `\)` $code -1))) -}}
+            {{- $cont = false -}}
+            {{- $contBS = false -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $roles = $roles | append $role -}}
+    {{- $conts = $conts | append $isCont -}}
+    {{- $files = $files | append $file -}}
+    {{- $modes = $modes | append $mode -}}
+    {{- if in (slice "out" "exp") $role -}}
+      {{- $src = $src | append (replaceRE `^(\s*#)[>~]` "$1" $l) -}}
+    {{- else -}}
+      {{- $src = $src | append $l -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $inner = delimit $src "\n" -}}
+{{- end -}}
+{{- $html := "" -}}
+{{- if and $lang (not (hasSuffix $inner "\n")) -}}
+  {{- $html = highlight (print $inner "\n") $lang .Options -}}
+{{- else if $shell -}}
+  {{- $html = highlight $inner $lang .Options -}}
+{{- else -}}
+  {{- $html = (transform.HighlightCodeBlock .).Wrapped -}}
+{{- end -}}
+{{- if in (slice "sh" "bash") $lang -}}
+  {{- $s := string $html -}}
+  {{- range seq 8 -}}
+    {{- $s = replaceRE `(<span class="cl">|</span>)([^<]*?\s)(--?[A-Za-z][A-Za-z0-9_-]*)` `${1}${2}<span class="na">${3}</span>` $s -}}
+  {{- end -}}
+  {{- $html = $s | safeHTML -}}
+{{- end -}}
+{{- if $shell -}}
+  {{- /* groups of output, described output and heredoc lines: their first and last line */ -}}
+  {{- $gid := 0 -}}
+  {{- $gids := slice -}}
+  {{- $prev := "" -}}
+  {{- $prevFile := "" -}}
+  {{- range $i, $r := $roles -}}
+    {{- $g := 0 -}}
+    {{- if in (slice "out" "exp" "here") $r -}}
+      {{- if or (ne $r $prev) (ne (index $files $i) $prevFile) -}}{{- $gid = add $gid 1 -}}{{- end -}}
+      {{- $g = $gid -}}
+    {{- end -}}
+    {{- $gids = $gids | append $g -}}
+    {{- $prev = $r -}}
+    {{- $prevFile = index $files $i -}}
+  {{- end -}}
+  {{- /* one part per line; a line Chroma highlights (hl_lines) keeps its extra class */ -}}
+  {{- $parts := split (string $html) `<span class="line` -}}
+  {{- $out := index $parts 0 -}}
+  {{- $n := len $roles -}}
+  {{- range $i, $p := after 1 $parts -}}
+    {{- $extra := "" -}}
+    {{- with findRESubmatch `(?s)^([^">]*)">(.*)$` $p 1 -}}
+      {{- $extra = index (index . 0) 1 -}}
+      {{- $p = index (index . 0) 2 -}}
+    {{- end -}}
+    {{- if lt $i $n -}}
+      {{- $r := index $roles $i -}}
+      {{- $g := index $gids $i -}}
+      {{- $cls := printf "line%s r-%s" $extra $r -}}
+      {{- if index $conts $i }}{{ $cls = print $cls " r-cont" }}{{ end -}}
+      {{- $attrs := "" -}}
+      {{- if gt $g 0 -}}
+        {{- $first := or (eq $i 0) (ne (index $gids (sub $i 1)) $g) -}}
+        {{- $last := or (eq (add $i 1) $n) (ne (index $gids (add $i 1)) $g) -}}
+        {{- $f := index $files $i -}}
+        {{- if $first }}{{ $cls = print $cls " r-first" }}{{ end -}}
+        {{- if $last }}{{ $cls = print $cls " r-last" }}{{ end -}}
+        {{- if $f }}{{ $cls = print $cls " r-file" }}{{ end -}}
+        {{- if $first -}}
+          {{- with $f }}{{ $attrs = print $attrs ` data-file="` (. | htmlEscape) `"` }}{{ end -}}
+          {{- with index $modes $i }}{{ $attrs = print $attrs ` data-mode="` . `"` }}{{ end -}}
+        {{- end -}}
+      {{- end -}}
+      {{- if in (slice "out" "exp" "com") $r -}}
+        {{- $p = replaceRE `^(<span class="cl">\s*<span class="c1?">)(#\s?)` `${1}<span class="pfx">${2}</span>` $p 1 -}}
+      {{- end -}}
+      {{- $out = print $out `<span class="` $cls `"` $attrs `>` $p -}}
+    {{- else -}}
+      {{- $out = print $out `<span class="line` $extra `">` $p -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $html = $out | safeHTML -}}
+{{- end -}}
+<div class="codeblock" data-lang="{{ $lang }}"{{ if $shell }} data-roles{{ end }}{{ with .Attributes.file }} data-file="{{ . }}"{{ end }}{{ with .Attributes.output }} data-output="{{ . }}"{{ end }}>
+{{ $html }}
+</div>

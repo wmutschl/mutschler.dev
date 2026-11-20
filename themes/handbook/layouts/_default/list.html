@@ -1,0 +1,27 @@
+{{ define "main" }}
+{{- $chapters := partialCached "handbook/chapters.html" . "chapters" -}}
+{{- $keys := slice -}}
+{{- range .RegularPages }}{{ with .File }}{{ $keys = $keys | append .ContentBaseName }}{{ end }}{{ end -}}
+{{- $nChapters := 0 -}}{{- $nEarlier := 0 -}}
+{{- range $chapters -}}
+  {{- if in $keys .key -}}
+    {{- if eq .kind "earlier" }}{{ $nEarlier = add $nEarlier 1 }}{{ else }}{{ $nChapters = add $nChapters 1 }}{{ end -}}
+  {{- end -}}
+{{- end }}
+<div class="page page--list">
+  <header class="pagehead">
+    <h1 class="pagehead__title">{{ .LinkTitle }}</h1>
+    <p class="pagehead__lead">
+      {{- if and (eq $nChapters 0) (eq $nEarlier 0) -}}
+      This section has no chapters yet.
+      {{- else -}}
+      The part of the <a href="{{ "/" | relURL }}#contents">contents</a> that lives in this section:
+      {{ $nChapters }}&nbsp;{{ cond (eq $nChapters 1) "chapter" "chapters" }}{{ if gt $nEarlier 0 }} and {{ $nEarlier }}&nbsp;{{ cond (eq $nEarlier 1) "earlier edition" "earlier editions" }}{{ end }}.
+      {{- end -}}
+    </p>
+  </header>
+  <div class="contents contents--section">
+    {{ partial "handbook/contents.html" (dict "ctx" . "keys" $keys "level" 2) }}
+  </div>
+</div>
+{{ end }}

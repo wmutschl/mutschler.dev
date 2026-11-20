@@ -1,0 +1,14 @@
+{{- /*
+  The page TOC (h2–h3) as nested lists, with Willi's section numbers ("3.1 …", "Step 2: …")
+  moved into their own span so they can align in a column. A space separates number and title in the text,
+  so screen readers and copied text do not run them together (the flex layout does not render it).
+  "Step" stays for screen readers; "(optional)" moves to the end of the entry.
+  No ids, so it can appear more than once on a page.
+  Usage: {{ partial "handbook/toc.html" . }}
+*/ -}}
+{{- $toc := partial "base/toc.html" . | string -}}
+{{- $toc = replaceRE `<a href="#([^"]+)">(?i:step)\s+(\d+[a-z]?)\s*\((?i:optional)\)\s*:\s*(.*?)</a>` `<a class="has-no" href="#${1}"><span class="tocno"><span class="vh">Step </span>${2}</span> <span class="toctext">${3} <span class="tocopt">(optional)</span></span></a>` $toc -}}
+{{- $toc = replaceRE `<a href="#([^"]+)">(?i:step)\s+(\d+[a-z]?)\s*:\s*(.*?)</a>` `<a class="has-no" href="#${1}"><span class="tocno"><span class="vh">Step </span>${2}</span> <span class="toctext">${3}</span></a>` $toc -}}
+{{- $toc = replaceRE `<a href="#([^"]+)">(\d+(?:\.\d+)*)\s+(.*?)</a>` `<a class="has-no" href="#${1}"><span class="tocno">${2}</span> <span class="toctext">${3}</span></a>` $toc -}}
+{{- $toc = replaceRE `<a href="#([^"]+)">([^<].*?)</a>` `<a href="#${1}"><span class="toctext">${2}</span></a>` $toc -}}
+{{- $toc | safeHTML -}}

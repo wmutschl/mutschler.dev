@@ -1,0 +1,31 @@
+{{- /* Search index: /index.json. Same fields as themes/base, plus the chapter number ("num"), its kind, and the anchor of every heading ("anchors", parallel to "headings"). Headings inside code fences are skipped. */ -}}
+{{- $items := slice -}}
+{{- range where site.RegularPages "Section" "in" (slice "linux" "apple" "stuff") -}}
+  {{- $g := partial "base/guide.html" . -}}
+  {{- $e := partial "handbook/entry-for.html" . -}}
+  {{- $raw := replaceRE "(?ms)^[ \\t]*```.*?^[ \\t]*```" "" .RawContent -}}
+  {{- $heads := slice -}}
+  {{- $anchors := slice -}}
+  {{- range findRE `(?m)^#{2,3} .+$` $raw -}}
+    {{- $h := replaceRE `^#{2,3} ` "" . | markdownify | plainify | htmlUnescape -}}
+    {{- $heads = $heads | append $h -}}
+    {{- $anchors = $anchors | append (anchorize $h) -}}
+  {{- end -}}
+  {{- $items = $items | append (dict
+    "title" .Title
+    "short" ($g.short | default .Title)
+    "url" .RelPermalink
+    "section" .Section
+    "platform" ($g.platformName | default "")
+    "status" ($g.status | default "")
+    "summary" (.Summary | plainify | htmlUnescape)
+    "tags" (.Params.tags | default slice)
+    "headings" $heads
+    "anchors" $anchors
+    "num" ($e.num | default "")
+    "kind" ($e.kind | default "")
+    "date" (.Date.Format "2006-01-02")
+    "updated" (.Lastmod.Format "2006-01-02")
+  ) -}}
+{{- end -}}
+{{- $items | jsonify -}}

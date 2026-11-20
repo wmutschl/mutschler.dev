@@ -1,0 +1,13 @@
+{{- /*
+  The contents entry (see handbook/chapters.html) for a page, or an empty dict when the page is not a chapter.
+  Usage: {{ $entry := partial "handbook/entry-for.html" . }}
+*/ -}}
+{{- $key := "" -}}
+{{- with .File }}{{ $key = .ContentBaseName }}{{ end -}}
+{{- $res := dict -}}
+{{- if $key -}}
+  {{- range partialCached "handbook/chapters.html" . "chapters" -}}
+    {{- if eq .key $key }}{{ $res = . }}{{ end -}}
+  {{- end -}}
+{{- end -}}
+{{- return $res -}}
