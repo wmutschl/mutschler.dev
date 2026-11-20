@@ -43,6 +43,8 @@ This is my hardware:
 
 I replace the RAM with the two 16 GB Corsair modules, one per SODIMM slot, and put the 2 TB Verbatim SSD into the M.2 slot for SATA SSDs; NVMe SSDs don't work in it.
 The built-in 32 GB eMMC stays where it is; I won't need it.
+Of the 32 GB of RAM, Linux uses only about 30 GB: the BIOS's memory type range registers (MTRRs) don't cover the top 2 GB, so the kernel leaves them unused and logs `WARNING: BIOS bug: CPU MTRRs don't cover all of memory, losing 2048MB of RAM` at every boot.
+That is harmless and costs only a little page cache; disabling SGX ([section 3.6](#36-intel-software-guard-extensions)) doesn't change it either.
 
 {{< callout note >}}
 **Be patient after the RAM upgrade.**
@@ -144,8 +146,8 @@ When you are done, click **Apply** to save the settings and **Exit** to restart.
 
 | Page | Setting | Note |
 |---|---|---|
-| **Intel SGX Enable** | **Enabled** | |
-| **Enclave Memory Size** | **128 MB** | |
+| **Intel SGX Enable** | **Disabled** | The BIOS locks SGX's launch control, so Linux can't run its own enclaves anyway and logs `SGX Launch Control is locked. Support SGX virtualization only`; disabling SGX gives back 256 MB of RAM that it would otherwise reserve |
+| **Enclave Memory Size** | No change | Only applies with SGX enabled |
 
 ### 3.7 Performance
 
