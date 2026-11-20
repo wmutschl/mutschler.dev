@@ -1,4 +1,5 @@
 ---
+codeRoles: true
 title: 'Dell Wyse 5070 Thin Client: RAM and SSD upgrade, BIOS update and BIOS settings for a home server'
 summary: >-
   How I prepared my Dell Wyse 5070 Thin Client as a home server: 32 GB RAM and a 2 TB M.2 SATA SSD, a BIOS update from a USB flash drive, and every BIOS setting I go through, from AHCI and Secure Boot to AC Recovery, Wake on LAN and the admin password.

@@ -162,36 +162,36 @@ Inspect first:
 
 ```sh
 lsblk -b -o NAME,SIZE,MODEL,SERIAL,TYPE,FSTYPE,MOUNTPOINTS
-# NAME                  SIZE MODEL          SERIAL          TYPE FSTYPE   MOUNTPOINTS
-# loop0           1335115776                                loop squashfs /rofs
-# loop1            156299264                                loop squashfs 
-# loop2             27041792                                loop squashfs 
-# loop3                98304                                loop squashfs 
-# loop4             70049792                                loop squashfs /snap/core24/1643
-# loop5              1581056                                loop squashfs /snap/hwctl/123
-# loop6             22769664                                loop squashfs /snap/subiquity/7403
-# loop7             52535296                                loop squashfs /snap/snapd/27710
-# sda          2048408248320 Verbatim Vi560 493653348990842 disk          
-# |-sda1          1073741824                                part vfat     
-# |-sda2          2147483648                                part ext4     
-# |-sda3          8589934592                                part swap     
-# `-sda4       2036595687424                                part btrfs    
-# sdb            62914560000 Twist Line     64847016        disk iso9660  
-# |-sdb1          2922217472                                part iso9660  /cdrom
-# |-sdb2             5271552                                part vfat     
-# |-sdb3              307200                                part          
-# `-sdb4         59983790080                                part ext4     /var/crash
-#                                                                         /var/log
-# mmcblk0        31268536320                0x3c238908      disk btrfs    
-# mmcblk0boot0       4194304                0x3c238908      disk btrfs    
-# mmcblk0boot1       4194304                0x3c238908      disk btrfs  
+#> NAME                  SIZE MODEL          SERIAL          TYPE FSTYPE   MOUNTPOINTS
+#> loop0           1335115776                                loop squashfs /rofs
+#> loop1            156299264                                loop squashfs 
+#> loop2             27041792                                loop squashfs 
+#> loop3                98304                                loop squashfs 
+#> loop4             70049792                                loop squashfs /snap/core24/1643
+#> loop5              1581056                                loop squashfs /snap/hwctl/123
+#> loop6             22769664                                loop squashfs /snap/subiquity/7403
+#> loop7             52535296                                loop squashfs /snap/snapd/27710
+#> sda          2048408248320 Verbatim Vi560 493653348990842 disk          
+#> |-sda1          1073741824                                part vfat     
+#> |-sda2          2147483648                                part ext4     
+#> |-sda3          8589934592                                part swap     
+#> `-sda4       2036595687424                                part btrfs    
+#> sdb            62914560000 Twist Line     64847016        disk iso9660  
+#> |-sdb1          2922217472                                part iso9660  /cdrom
+#> |-sdb2             5271552                                part vfat     
+#> |-sdb3              307200                                part          
+#> `-sdb4         59983790080                                part ext4     /var/crash
+#>                                                                         /var/log
+#> mmcblk0        31268536320                0x3c238908      disk btrfs    
+#> mmcblk0boot0       4194304                0x3c238908      disk btrfs    
+#> mmcblk0boot1       4194304                0x3c238908      disk btrfs  
 
 ls -l /dev/disk/by-id/ata-*
-# lrwxrwxrwx 1 root root  9 Nov 16 08:34 /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842 -> ../../sda
-# lrwxrwxrwx 1 root root 10 Nov 16 08:34 /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842-part1 -> ../../sda1
-# lrwxrwxrwx 1 root root 10 Nov 16 08:34 /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842-part2 -> ../../sda2
-# lrwxrwxrwx 1 root root 10 Nov 16 08:34 /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842-part3 -> ../../sda3
-# lrwxrwxrwx 1 root root 10 Nov 16 08:34 /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842-part4 -> ../../sda4
+#> lrwxrwxrwx 1 root root  9 Nov 16 08:34 /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842 -> ../../sda
+#> lrwxrwxrwx 1 root root 10 Nov 16 08:34 /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842-part1 -> ../../sda1
+#> lrwxrwxrwx 1 root root 10 Nov 16 08:34 /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842-part2 -> ../../sda2
+#> lrwxrwxrwx 1 root root 10 Nov 16 08:34 /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842-part3 -> ../../sda3
+#> lrwxrwxrwx 1 root root 10 Nov 16 08:34 /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842-part4 -> ../../sda4
 
 swapon --show # should print nothing
 ```
@@ -219,12 +219,12 @@ The installer's shell runs as root, so the commands need no `sudo`:
 # Set the target disk (whole disk, no -partN suffix) and confirm it is the right one
 DISK=/dev/disk/by-id/ata-Verbatim_Vi560_493653348990842
 lsblk -o NAME,MODEL,SERIAL,SIZE,FSTYPE,MOUNTPOINTS "$DISK"
-# NAME   MODEL          SERIAL           SIZE FSTYPE MOUNTPOINTS
-# sda    Verbatim Vi560 493653348990842  1.9T        
-# |-sda1                                   1G vfat   
-# |-sda2                                   2G ext4   
-# |-sda3                                   8G swap   
-# `-sda4                                 1.9T btrfs 
+#> NAME   MODEL          SERIAL           SIZE FSTYPE MOUNTPOINTS
+#> sda    Verbatim Vi560 493653348990842  1.9T        
+#> |-sda1                                   1G vfat   
+#> |-sda2                                   2G ext4   
+#> |-sda3                                   8G swap   
+#> `-sda4                                 1.9T btrfs 
 
 # Make sure nothing on the disk is mounted or used as swap
 swapoff -a
@@ -232,7 +232,7 @@ umount "$DISK"-part* 2>/dev/null
 
 # Discard all blocks and create the partitions
 blkdiscard -f "$DISK"
-# blkdiscard: Operation forced, data will be lost!
+#> blkdiscard: Operation forced, data will be lost!
 
 parted -s -a optimal "$DISK" mklabel gpt \
   mkpart wyse-efi fat32 1MiB 1025MiB set 1 esp on \
@@ -243,57 +243,57 @@ parted -s -a optimal "$DISK" mklabel gpt \
 partprobe "$DISK" # should print nothing, kernel should re-read the new partition table
 udevadm settle # should print nothing, udev should have processed all device events in the kernel queue
 lsblk -o NAME,SIZE,PARTLABEL,FSTYPE "$DISK"
-# NAME    SIZE PARTLABEL   FSTYPE
-# sda     1.9T             
-# |-sda1    1G wyse-efi    
-# |-sda2    2G wyse-boot   
-# |-sda3    8G wyse-swap   
-# `-sda4   64G wyse-system
+#> NAME    SIZE PARTLABEL   FSTYPE
+#> sda     1.9T             
+#> |-sda1    1G wyse-efi    
+#> |-sda2    2G wyse-boot   
+#> |-sda3    8G wyse-swap   
+#> `-sda4   64G wyse-system
 
 # Prepare the EFI partition
 mkfs.fat -F 32 -n WYSE_EFI "$DISK"-part1
-# mkfs.fat 4.2 (2021-01-31)
+#> mkfs.fat 4.2 (2021-01-31)
 
 # Prepare the boot partition
 mkfs.ext4 -F -L wyse-boot "$DISK"-part2
-# mke2fs 1.47.2 (1-Jan-2025)
-# Discarding device blocks: done                            
-# Creating filesystem with 524288 4k blocks and 131072 inodes
-# Filesystem UUID: 3158056c-ac6e-454c-828c-45422492f5fa
-# Superblock backups stored on blocks: 
-# 	32768, 98304, 163840, 229376, 294912
-# Allocating group tables: done                            
-# Writing inode tables: done                            
-# Creating journal (16384 blocks): done
-# Writing superblocks and filesystem accounting information: done 
+#> mke2fs 1.47.2 (1-Jan-2025)
+#> Discarding device blocks: done                            
+#> Creating filesystem with 524288 4k blocks and 131072 inodes
+#> Filesystem UUID: 3158056c-ac6e-454c-828c-45422492f5fa
+#> Superblock backups stored on blocks: 
+#> 	32768, 98304, 163840, 229376, 294912
+#> Allocating group tables: done                            
+#> Writing inode tables: done                            
+#> Creating journal (16384 blocks): done
+#> Writing superblocks and filesystem accounting information: done 
 
 # Prepare the swap partition
 mkswap -L wyse-swap "$DISK"-part3
-# Setting up swapspace version 1, size = 8 GiB (8589930496 bytes)
-# LABEL=wyse-swap, UUID=40b11619-8ecf-4eec-8a75-49e2d7bed28e
+#> Setting up swapspace version 1, size = 8 GiB (8589930496 bytes)
+#> LABEL=wyse-swap, UUID=40b11619-8ecf-4eec-8a75-49e2d7bed28e
 
 # Prepare the BTRFS partition (note that this is just 64 GiB for now)
 mkfs.btrfs -f -L wyse-system "$DISK"-part4
-# btrfs-progs v6.17.1
-# See https://btrfs.readthedocs.io for more information.
-# Performing full device TRIM /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842-part4 (64.00GiB) ...
-# Label:              wyse-system
-# UUID:               51c948e0-74f2-4f5c-b5e3-90b06f3b421f
-# Node size:          16384
-# Sector size:        4096	(CPU page size: 4096)
-# Filesystem size:    64.00GiB
-# Block group profiles:
-#   Data:             single            8.00MiB
-#   Metadata:         DUP               1.00GiB
-#   System:           DUP               8.00MiB
-# SSD detected:       yes
-# Zoned device:       no
-# Features:           extref, skinny-metadata, no-holes, free-space-tree
-# Checksum:           crc32c
-# Number of devices:  1
-# Devices:
-#    ID        SIZE  PATH                                                    
-#     1    64.00GiB  /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842-part4
+#> btrfs-progs v6.17.1
+#> See https://btrfs.readthedocs.io for more information.
+#> Performing full device TRIM /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842-part4 (64.00GiB) ...
+#> Label:              wyse-system
+#> UUID:               51c948e0-74f2-4f5c-b5e3-90b06f3b421f
+#> Node size:          16384
+#> Sector size:        4096	(CPU page size: 4096)
+#> Filesystem size:    64.00GiB
+#> Block group profiles:
+#>   Data:             single            8.00MiB
+#>   Metadata:         DUP               1.00GiB
+#>   System:           DUP               8.00MiB
+#> SSD detected:       yes
+#> Zoned device:       no
+#> Features:           extref, skinny-metadata, no-holes, free-space-tree
+#> Checksum:           crc32c
+#> Number of devices:  1
+#> Devices:
+#>    ID        SIZE  PATH                                                    
+#>     1    64.00GiB  /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842-part4
 
 # Create the BTRFS subvolumes
 TOP=$(mktemp -d) # temporary directory, e.g. /tmp/tmp.re3n0I61Ar
@@ -301,13 +301,13 @@ mount -o subvolid=5 "$DISK"-part4 "$TOP" # mount the top level of the filesystem
 for sub in @root @home @docker @containerd @nextcloud @ha-backups @snapshots; do
   btrfs subvolume create "$TOP/$sub"
 done
-# Create subvolume '/tmp/tmp.re3n0I61Ar/@root'
-# Create subvolume '/tmp/tmp.re3n0I61Ar/@home'
-# Create subvolume '/tmp/tmp.re3n0I61Ar/@docker'
-# Create subvolume '/tmp/tmp.re3n0I61Ar/@containerd'
-# Create subvolume '/tmp/tmp.re3n0I61Ar/@nextcloud'
-# Create subvolume '/tmp/tmp.re3n0I61Ar/@ha-backups'
-# Create subvolume '/tmp/tmp.re3n0I61Ar/@snapshots'
+#> Create subvolume '/tmp/tmp.re3n0I61Ar/@root'
+#> Create subvolume '/tmp/tmp.re3n0I61Ar/@home'
+#> Create subvolume '/tmp/tmp.re3n0I61Ar/@docker'
+#> Create subvolume '/tmp/tmp.re3n0I61Ar/@containerd'
+#> Create subvolume '/tmp/tmp.re3n0I61Ar/@nextcloud'
+#> Create subvolume '/tmp/tmp.re3n0I61Ar/@ha-backups'
+#> Create subvolume '/tmp/tmp.re3n0I61Ar/@snapshots'
 
 # Make @root the default subvolume and unmount
 btrfs subvolume set-default "$(btrfs inspect-internal rootid "$TOP/@root")" "$TOP"
@@ -316,7 +316,7 @@ umount "$TOP"
 # Verify: mounting without options must now show /@root
 mount "$DISK"-part4 "$TOP"
 findmnt -n -o FSROOT --target "$TOP"
-# /@root
+#> /@root
 umount "$TOP"
 rmdir "$TOP"
 ```
@@ -359,32 +359,32 @@ Reboot from the SSD and verify at the local console (or over SSH):
 
 ```sh
 findmnt -no SOURCE,FSTYPE,FSROOT /
-# /dev/sda4[/@root] btrfs /@root
+#> /dev/sda4[/@root] btrfs /@root
 findmnt /boot
-# TARGET SOURCE    FSTYPE OPTIONS
-# /boot  /dev/sda2 ext4   rw,relatime
+#> TARGET SOURCE    FSTYPE OPTIONS
+#> /boot  /dev/sda2 ext4   rw,relatime
 findmnt /boot/efi
-# TARGET    SOURCE    FSTYPE OPTIONS
-# /boot/efi /dev/sda1 vfat   rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,errors=remount-ro
+#> TARGET    SOURCE    FSTYPE OPTIONS
+#> /boot/efi /dev/sda1 vfat   rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,errors=remount-ro
 swapon --show
-# NAME      TYPE      SIZE USED PRIO
-# /dev/sda3 partition   8G   0B   -1
+#> NAME      TYPE      SIZE USED PRIO
+#> /dev/sda3 partition   8G   0B   -1
 lsblk -o NAME,SIZE,MODEL,SERIAL,FSTYPE,MOUNTPOINTS
-# NAME          SIZE MODEL          SERIAL          FSTYPE   MOUNTPOINTS
-# loop0         1.5M                                squashfs /snap/hwctl/123
-# loop1        66.8M                                squashfs /snap/core24/1643
-# loop2        50.1M                                squashfs /snap/snapd/27710
-# loop3        32.5M                                squashfs /snap/snapd/28332
-# loop4          74M                                squashfs /snap/core22/3129
-# loop5        13.2M                                squashfs /snap/canonical-livepatch/418
-# sda           1.9T Verbatim Vi560 493653348990842          
-# ├─sda1          1G                                vfat     /boot/efi
-# ├─sda2          2G                                ext4     /boot
-# ├─sda3          8G                                swap     [SWAP]
-# └─sda4         64G                                btrfs    /
-# mmcblk0      29.1G                0x3c238908      btrfs    
-# mmcblk0boot0    4M                                         
-# mmcblk0boot1    4M
+#> NAME          SIZE MODEL          SERIAL          FSTYPE   MOUNTPOINTS
+#> loop0         1.5M                                squashfs /snap/hwctl/123
+#> loop1        66.8M                                squashfs /snap/core24/1643
+#> loop2        50.1M                                squashfs /snap/snapd/27710
+#> loop3        32.5M                                squashfs /snap/snapd/28332
+#> loop4          74M                                squashfs /snap/core22/3129
+#> loop5        13.2M                                squashfs /snap/canonical-livepatch/418
+#> sda           1.9T Verbatim Vi560 493653348990842          
+#> ├─sda1          1G                                vfat     /boot/efi
+#> ├─sda2          2G                                ext4     /boot
+#> ├─sda3          8G                                swap     [SWAP]
+#> └─sda4         64G                                btrfs    /
+#> mmcblk0      29.1G                0x3c238908      btrfs    
+#> mmcblk0boot0    4M                                         
+#> mmcblk0boot1    4M
 ```
 
 Root must be BTRFS with **`/@root`**.
@@ -402,8 +402,8 @@ Listing `dracut` explicitly makes sure of that: it replaces `initramfs-tools` if
 sudo apt update
 sudo apt install --no-install-recommends cryptsetup systemd-cryptsetup dracut dracut-network
 dpkg-query -W -f='${Package} ${db:Status-Abbrev}\n' dracut initramfs-tools
-# dracut ii 
-# initramfs-tools un
+#> dracut ii 
+#> initramfs-tools un
 ```
 
 `dracut` must show `ii`.
@@ -449,24 +449,24 @@ SYS="$DISK"-part4
 
 # Check that this is the prepared BTRFS partition and that nothing is mounted or used as swap
 lsblk -o NAME,SIZE,PARTLABEL,FSTYPE,LABEL,MOUNTPOINTS "$DISK"
-# NAME    SIZE PARTLABEL   FSTYPE LABEL       MOUNTPOINTS
-# sda     1.9T                                
-# |-sda1    1G wyse-efi    vfat   WYSE_EFI    
-# |-sda2    2G wyse-boot   ext4               
-# |-sda3    8G wyse-swap   swap               
-# `-sda4   64G wyse-system btrfs  wyse-system
+#> NAME    SIZE PARTLABEL   FSTYPE LABEL       MOUNTPOINTS
+#> sda     1.9T                                
+#> |-sda1    1G wyse-efi    vfat   WYSE_EFI    
+#> |-sda2    2G wyse-boot   ext4               
+#> |-sda3    8G wyse-swap   swap               
+#> `-sda4   64G wyse-system btrfs  wyse-system
 swapoff -a
 
 # Remember the BTRFS UUID; it must survive the encryption
 POOL_UUID=$(blkid -o value -s UUID "$SYS")
 echo "$POOL_UUID"
-# 51c948e0-74f2-4f5c-b5e3-90b06f3b421f
+#> 51c948e0-74f2-4f5c-b5e3-90b06f3b421f
 
 # Make room: mount the top level, shrink the BTRFS pool by 1 GiB and unmount
 MNT=$(mktemp -d)
 mount -o subvolid=5 "$SYS" "$MNT"
 btrfs filesystem resize -1G "$MNT"
-# Resize device id 1 (/dev/sda4) from 64.00GiB to 63.00GiB
+#> Resize device id 1 (/dev/sda4) from 64.00GiB to 63.00GiB
 umount "$MNT"
 
 # Encrypt the partition in place (takes about 6 minutes).
@@ -474,14 +474,14 @@ umount "$MNT"
 # If interrupted with Ctrl-C, continue with: cryptsetup reencrypt --resume-only "$SYS".
 # After a crash or power loss, set DISK and SYS again and run cryptsetup repair "$SYS" first.
 cryptsetup reencrypt --encrypt --type luks2 --reduce-device-size 32M "$SYS"
-# WARNING!
-# ========
-# This will overwrite data on LUKS2-temp-b06d573e-c4d7-4696-80e5-58d2ce2bf9a3.new irrevocably.
-# 
-# Are you sure? (Type 'yes' in capital letters): YES
-# Enter passphrase for LUKS2-temp-b06d573e-c4d7-4696-80e5-58d2ce2bf9a3.new: 
-# Verify passphrase: 
-# Finished, time 06m18s,   63 GiB written, speed 172.9 MiB/s
+#> WARNING!
+#> ========
+#> This will overwrite data on LUKS2-temp-b06d573e-c4d7-4696-80e5-58d2ce2bf9a3.new irrevocably.
+#> 
+#> Are you sure? (Type 'yes' in capital letters): YES
+#> Enter passphrase for LUKS2-temp-b06d573e-c4d7-4696-80e5-58d2ce2bf9a3.new: 
+#> Verify passphrase: 
+#> Finished, time 06m18s,   63 GiB written, speed 172.9 MiB/s
 
 # Change the LUKS label
 cryptsetup config --label wyse-system-luks "$SYS"
@@ -499,9 +499,9 @@ btrfs filesystem resize max "$MNT"
 
 # Verify: the BTRFS UUID must be unchanged (both lines must be identical)
 findmnt -n -o UUID --target "$MNT"
-# 51c948e0-74f2-4f5c-b5e3-90b06f3b421f
+#> 51c948e0-74f2-4f5c-b5e3-90b06f3b421f
 echo "$POOL_UUID"
-# 51c948e0-74f2-4f5c-b5e3-90b06f3b421f
+#> 51c948e0-74f2-4f5c-b5e3-90b06f3b421f
 umount "$MNT"
 
 # Mount the installed system (default subvolume @root), /boot and /boot/efi
@@ -520,7 +520,7 @@ done
 LUKS_UUID=$(cryptsetup luksUUID "$SYS")
 SWAP_PARTUUID=$(blkid -o value -s PARTUUID "$DISK"-part3)
 echo "$LUKS_UUID" "$SWAP_PARTUUID"
-# b06d573e-c4d7-4696-80e5-58d2ce2bf9a3 86bab1f0-4492-4e4a-a859-b0bdb6b6286a
+#> b06d573e-c4d7-4696-80e5-58d2ce2bf9a3 86bab1f0-4492-4e4a-a859-b0bdb6b6286a
 
 # Back up fstab, then replace the installer's swap line with the encrypted swap
 cp -a "$MNT/etc/fstab" "$MNT/etc/fstab.before-luks"
@@ -547,8 +547,8 @@ chroot "$MNT" update-initramfs -u -k all
 for v in $(chroot "$MNT" linux-version list); do
   chroot "$MNT" lsinitrd -f etc/crypttab "/boot/initrd.img-$v" | grep '^wyse-system '
 done
-# wyse-system /dev/disk/by-uuid/b06d573e-c4d7-4696-80e5-58d2ce2bf9a3 none luks,discard,x-initrd.attach
-# wyse-system /dev/disk/by-uuid/b06d573e-c4d7-4696-80e5-58d2ce2bf9a3 none luks,discard,x-initrd.attach
+#> wyse-system /dev/disk/by-uuid/b06d573e-c4d7-4696-80e5-58d2ce2bf9a3 none luks,discard,x-initrd.attach
+#> wyse-system /dev/disk/by-uuid/b06d573e-c4d7-4696-80e5-58d2ce2bf9a3 none luks,discard,x-initrd.attach
 
 # Clean up and close the LUKS container
 umount -R "$MNT"
@@ -570,43 +570,43 @@ After booting, check the result:
 
 ```sh
 findmnt -no SOURCE,FSTYPE,FSROOT /
-# /dev/mapper/wyse-system[/@root] btrfs /@root
+#> /dev/mapper/wyse-system[/@root] btrfs /@root
 
 lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINTS
-# NAME             SIZE TYPE  FSTYPE      MOUNTPOINTS
-# loop0           13.2M loop  squashfs    /snap/canonical-livepatch/418
-# loop1             74M loop  squashfs    /snap/core22/3129
-# loop2           66.8M loop  squashfs    /snap/core24/1643
-# loop3           50.1M loop  squashfs    /snap/snapd/27710
-# loop4            1.5M loop  squashfs    /snap/hwctl/123
-# loop5           32.5M loop  squashfs    /snap/snapd/28332
-# sda              1.9T disk              
-# ├─sda1             1G part  vfat        /boot/efi
-# ├─sda2             2G part  ext4        /boot
-# ├─sda3             8G part              
-# │ └─wyse-swap      8G crypt swap        [SWAP]
-# └─sda4           1.9T part  crypto_LUKS 
-#   └─wyse-system  1.9T crypt btrfs       /
-# mmcblk0         29.1G disk  btrfs       
-# mmcblk0boot0       4M disk              
-# mmcblk0boot1       4M disk
+#> NAME             SIZE TYPE  FSTYPE      MOUNTPOINTS
+#> loop0           13.2M loop  squashfs    /snap/canonical-livepatch/418
+#> loop1             74M loop  squashfs    /snap/core22/3129
+#> loop2           66.8M loop  squashfs    /snap/core24/1643
+#> loop3           50.1M loop  squashfs    /snap/snapd/27710
+#> loop4            1.5M loop  squashfs    /snap/hwctl/123
+#> loop5           32.5M loop  squashfs    /snap/snapd/28332
+#> sda              1.9T disk              
+#> ├─sda1             1G part  vfat        /boot/efi
+#> ├─sda2             2G part  ext4        /boot
+#> ├─sda3             8G part              
+#> │ └─wyse-swap      8G crypt swap        [SWAP]
+#> └─sda4           1.9T part  crypto_LUKS 
+#>   └─wyse-system  1.9T crypt btrfs       /
+#> mmcblk0         29.1G disk  btrfs       
+#> mmcblk0boot0       4M disk              
+#> mmcblk0boot1       4M disk
 
 sudo cryptsetup status wyse-system
-# /dev/mapper/wyse-system is active and is in use.
-#   type:    LUKS2
-#   cipher:  aes-xts-plain64
-#   keysize: 512 [bits]
-#   key location: keyring
-#   device:  /dev/sda4
-#   sector size:  512 [bytes]
-#   offset:  32768 [512-byte units] (16777216 [bytes])
-#   size:    3977693839 [512-byte units] (2036579245568 [bytes])
-#   mode:    read/write
-#   flags:   discards 
+#> /dev/mapper/wyse-system is active and is in use.
+#>   type:    LUKS2
+#>   cipher:  aes-xts-plain64
+#>   keysize: 512 [bits]
+#>   key location: keyring
+#>   device:  /dev/sda4
+#>   sector size:  512 [bytes]
+#>   offset:  32768 [512-byte units] (16777216 [bytes])
+#>   size:    3977693839 [512-byte units] (2036579245568 [bytes])
+#>   mode:    read/write
+#>   flags:   discards 
 
 swapon --show
-# NAME      TYPE      SIZE USED PRIO
-# /dev/dm-1 partition   8G   0B   -1
+#> NAME      TYPE      SIZE USED PRIO
+#> /dev/dm-1 partition   8G   0B   -1
 ```
 
 Expected output:
@@ -661,43 +661,43 @@ sudo apt install --no-install-recommends btrfs-progs -y
 # Read the UUID of the BTRFS pool that holds /
 POOL_UUID=$(findmnt -n -o UUID /)
 echo "$POOL_UUID"
-# 51c948e0-74f2-4f5c-b5e3-90b06f3b421f
+#> 51c948e0-74f2-4f5c-b5e3-90b06f3b421f
 
 # Create the mount points and mount the top level of the pool (subvolid=5)
 sudo mkdir -p /mnt/wyse-top /var/lib/docker /var/lib/containerd /srv/nextcloud /srv/ha-backups
 sudo mount -o subvolid=5 "UUID=$POOL_UUID" /mnt/wyse-top
 ls /mnt/wyse-top
-# @containerd  @docker  @ha-backups  @home  @nextcloud  @root  @snapshots
+#> @containerd  @docker  @ha-backups  @home  @nextcloud  @root  @snapshots
 
 # Check that the target directories and the new @home subvolume are empty
 ls -A /mnt/wyse-top/@home /var/lib/docker /var/lib/containerd /srv/nextcloud /srv/ha-backups
-# /mnt/wyse-top/@home:
-# /srv/ha-backups:
-# /srv/nextcloud:
-# /var/lib/containerd:
-# /var/lib/docker:
+#> /mnt/wyse-top/@home:
+#> /srv/ha-backups:
+#> /srv/nextcloud:
+#> /var/lib/containerd:
+#> /var/lib/docker:
 
 # Copy the initial home directory, including hidden files and imported keys, into @home
 sudo cp -a --reflink=auto /home/. /mnt/wyse-top/@home/
 sudo ls -la /mnt/wyse-top/@home
-# total 16
-# drwxr-xr-x 1 root     root      16 Nov 16 08:53 .
-# drwxr-xr-x 1 root     root     118 Nov 16 08:42 ..
-# drwxr-x--- 1 wmutschl wmutschl 100 Nov 16 09:46 wmutschl
+#> total 16
+#> drwxr-xr-x 1 root     root      16 Nov 16 08:53 .
+#> drwxr-xr-x 1 root     root     118 Nov 16 08:42 ..
+#> drwxr-x--- 1 wmutschl wmutschl 100 Nov 16 09:46 wmutschl
 
 # Back up fstab and unmount the top level again
 sudo cp -a /etc/fstab /etc/fstab.before-nextcloud
 sudo umount /mnt/wyse-top
 
 cat /etc/fstab
-# # <file system> <mount point>   <type>  <options>       <dump>  <pass>
-# # / was on /dev/sda4 during curtin installation
-# /dev/disk/by-uuid/51c948e0-74f2-4f5c-b5e3-90b06f3b421f / btrfs defaults 0 1
-# # /boot was on /dev/sda2 during curtin installation
-# /dev/disk/by-uuid/b6f36e34-7f7a-4443-8c7c-09e168af28e4 /boot ext4 defaults 0 1
-# # /boot/efi was on /dev/sda1 during curtin installation
-# /dev/disk/by-uuid/1271-8172 /boot/efi vfat defaults 0 1
-# /dev/mapper/wyse-swap  none  swap  sw  0 0
+#> # <file system> <mount point>   <type>  <options>       <dump>  <pass>
+#> # / was on /dev/sda4 during curtin installation
+#> /dev/disk/by-uuid/51c948e0-74f2-4f5c-b5e3-90b06f3b421f / btrfs defaults 0 1
+#> # /boot was on /dev/sda2 during curtin installation
+#> /dev/disk/by-uuid/b6f36e34-7f7a-4443-8c7c-09e168af28e4 /boot ext4 defaults 0 1
+#> # /boot/efi was on /dev/sda1 during curtin installation
+#> /dev/disk/by-uuid/1271-8172 /boot/efi vfat defaults 0 1
+#> /dev/mapper/wyse-swap  none  swap  sw  0 0
 
 # Replace the installer's root entry (the btrfs line for /) with one that selects the @root subvolume
 sudo sed -i -E "s|^[^#[:space:]]+[[:space:]]+/[[:space:]]+btrfs[[:space:]].*|UUID=$POOL_UUID  /  btrfs  defaults,noatime,subvol=@root,compress=zstd:3  0 0|" /etc/fstab
@@ -714,17 +714,17 @@ EOF
 
 # Show the result
 cat /etc/fstab
-# # <file system> <mount point>   <type>  <options>       <dump>  <pass>
-# UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /  btrfs  defaults,noatime,subvol=@root,compress=zstd:3  0 0
-# /dev/disk/by-uuid/b6f36e34-7f7a-4443-8c7c-09e168af28e4 /boot ext4 defaults 0 1
-# /dev/disk/by-uuid/1271-8172 /boot/efi vfat defaults 0 1
-# /dev/mapper/wyse-swap  none  swap  sw  0 0
-# UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /home                btrfs  defaults,noatime,subvol=@home,compress=zstd:3        0 0
-# UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /var/lib/docker      btrfs  defaults,noatime,subvol=@docker,compress=zstd:3      0 0
-# UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /var/lib/containerd  btrfs  defaults,noatime,subvol=@containerd,compress=zstd:3  0 0
-# UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /srv/nextcloud       btrfs  defaults,noatime,subvol=@nextcloud,compress=zstd:3   0 0
-# UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /srv/ha-backups      btrfs  defaults,noatime,subvol=@ha-backups,compress=zstd:3  0 0
-# UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /mnt/wyse-top        btrfs  defaults,noatime,subvolid=5,compress=zstd:3          0 0
+#> # <file system> <mount point>   <type>  <options>       <dump>  <pass>
+#> UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /  btrfs  defaults,noatime,subvol=@root,compress=zstd:3  0 0
+#> /dev/disk/by-uuid/b6f36e34-7f7a-4443-8c7c-09e168af28e4 /boot ext4 defaults 0 1
+#> /dev/disk/by-uuid/1271-8172 /boot/efi vfat defaults 0 1
+#> /dev/mapper/wyse-swap  none  swap  sw  0 0
+#> UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /home                btrfs  defaults,noatime,subvol=@home,compress=zstd:3        0 0
+#> UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /var/lib/docker      btrfs  defaults,noatime,subvol=@docker,compress=zstd:3      0 0
+#> UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /var/lib/containerd  btrfs  defaults,noatime,subvol=@containerd,compress=zstd:3  0 0
+#> UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /srv/nextcloud       btrfs  defaults,noatime,subvol=@nextcloud,compress=zstd:3   0 0
+#> UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /srv/ha-backups      btrfs  defaults,noatime,subvol=@ha-backups,compress=zstd:3  0 0
+#> UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /mnt/wyse-top        btrfs  defaults,noatime,subvolid=5,compress=zstd:3          0 0
 ```
 
 Check the output of `cat /etc/fstab`:
@@ -745,7 +745,7 @@ Validate and mount before proceeding:
 ```sh
 sudo systemctl daemon-reload
 sudo findmnt --verify --verbose
-# Success, no errors or warnings detected
+#> Success, no errors or warnings detected
 sudo mount /home
 sudo mount /var/lib/docker
 sudo mount /var/lib/containerd
@@ -753,19 +753,19 @@ sudo mount /srv/nextcloud
 sudo mount /srv/ha-backups
 sudo mount /mnt/wyse-top
 findmnt -t btrfs -o TARGET,FSROOT,OPTIONS
-# TARGET                FSROOT       OPTIONS
-# /                     /@root       rw,relatime,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@root
-# ├─/home               /@home       rw,noatime,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home
-# ├─/var/lib/docker     /@docker     rw,noatime,ssd,discard=async,space_cache=v2,subvolid=258,subvol=/@docker
-# ├─/var/lib/containerd /@containerd rw,noatime,ssd,discard=async,space_cache=v2,subvolid=259,subvol=/@containerd
-# ├─/srv/nextcloud      /@nextcloud  rw,noatime,ssd,discard=async,space_cache=v2,subvolid=260,subvol=/@nextcloud
-# ├─/srv/ha-backups     /@ha-backups rw,noatime,ssd,discard=async,space_cache=v2,subvolid=261,subvol=/@ha-backups
-# └─/mnt/wyse-top       /            rw,noatime,ssd,discard=async,space_cache=v2,subvolid=5,subvol=/
+#> TARGET                FSROOT       OPTIONS
+#> /                     /@root       rw,relatime,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/@root
+#> ├─/home               /@home       rw,noatime,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home
+#> ├─/var/lib/docker     /@docker     rw,noatime,ssd,discard=async,space_cache=v2,subvolid=258,subvol=/@docker
+#> ├─/var/lib/containerd /@containerd rw,noatime,ssd,discard=async,space_cache=v2,subvolid=259,subvol=/@containerd
+#> ├─/srv/nextcloud      /@nextcloud  rw,noatime,ssd,discard=async,space_cache=v2,subvolid=260,subvol=/@nextcloud
+#> ├─/srv/ha-backups     /@ha-backups rw,noatime,ssd,discard=async,space_cache=v2,subvolid=261,subvol=/@ha-backups
+#> └─/mnt/wyse-top       /            rw,noatime,ssd,discard=async,space_cache=v2,subvolid=5,subvol=/
 ls -la /home
-# total 0
-# drwxr-xr-x 1 root     root      16 Nov 16 08:53 .
-# drwxr-xr-x 1 root     root     150 Nov 16 08:48 ..
-# drwxr-x--- 1 wmutschl wmutschl 100 Nov 16 09:46 wmutschl
+#> total 0
+#> drwxr-xr-x 1 root     root      16 Nov 16 08:53 .
+#> drwxr-xr-x 1 root     root     150 Nov 16 08:48 ..
+#> drwxr-x--- 1 wmutschl wmutschl 100 Nov 16 09:46 wmutschl
 ```
 
 Confirm that every path maps to its intended subvolume and that the administrator's home kept its owner.
@@ -785,12 +785,12 @@ This is optional, and the data is tiny, but it frees the hidden copy and avoids 
 ```sh
 # /home must come from the @home subvolume
 findmnt -no FSROOT /home
-# /@home
+#> /@home
 
 # Compare the original (hidden) home on @root with the live home on @home
 sudo diff -r /mnt/wyse-top/@root/home/"$USER" /home/"$USER"
-# no output means identical; small differences in .bash_history, .cache or .local are expected
-# because you have used the shell since the copy; files missing from /home/$USER (e.g. under .ssh) are not
+#~ no output means identical; small differences in .bash_history, .cache or .local are expected
+#~ because you have used the shell since the copy; files missing from /home/$USER (e.g. under .ssh) are not
 ```
 
 Only if `/home` shows `/@home` and nothing important is missing from `/home/$USER`, it is safe to delete the hidden copy.
@@ -804,7 +804,7 @@ sudo find /mnt/wyse-top/@root/home/"$USER" -mindepth 1 -delete
 # Verify: the hidden directory is empty and your real home is untouched
 sudo ls -A /mnt/wyse-top/@root/home/"$USER" # no output
 ls -A /home/"$USER"
-# .bash_history  .bash_logout  .bashrc  .cache  .profile  .ssh
+#> .bash_history  .bash_logout  .bashrc  .cache  .profile  .ssh
 ```
 {{< /callout >}}
 
@@ -832,22 +832,22 @@ sudo tee /etc/apt/apt.conf.d/52-local-reboot-policy >/dev/null <<'APT'
 Unattended-Upgrade::Automatic-Reboot "false";
 APT
 apt-config dump | grep Automatic-Reboot
-# Unattended-Upgrade::Automatic-Reboot "false";
+#> Unattended-Upgrade::Automatic-Reboot "false";
 
 # Check that the automatic update timers are scheduled
 systemctl list-timers 'apt-daily*'
-# apt-daily.timer and apt-daily-upgrade.timer, each with a NEXT time
+#~ apt-daily.timer and apt-daily-upgrade.timer, each with a NEXT time
 
 # Enable the weekly TRIM for the SSD and check it
 sudo systemctl enable --now fstrim.timer
 systemctl list-timers fstrim.timer
-# fstrim.timer with a NEXT time
+#~ fstrim.timer with a NEXT time
 
 # Check that AppArmor is running
 systemctl is-active apparmor
-# active
+#> active
 sudo aa-status | grep apparmor
-# apparmor module is loaded.
+#> apparmor module is loaded.
 
 # Set the time zone to Europe/Berlin
 sudo timedatectl set-timezone Europe/Berlin
@@ -871,11 +871,11 @@ DISK=/dev/disk/by-id/ata-Verbatim_Vi560_493653348990842
 
 # Quick health verdict
 sudo smartctl -H "$DISK"
-# SMART overall-health self-assessment test result: PASSED
+#> SMART overall-health self-assessment test result: PASSED
 
 # Full report: look at the error log and the attributes
 sudo smartctl -a "$DISK"
-# no entries in the error log, and no reallocated, pending or uncorrectable sectors
+#~ no entries in the error log, and no reallocated, pending or uncorrectable sectors
 ```
 
 {{< callout note >}}
@@ -884,10 +884,10 @@ sudo smartctl -a "$DISK"
 ```sh
 sudo smartctl -t short "$DISK"    # wait about 2 minutes
 sudo smartctl -l selftest "$DISK"
-# === START OF READ SMART DATA SECTION ===
-# SMART Self-test log structure revision number 1
-# Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
-# # 1  Short offline       Completed without error       00%     24998         -
+#> === START OF READ SMART DATA SECTION ===
+#> SMART Self-test log structure revision number 1
+#> Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
+#> # 1  Short offline       Completed without error       00%     24998         -
 ```
 {{< /callout >}}
 
@@ -912,25 +912,25 @@ The Livepatch status should report the running kernel as supported.
 
 ```sh
 pro status
-# SERVICE          ENTITLED  STATUS       DESCRIPTION
-# anbox-cloud      yes       disabled     Scalable Android in the cloud
-# esm-apps         yes       enabled      Expanded Security Maintenance for Applications
-# esm-infra        yes       enabled      Expanded Security Maintenance for Infrastructure
-# landscape        yes       disabled     Management and administration tool for Ubuntu
-# livepatch        yes       enabled      Canonical Livepatch service
+#> SERVICE          ENTITLED  STATUS       DESCRIPTION
+#> anbox-cloud      yes       disabled     Scalable Android in the cloud
+#> esm-apps         yes       enabled      Expanded Security Maintenance for Applications
+#> esm-infra        yes       enabled      Expanded Security Maintenance for Infrastructure
+#> landscape        yes       disabled     Management and administration tool for Ubuntu
+#> livepatch        yes       enabled      Canonical Livepatch service
 
 sudo canonical-livepatch status --verbose
-# last check: 10 minutes ago
-# kernel: 7.0.0-43.43-generic
-# server check-in: succeeded
-# kernel state: ✓ kernel series 7.0 is covered by Livepatch
-# patch state: ✓ no livepatches available for kernel 7.0.0-43.43-generic
-# tier: updates (Free usage; This machine beta tests new patches.)
-# machine id: XYZ
-# client version: v11.1.0
-# architecture: amd64
-# cpu model: Intel(R) Celeron(R) J4105 CPU @ 1.50GHz
-# boot time: 12 minutes ago
+#> last check: 10 minutes ago
+#> kernel: 7.0.0-43.43-generic
+#> server check-in: succeeded
+#> kernel state: ✓ kernel series 7.0 is covered by Livepatch
+#> patch state: ✓ no livepatches available for kernel 7.0.0-43.43-generic
+#> tier: updates (Free usage; This machine beta tests new patches.)
+#> machine id: XYZ
+#> client version: v11.1.0
+#> architecture: amd64
+#> cpu model: Intel(R) Celeron(R) J4105 CPU @ 1.50GHz
+#> boot time: 12 minutes ago
 ```
 
 ### 5.3 The scripts repository
@@ -995,13 +995,13 @@ cd ~/scripts/Dell-Wyse-Thin-Client-5070
 sudo install -D -m 0644 etc/ssh/sshd_config.d/00-local-hardening.conf /etc/ssh/sshd_config.d/00-local-hardening.conf
 sudo sshd -t && sudo systemctl reload ssh
 sudo sshd -T | grep -E '^(permitrootlogin|pubkeyauthentication|passwordauthentication|kbdinteractiveauthentication|x11forwarding|allowagentforwarding|allowtcpforwarding) '
-# permitrootlogin no
-# pubkeyauthentication yes
-# passwordauthentication no
-# kbdinteractiveauthentication no
-# x11forwarding no
-# allowtcpforwarding local
-# allowagentforwarding no
+#> permitrootlogin no
+#> pubkeyauthentication yes
+#> passwordauthentication no
+#> kbdinteractiveauthentication no
+#> x11forwarding no
+#> allowtcpforwarding local
+#> allowagentforwarding no
 ```
 
 Local TCP forwarding remains enabled for the break-glass tunnel to the Nextcloud AIO interface.
@@ -1019,27 +1019,27 @@ sudo ufw default allow outgoing
 sudo ufw allow in on enp1s0 from 192.168.178.0/24 to any port 22 proto tcp
 sudo ufw enable
 sudo ufw status verbose
-# Status: active
-# Logging: on (low)
-# Default: deny (incoming), allow (outgoing), disabled (routed)
-# New profiles: skip
-# To                         Action      From
-# --                         ------      ----
-# 22/tcp on enp1s0           ALLOW IN    192.168.178.0/24 
+#> Status: active
+#> Logging: on (low)
+#> Default: deny (incoming), allow (outgoing), disabled (routed)
+#> New profiles: skip
+#> To                         Action      From
+#> --                         ------      ----
+#> 22/tcp on enp1s0           ALLOW IN    192.168.178.0/24 
 
 # List every port the machine is listening on, together with the program that owns it
 sudo ss -lntup
-# Netid        State         Recv-Q        Send-Q                                    Local Address:Port                Peer Address:Port        Process                                                         
-# udp          UNCONN        0             0                                            127.0.0.54:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=18))                     
-# udp          UNCONN        0             0                                         127.0.0.53%lo:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=16))                     
-# udp          UNCONN        0             0                                 192.168.178.55%enp1s0:68                       0.0.0.0:*            users:(("systemd-network",pid=1784,fd=37))                     
-# udp          UNCONN        0             0                                             127.0.0.1:323                      0.0.0.0:*            users:(("chronyd",pid=1946,fd=4))                              
-# udp          UNCONN        0             0                                                 [::1]:323                         [::]:*            users:(("chronyd",pid=1946,fd=5))                              
-# udp          UNCONN        0             0                    [fe80::2e0:4cff:fe00:55]%enp1s0:546                         [::]:*            users:(("systemd-network",pid=1784,fd=36))                     
-# tcp          LISTEN        0             4096                                            0.0.0.0:22                       0.0.0.0:*            users:(("sshd",pid=7164,fd=3),("systemd",pid=1,fd=194))        
-# tcp          LISTEN        0             4096                                      127.0.0.53%lo:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=17))                     
-# tcp          LISTEN        0             4096                                         127.0.0.54:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=19))                     
-# tcp          LISTEN        0             4096                                               [::]:22                          [::]:*            users:(("sshd",pid=7164,fd=4),("systemd",pid=1,fd=195))        
+#> Netid        State         Recv-Q        Send-Q                                    Local Address:Port                Peer Address:Port        Process                                                         
+#> udp          UNCONN        0             0                                            127.0.0.54:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=18))                     
+#> udp          UNCONN        0             0                                         127.0.0.53%lo:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=16))                     
+#> udp          UNCONN        0             0                                 192.168.178.55%enp1s0:68                       0.0.0.0:*            users:(("systemd-network",pid=1784,fd=37))                     
+#> udp          UNCONN        0             0                                             127.0.0.1:323                      0.0.0.0:*            users:(("chronyd",pid=1946,fd=4))                              
+#> udp          UNCONN        0             0                                                 [::1]:323                         [::]:*            users:(("chronyd",pid=1946,fd=5))                              
+#> udp          UNCONN        0             0                    [fe80::2e0:4cff:fe00:55]%enp1s0:546                         [::]:*            users:(("systemd-network",pid=1784,fd=36))                     
+#> tcp          LISTEN        0             4096                                            0.0.0.0:22                       0.0.0.0:*            users:(("sshd",pid=7164,fd=3),("systemd",pid=1,fd=194))        
+#> tcp          LISTEN        0             4096                                      127.0.0.53%lo:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=17))                     
+#> tcp          LISTEN        0             4096                                         127.0.0.54:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=19))                     
+#> tcp          LISTEN        0             4096                                               [::]:22                          [::]:*            users:(("sshd",pid=7164,fd=4),("systemd",pid=1,fd=195))        
 ```
 
 Then confirm from the Mac that a new SSH connection still gets through.
@@ -1054,12 +1054,12 @@ Two deny rules drop them just as before, only without the log lines, because at 
 sudo ufw deny in on enp1s0 from 192.168.178.1 to 224.0.0.1 proto igmp comment 'IGMP queries from the router'
 sudo ufw deny in on enp1s0 to any port 53805 proto udp comment 'FRITZ mesh discovery'
 sudo ufw status verbose
-# To                         Action      From
-# --                         ------      ----
-# 22/tcp on enp1s0           ALLOW IN    192.168.178.0/24
-# 224.0.0.1/igmp on enp1s0   DENY IN     192.168.178.1/igmp         # IGMP queries from the router
-# 53805/udp on enp1s0        DENY IN     Anywhere                   # FRITZ mesh discovery
-# 53805/udp (v6) on enp1s0   DENY IN     Anywhere (v6)              # FRITZ mesh discovery
+#> To                         Action      From
+#> --                         ------      ----
+#> 22/tcp on enp1s0           ALLOW IN    192.168.178.0/24
+#> 224.0.0.1/igmp on enp1s0   DENY IN     192.168.178.1/igmp         # IGMP queries from the router
+#> 53805/udp on enp1s0        DENY IN     Anywhere                   # FRITZ mesh discovery
+#> 53805/udp (v6) on enp1s0   DENY IN     Anywhere (v6)              # FRITZ mesh discovery
 ```
 
 What is left in the log then deserves a look, and the kernel's ring buffer, which `dmesg` reads, no longer runs over within hours.
@@ -1086,32 +1086,32 @@ Finally, check which services run on the host:
 
 ```sh
 systemctl --type=service --state=running
-# UNIT                                                  LOAD   ACTIVE SUB     DESCRIPTION                                                      
-#   
-# chrony.service                                        loaded active running chrony, an NTP client/server
-# dbus.service                                          loaded active running D-Bus System Message Bus
-# getty@tty1.service                                    loaded active running Getty on tty1
-# multipathd.service                                    loaded active running Device-Mapper Multipath Device Controller
-# networkd-dispatcher.service                           loaded active running Dispatcher daemon for systemd-networkd
-# polkit.service                                        loaded active running Authorization Manager
-# smartmontools.service                                 loaded active running Self Monitoring and Reporting Technology (SMART) Daemon
-# snap.canonical-livepatch.canonical-livepatchd.service loaded active running Service for snap application canonical-livepatch.canonical-livepatchd
-# snapd.service                                         loaded active running Snap Daemon
-# ssh.service                                           loaded active running OpenBSD Secure Shell server
-# systemd-journald.service                              loaded active running Journal Service
-# systemd-logind.service                                loaded active running User Login Management
-# systemd-networkd.service                              loaded active running Network Management
-# systemd-resolved.service                              loaded active running Network Name Resolution
-# systemd-udevd.service                                 loaded active running Rule-based Manager for Device Events and Files
-# thermald.service                                      loaded active running Thermal Daemon Service
-# unattended-upgrades.service                           loaded active running Unattended Upgrades Shutdown
-# user@1000.service                                     loaded active running User Manager for UID 1000
-# 
-# Legend: LOAD   → Reflects whether the unit definition was properly loaded.
-#       ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
-#       SUB    → The low-level unit activation state, values depend on unit type.
-# 
-# 18 loaded units listed.
+#> UNIT                                                  LOAD   ACTIVE SUB     DESCRIPTION                                                      
+#>   
+#> chrony.service                                        loaded active running chrony, an NTP client/server
+#> dbus.service                                          loaded active running D-Bus System Message Bus
+#> getty@tty1.service                                    loaded active running Getty on tty1
+#> multipathd.service                                    loaded active running Device-Mapper Multipath Device Controller
+#> networkd-dispatcher.service                           loaded active running Dispatcher daemon for systemd-networkd
+#> polkit.service                                        loaded active running Authorization Manager
+#> smartmontools.service                                 loaded active running Self Monitoring and Reporting Technology (SMART) Daemon
+#> snap.canonical-livepatch.canonical-livepatchd.service loaded active running Service for snap application canonical-livepatch.canonical-livepatchd
+#> snapd.service                                         loaded active running Snap Daemon
+#> ssh.service                                           loaded active running OpenBSD Secure Shell server
+#> systemd-journald.service                              loaded active running Journal Service
+#> systemd-logind.service                                loaded active running User Login Management
+#> systemd-networkd.service                              loaded active running Network Management
+#> systemd-resolved.service                              loaded active running Network Name Resolution
+#> systemd-udevd.service                                 loaded active running Rule-based Manager for Device Events and Files
+#> thermald.service                                      loaded active running Thermal Daemon Service
+#> unattended-upgrades.service                           loaded active running Unattended Upgrades Shutdown
+#> user@1000.service                                     loaded active running User Manager for UID 1000
+#> 
+#> Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+#>       ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+#>       SUB    → The low-level unit activation state, values depend on unit type.
+#> 
+#> 18 loaded units listed.
 ```
 
 This installation needs no graphical login, printing, FTP, database or web server on the host; Nextcloud AIO brings its own database and web server in containers.
@@ -1147,7 +1147,7 @@ git clone https://github.com/gsauthof/dracut-sshd.git ~/dracut-sshd
 cd ~/dracut-sshd
 git checkout 0.7.1
 git rev-parse HEAD
-# 777c87cf7b34d24df55a66b4d5beed1300d63a1b
+#> 777c87cf7b34d24df55a66b4d5beed1300d63a1b
 cat 46sshd/module-setup.sh
 sudo cp -R 46sshd /usr/lib/dracut/modules.d/
 ```
@@ -1173,14 +1173,14 @@ sudo update-initramfs -u -k all
 
 # Check the running kernel's initrd: it must list sshd, authorized_keys and systemd-networkd
 sudo lsinitrd /boot/initrd.img-"$(uname -r)" | grep -E 'bin/sshd$|authorized_keys$|systemd-networkd$'
-# systemd-networkd
-# -rw-------   1 root     root          270 Nov 16 12:18 root/.ssh/authorized_keys
-# -rwxr-xr-x   1 root     root      1891048 Sep 16 16:55 usr/lib/systemd/systemd-networkd
-# -rwxr-xr-x   1 root     root       408536 Oct  8 18:36 usr/sbin/sshd
+#> systemd-networkd
+#> -rw-------   1 root     root          270 Nov 16 12:18 root/.ssh/authorized_keys
+#> -rwxr-xr-x   1 root     root      1891048 Sep 16 16:55 usr/lib/systemd/systemd-networkd
+#> -rwxr-xr-x   1 root     root       408536 Oct  8 18:36 usr/sbin/sshd
 
 # Show the initrd host key's fingerprint, to compare at the first unlock from the Mac
 ssh-keygen -lf /etc/ssh/dracut_ssh_host_ed25519_key.pub
-# 256 SHA256:FWGJEnymGxa1563p16MDF0GPqw5ALgTDDxsAzQbGrZM dell-wyse-initrd (ED25519)
+#> 256 SHA256:FWGJEnymGxa1563p16MDF0GPqw5ALgTDDxsAzQbGrZM dell-wyse-initrd (ED25519)
 ```
 
 Keep in mind:
@@ -1193,7 +1193,7 @@ Keep in mind:
 
 On your **Mac**, add two host entries to `~/.ssh/config`:
 
-```sshconfig
+```sshconfig {file="~/.ssh/config"}
 Host dell-wyse-lan
     HostName 192.168.178.55
     User wmutschl
@@ -1223,20 +1223,20 @@ Wait half a minute, then connect from the **Mac** and compare the fingerprint wi
 
 ```sh
 ssh dell-wyse-unlock
-# The authenticity of host 'dell-wyse-initrd (192.168.178.55)' can't be established.
-# ED25519 key fingerprint is: SHA256:FWGJEnymGxa1563p16MDF0GPqw5ALgTDDxsAzQbGrZM
-# This key is not known by any other names.
-# Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-# Warning: Permanently added 'dell-wyse-initrd' (ED25519) to the list of known hosts.
-# 
-# Welcome to the early boot SSH environment. You may type
-# 
-#     systemd-tty-ask-password-agent
-# 
-# (or press "arrow up") to unlock your disks.
-# 
-# This shell will terminate automatically a few seconds after the
-# unlocking process has succeeded and when the boot proceeds.
+#> The authenticity of host 'dell-wyse-initrd (192.168.178.55)' can't be established.
+#> ED25519 key fingerprint is: SHA256:FWGJEnymGxa1563p16MDF0GPqw5ALgTDDxsAzQbGrZM
+#> This key is not known by any other names.
+#> Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+#> Warning: Permanently added 'dell-wyse-initrd' (ED25519) to the list of known hosts.
+#> 
+#> Welcome to the early boot SSH environment. You may type
+#> 
+#>     systemd-tty-ask-password-agent
+#> 
+#> (or press "arrow up") to unlock your disks.
+#> 
+#> This shell will terminate automatically a few seconds after the
+#> unlocking process has succeeded and when the boot proceeds.
 ```
 
 In the initrd's shell, answer the prompt:
@@ -1252,7 +1252,7 @@ The output must name `/run/systemd/network/10-netplan-enp1s0.network`:
 
 ```sh
 networkctl status enp1s0 | grep 'Network File'
-# Network File: /run/systemd/network/10-netplan-enp1s0.network
+#> Network File: /run/systemd/network/10-netplan-enp1s0.network
 ```
 
 **Every reboot from now on** ends the same way.
@@ -1299,14 +1299,14 @@ On **Ubuntu**:
 
 ```sh
 findmnt -t btrfs -o TARGET,FSROOT,FSTYPE
-# TARGET                FSROOT       FSTYPE
-# /                     /@root       btrfs
-# ├─/home               /@home       btrfs
-# ├─/mnt/wyse-top       /            btrfs
-# ├─/srv/nextcloud      /@nextcloud  btrfs
-# ├─/srv/ha-backups     /@ha-backups btrfs
-# ├─/var/lib/docker     /@docker     btrfs
-# └─/var/lib/containerd /@containerd btrfs
+#> TARGET                FSROOT       FSTYPE
+#> /                     /@root       btrfs
+#> ├─/home               /@home       btrfs
+#> ├─/mnt/wyse-top       /            btrfs
+#> ├─/srv/nextcloud      /@nextcloud  btrfs
+#> ├─/srv/ha-backups     /@ha-backups btrfs
+#> ├─/var/lib/docker     /@docker     btrfs
+#> └─/var/lib/containerd /@containerd btrfs
 # Continue only if every path is mounted from the subvolume shown above
 
 sudo install -d -m 0755 /srv/nextcloud/data
@@ -1353,19 +1353,19 @@ Check the result:
 ```sh
 # Docker Engine 29 and the Compose plugin
 sudo docker version --format '{{.Server.Version}}'
-# 29.9.3
+#> 29.9.3
 sudo docker compose version --short
-# 5.7.1
+#> 5.7.1
 
 # Storage: overlayfs through the containerd image store
 sudo docker info --format '{{.Driver}} {{json .DriverStatus}}'
-# overlayfs [["driver-type","io.containerd.snapshotter.v1"]]
+#> overlayfs [["driver-type","io.containerd.snapshotter.v1"]]
 
 # Logging: the repository's daemon.json is valid and in use
 sudo dockerd --validate --config-file=/etc/docker/daemon.json
-# configuration OK
+#> configuration OK
 sudo docker info --format '{{.LoggingDriver}}'
-# local
+#> local
 
 # A first container
 sudo docker run --rm hello-world
@@ -1420,12 +1420,12 @@ sudo apt install --no-install-recommends btrbk samba cryptsetup parted -y
 
 # Disable BTRBK's own timer, if the package ships one; the dell-wyse-* timers replace it
 systemctl list-unit-files 'btrbk*'
-# UNIT FILE     STATE   PRESET 
-# btrbk.service static  -      
-# btrbk.timer   enabled enabled
-# 2 unit files listed.
+#> UNIT FILE     STATE   PRESET 
+#> btrbk.service static  -      
+#> btrbk.timer   enabled enabled
+#> 2 unit files listed.
 sudo systemctl disable --now btrbk.timer
-# Removed '/etc/systemd/system/timers.target.wants/btrbk.timer'.
+#> Removed '/etc/systemd/system/timers.target.wants/btrbk.timer'.
 
 # Copy the configuration, units and scripts from the repository
 cd ~/scripts/Dell-Wyse-Thin-Client-5070
@@ -1530,8 +1530,8 @@ To see which hub each disk is on:
 lsusb -t
 for d in /sys/block/sd?; do readlink -f $d | tr / '\n' | grep -E '^[0-9]+-[0-9.]+$' | tail -1 |
   sed "s/^/$(basename $d) $(cat $d/device/model) -> /"; done
-# sdb Elements 2621    -> 2-1.1
-# sdc External USB 3.0 -> 2-6.2
+#> sdb Elements 2621    -> 2-1.1
+#> sdc External USB 3.0 -> 2-6.2
 ```
 
 `2-1.x` is the rear hub and `2-6.x` the front one; both should show 5000M in `lsusb -t`.
@@ -1594,19 +1594,19 @@ Enter the commands one by one in the same terminal session, because they rely on
 ```sh
 # List the disks and their by-id paths; identify both HDDs by model, serial and size
 lsblk -o NAME,SIZE,MODEL,SERIAL,FSTYPE,MOUNTPOINTS
-# sdb              5.5T WDC WD60NDZW-11C8XS0 WD-WX62D343TDXJ             
-# ├─sdb1           200M                                      vfat        
-# └─sdb2           5.5T                                      apfs        
-# sdc              3.6T TOSHIBA MQ04UBB400   X0S7T0TWT                   
-# ├─sdc1           200M                                      vfat        
-# └─sdc2           3.6T                                      apfs        
+#> sdb              5.5T WDC WD60NDZW-11C8XS0 WD-WX62D343TDXJ             
+#> ├─sdb1           200M                                      vfat        
+#> └─sdb2           5.5T                                      apfs        
+#> sdc              3.6T TOSHIBA MQ04UBB400   X0S7T0TWT                   
+#> ├─sdc1           200M                                      vfat        
+#> └─sdc2           3.6T                                      apfs        
 ls -l /dev/disk/by-id/usb-*
-# lrwxrwxrwx 1 root root  9 Nov 16 13:29 /dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0 -> ../../sdc
-# lrwxrwxrwx 1 root root 10 Nov 16 13:29 /dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0-part1 -> ../../sdc1
-# lrwxrwxrwx 1 root root 10 Nov 16 13:29 /dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0-part2 -> ../../sdc2
-# lrwxrwxrwx 1 root root  9 Nov 16 13:29 /dev/disk/by-id/usb-WD_Elements_2621_57583632443334335444584A-0:0 -> ../../sdb
-# lrwxrwxrwx 1 root root 10 Nov 16 13:29 /dev/disk/by-id/usb-WD_Elements_2621_57583632443334335444584A-0:0-part1 -> ../../sdb1
-# lrwxrwxrwx 1 root root 10 Nov 16 13:29 /dev/disk/by-id/usb-WD_Elements_2621_57583632443334335444584A-0:0-part2 -> ../../sdb2
+#> lrwxrwxrwx 1 root root  9 Nov 16 13:29 /dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0 -> ../../sdc
+#> lrwxrwxrwx 1 root root 10 Nov 16 13:29 /dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0-part1 -> ../../sdc1
+#> lrwxrwxrwx 1 root root 10 Nov 16 13:29 /dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0-part2 -> ../../sdc2
+#> lrwxrwxrwx 1 root root  9 Nov 16 13:29 /dev/disk/by-id/usb-WD_Elements_2621_57583632443334335444584A-0:0 -> ../../sdb
+#> lrwxrwxrwx 1 root root 10 Nov 16 13:29 /dev/disk/by-id/usb-WD_Elements_2621_57583632443334335444584A-0:0-part1 -> ../../sdb1
+#> lrwxrwxrwx 1 root root 10 Nov 16 13:29 /dev/disk/by-id/usb-WD_Elements_2621_57583632443334335444584A-0:0-part2 -> ../../sdb2
 
 # Set the whole-disk paths of both HDDs (no -partN suffix; use the TAB key to complete the path)
 HDD1=/dev/disk/by-id/usb-WD_Elements_2621_57583632443334335444584A-0:0
@@ -1614,13 +1614,13 @@ HDD2=/dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0
 
 # Confirm the choice: both disks with the expected model, serial and size, and nothing mounted
 lsblk -o NAME,MODEL,SERIAL,SIZE,FSTYPE,MOUNTPOINTS "$HDD1" "$HDD2"
-# NAME   MODEL                SERIAL           SIZE FSTYPE MOUNTPOINTS
-# sdb    WDC WD60NDZW-11C8XS0 WD-WX62D343TDXJ  5.5T        
-# ├─sdb1                                       200M vfat   
-# └─sdb2                                       5.5T apfs   
-# sdc    TOSHIBA MQ04UBB400   X0S7T0TWT        3.6T        
-# ├─sdc1                                       200M vfat   
-# └─sdc2                                       3.6T apfs  
+#> NAME   MODEL                SERIAL           SIZE FSTYPE MOUNTPOINTS
+#> sdb    WDC WD60NDZW-11C8XS0 WD-WX62D343TDXJ  5.5T        
+#> ├─sdb1                                       200M vfat   
+#> └─sdb2                                       5.5T apfs   
+#> sdc    TOSHIBA MQ04UBB400   X0S7T0TWT        3.6T        
+#> ├─sdc1                                       200M vfat   
+#> └─sdc2                                       3.6T apfs  
 
 ```
 
@@ -1646,23 +1646,23 @@ sudo cryptsetup luksAddKey "$HDD1"-part1 /etc/cryptsetup-keys.d/wyse-btrbk.key
 # Open HDD 1 with the keyfile, create its BTRFS filesystem and close it again
 sudo cryptsetup open --key-file /etc/cryptsetup-keys.d/wyse-btrbk.key "$HDD1"-part1 wyse-btrbk
 sudo mkfs.btrfs -L wyse-btrbk /dev/mapper/wyse-btrbk
-# Label:              wyse-btrbk
-# UUID:               4b86cac9-cb64-4b82-aae3-05808b66c6ec
-# Node size:          16384
-# Sector size:        4096	(CPU page size: 4096)
-# Filesystem size:    5.46TiB
-# Block group profiles:
-#   Data:             single            8.00MiB
-#   Metadata:         DUP               1.00GiB
-#   System:           DUP               8.00MiB
-# SSD detected:       no
-# Zoned device:       no
-# Features:           extref, skinny-metadata, no-holes, free-space-tree
-# Checksum:           crc32c
-# Number of devices:  1
-# Devices:
-#    ID        SIZE  PATH                  
-#     1     5.46TiB  /dev/mapper/wyse-btrbk
+#> Label:              wyse-btrbk
+#> UUID:               4b86cac9-cb64-4b82-aae3-05808b66c6ec
+#> Node size:          16384
+#> Sector size:        4096	(CPU page size: 4096)
+#> Filesystem size:    5.46TiB
+#> Block group profiles:
+#>   Data:             single            8.00MiB
+#>   Metadata:         DUP               1.00GiB
+#>   System:           DUP               8.00MiB
+#> SSD detected:       no
+#> Zoned device:       no
+#> Features:           extref, skinny-metadata, no-holes, free-space-tree
+#> Checksum:           crc32c
+#> Number of devices:  1
+#> Devices:
+#>    ID        SIZE  PATH                  
+#>     1     5.46TiB  /dev/mapper/wyse-btrbk
 sudo cryptsetup close wyse-btrbk
 ```
 
@@ -1679,23 +1679,23 @@ sudo wipefs -a "$HDD2"-part1
 
 # Create HDD 2's BTRFS filesystem, without LUKS
 sudo mkfs.btrfs -L wyse-borg "$HDD2"-part1
-# Label:              wyse-borg
-# UUID:               63bbf56c-2f0e-48f8-a527-7bd66b4c3aa0
-# Node size:          16384
-# Sector size:        4096	(CPU page size: 4096)
-# Filesystem size:    3.64TiB
-# Block group profiles:
-#   Data:             single            8.00MiB
-#   Metadata:         DUP               1.00GiB
-#   System:           DUP               8.00MiB
-# SSD detected:       no
-# Zoned device:       no
-# Features:           extref, skinny-metadata, no-holes, free-space-tree
-# Checksum:           crc32c
-# Number of devices:  1
-# Devices:
-#    ID        SIZE  PATH                                                                  
-#     1     3.64TiB  /dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0-part1
+#> Label:              wyse-borg
+#> UUID:               63bbf56c-2f0e-48f8-a527-7bd66b4c3aa0
+#> Node size:          16384
+#> Sector size:        4096	(CPU page size: 4096)
+#> Filesystem size:    3.64TiB
+#> Block group profiles:
+#>   Data:             single            8.00MiB
+#>   Metadata:         DUP               1.00GiB
+#>   System:           DUP               8.00MiB
+#> SSD detected:       no
+#> Zoned device:       no
+#> Features:           extref, skinny-metadata, no-holes, free-space-tree
+#> Checksum:           crc32c
+#> Number of devices:  1
+#> Devices:
+#>    ID        SIZE  PATH                                                                  
+#>     1     3.64TiB  /dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0-part1
 ```
 
 Check the result:
@@ -1703,11 +1703,11 @@ Check the result:
 ```sh
 # Verify: partition btrbk holds crypto_LUKS (wyse-btrbk-luks), partition borg holds btrfs (wyse-borg)
 lsblk -o NAME,SIZE,PARTLABEL,FSTYPE,LABEL "$HDD1" "$HDD2"
-# NAME    SIZE PARTLABEL FSTYPE      LABEL
-# sdb     5.5T                       
-# └─sdb1  5.5T btrbk     crypto_LUKS wyse-btrbk-luks
-# sdc     3.6T                       
-# └─sdc1  3.6T borg      btrfs       wyse-borg
+#> NAME    SIZE PARTLABEL FSTYPE      LABEL
+#> sdb     5.5T                       
+#> └─sdb1  5.5T btrbk     crypto_LUKS wyse-btrbk-luks
+#> sdc     3.6T                       
+#> └─sdc1  3.6T borg      btrfs       wyse-borg
 ```
 
 {{< callout note >}}
@@ -1742,11 +1742,11 @@ HDD2=/dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0
 
 # Confirm: partition btrbk holds crypto_LUKS (wyse-btrbk-luks), partition borg holds btrfs (wyse-borg)
 lsblk -o NAME,SIZE,PARTLABEL,FSTYPE,LABEL "$HDD1" "$HDD2"
-# NAME    SIZE PARTLABEL FSTYPE      LABEL
-# sdb     5.5T                       
-# └─sdb1  5.5T btrbk     crypto_LUKS wyse-btrbk-luks
-# sdc     3.6T                       
-# └─sdc1  3.6T borg      btrfs       wyse-borg
+#> NAME    SIZE PARTLABEL FSTYPE      LABEL
+#> sdb     5.5T                       
+#> └─sdb1  5.5T btrbk     crypto_LUKS wyse-btrbk-luks
+#> sdc     3.6T                       
+#> └─sdc1  3.6T borg      btrfs       wyse-borg
 ```
 
 HDD 1's keyfile went with the old SSD, but a copy sits inside HDD 1's newest `@root` backup.
@@ -1820,7 +1820,7 @@ sudo install -d -m 0755 /mnt/btrbk /mnt/backup
 sudo chattr +i /mnt/btrbk /mnt/backup
 # The keyfile must open slot 1, which the crypttab line below relies on
 sudo cryptsetup open --test-passphrase --key-slot 1 --key-file /etc/cryptsetup-keys.d/wyse-btrbk.key "$HDD1"-part1 && echo 'slot 1 ok'
-# slot 1 ok
+#> slot 1 ok
 luks_uuid=$(sudo cryptsetup luksUUID "$HDD1"-part1)
 echo "wyse-btrbk  UUID=$luks_uuid  /etc/cryptsetup-keys.d/wyse-btrbk.key  luks,key-slot=1,nofail,x-systemd.device-timeout=10s" |
   sudo tee -a /etc/crypttab
@@ -1834,16 +1834,16 @@ sudo systemctl daemon-reload
 sudo systemctl start mnt-btrbk.mount mnt-backup.mount
 
 sudo findmnt --verify --verbose
-# Success, no errors or warnings detected
+#> Success, no errors or warnings detected
 findmnt /mnt/btrbk
-# TARGET     SOURCE                 FSTYPE OPTIONS
-# /mnt/btrbk /dev/mapper/wyse-btrbk btrfs  rw,noatime,compress=zstd:3,space_cache=v2,subvolid=5,subvol=/
+#> TARGET     SOURCE                 FSTYPE OPTIONS
+#> /mnt/btrbk /dev/mapper/wyse-btrbk btrfs  rw,noatime,compress=zstd:3,space_cache=v2,subvolid=5,subvol=/
 findmnt /mnt/backup
-# TARGET      SOURCE    FSTYPE OPTIONS
-# /mnt/backup /dev/sdc1 btrfs  rw,noatime,space_cache=v2,subvolid=5,subvol=/
+#> TARGET      SOURCE    FSTYPE OPTIONS
+#> /mnt/backup /dev/sdc1 btrfs  rw,noatime,space_cache=v2,subvolid=5,subvol=/
 # HDD 1's LUKS mapping passes cache flushes on to the disk
 cat "/sys/block/$(basename "$(readlink -f /dev/mapper/wyse-btrbk)")/queue/write_cache"
-# write back
+#> write back
 
 sudo install -d -m 0700 /mnt/btrbk/wyse
 ```
@@ -1860,12 +1860,12 @@ Check the configuration and send the first copies:
 sudo btrbk dryrun
 sudo btrbk run
 sudo btrbk list latest
-# SOURCE_SUBVOLUME           SNAPSHOT_SUBVOLUME                                  STATUS      TARGET_SUBVOLUME
-# /mnt/wyse-top/@root        /mnt/wyse-top/@snapshots/@root.20261116T1355        -           /mnt/btrbk/wyse/@root.20261116T1355
-# /mnt/wyse-top/@home        /mnt/wyse-top/@snapshots/@home.20261116T1355        up-to-date  /mnt/btrbk/wyse/@home.20261116T1355
-# /mnt/wyse-top/@docker      /mnt/wyse-top/@snapshots/@docker.20261116T1355      up-to-date  /mnt/btrbk/wyse/@docker.20261116T1355
-# /mnt/wyse-top/@nextcloud   /mnt/wyse-top/@snapshots/@nextcloud.20261116T1355   up-to-date  /mnt/btrbk/wyse/@nextcloud.20261116T1355
-# /mnt/wyse-top/@ha-backups  /mnt/wyse-top/@snapshots/@ha-backups.20261116T1355  up-to-date  /mnt/btrbk/wyse/@ha-backups.20261116T1355
+#> SOURCE_SUBVOLUME           SNAPSHOT_SUBVOLUME                                  STATUS      TARGET_SUBVOLUME
+#> /mnt/wyse-top/@root        /mnt/wyse-top/@snapshots/@root.20261116T1355        -           /mnt/btrbk/wyse/@root.20261116T1355
+#> /mnt/wyse-top/@home        /mnt/wyse-top/@snapshots/@home.20261116T1355        up-to-date  /mnt/btrbk/wyse/@home.20261116T1355
+#> /mnt/wyse-top/@docker      /mnt/wyse-top/@snapshots/@docker.20261116T1355      up-to-date  /mnt/btrbk/wyse/@docker.20261116T1355
+#> /mnt/wyse-top/@nextcloud   /mnt/wyse-top/@snapshots/@nextcloud.20261116T1355   up-to-date  /mnt/btrbk/wyse/@nextcloud.20261116T1355
+#> /mnt/wyse-top/@ha-backups  /mnt/wyse-top/@snapshots/@ha-backups.20261116T1355  up-to-date  /mnt/btrbk/wyse/@ha-backups.20261116T1355
 ```
 
 The first `run` sends complete copies.
@@ -1880,7 +1880,7 @@ The Wyse's RAM buffers gigabytes of it, and every transaction commit then waits 
 Everything else on this filesystem queues up behind it: `btrfs receive` waits for every metadata block it has to read from the disk, and the kernel's writeback workers wait for the locks it holds meanwhile.
 Whenever a task waits for more than two minutes, the kernel logs a warning with a call trace, for example:
 
-```text
+```text {output="Kernel log"}
 INFO: task btrfs-transacti:70941 blocked for more than 122 seconds.
 INFO: task btrfs:736623 blocked for more than 122 seconds.
 INFO: task kworker/u16:9:736341 <writer> blocked on an rw-semaphore likely owned by task btrfs:736623 <writer>
@@ -1922,10 +1922,10 @@ It finds today's copies already on HDD 1, finishes in seconds and creates the ch
 sudo systemctl enable --now dell-wyse-btrbk-snapshot.timer dell-wyse-btrbk-send.timer
 sudo systemctl start dell-wyse-btrbk-send.service
 systemctl list-timers 'dell-wyse-*'
-# NEXT                            LEFT LAST                             PASSED UNIT                            ACTIVATES                        
-# Mon 2026-11-16 14:00:00 CET 2min 48s Mon 2026-11-16 13:55:07 CET 2min 4s ago dell-wyse-alive.timer          dell-wyse-alive.service
-# Mon 2026-11-16 14:00:00 CET 2min 48s -                                     - dell-wyse-btrbk-snapshot.timer dell-wyse-btrbk-snapshot.service
-# Tue 2026-11-17 01:30:00 CET      11h -                                     - dell-wyse-btrbk-send.timer     dell-wyse-btrbk-send.service
+#> NEXT                            LEFT LAST                             PASSED UNIT                            ACTIVATES                        
+#> Mon 2026-11-16 14:00:00 CET 2min 48s Mon 2026-11-16 13:55:07 CET 2min 4s ago dell-wyse-alive.timer          dell-wyse-alive.service
+#> Mon 2026-11-16 14:00:00 CET 2min 48s -                                     - dell-wyse-btrbk-snapshot.timer dell-wyse-btrbk-snapshot.service
+#> Tue 2026-11-17 01:30:00 CET      11h -                                     - dell-wyse-btrbk-send.timer     dell-wyse-btrbk-send.service
 ```
 
 {{< callout note >}}
@@ -2030,20 +2030,20 @@ sudo systemctl restart smbd
 
 sudo ufw allow in on enp1s0 from 192.168.178.50 to any port 445 proto tcp
 sudo ufw status verbose
-# To                         Action      From
-# --                         ------      ----
-# 22/tcp on enp1s0           ALLOW IN    192.168.178.0/24          
-# 224.0.0.1/igmp on enp1s0   DENY IN     192.168.178.1/igmp         # IGMP queries from the router
-# 53805/udp on enp1s0        DENY IN     Anywhere                   # FRITZ mesh discovery
-# 445/tcp on enp1s0          ALLOW IN    192.168.178.50 
-# 53805/udp (v6) on enp1s0   DENY IN     Anywhere (v6)              # FRITZ mesh discovery
+#> To                         Action      From
+#> --                         ------      ----
+#> 22/tcp on enp1s0           ALLOW IN    192.168.178.0/24          
+#> 224.0.0.1/igmp on enp1s0   DENY IN     192.168.178.1/igmp         # IGMP queries from the router
+#> 53805/udp on enp1s0        DENY IN     Anywhere                   # FRITZ mesh discovery
+#> 445/tcp on enp1s0          ALLOW IN    192.168.178.50 
+#> 53805/udp (v6) on enp1s0   DENY IN     Anywhere (v6)              # FRITZ mesh discovery
 
 sudo ss -lntup | grep -E ':(139|445) '
-# tcp   LISTEN 0      50                                  127.0.0.1:445       0.0.0.0:*    users:(("smbd",pid=8739,fd=31))                        
-# tcp   LISTEN 0      50                             192.168.178.55:445       0.0.0.0:*    users:(("smbd",pid=8739,fd=28))                        
-# tcp   LISTEN 0      50                                      [::1]:445          [::]:*    users:(("smbd",pid=8739,fd=32))                        
-# tcp   LISTEN 0      50                            [fd00:db8::55]:445          [::]:*    users:(("smbd",pid=8739,fd=29))                        
-# tcp   LISTEN 0      50                           [2001:db8::55]:445          [::]:*    users:(("smbd",pid=8739,fd=30))   
+#> tcp   LISTEN 0      50                                  127.0.0.1:445       0.0.0.0:*    users:(("smbd",pid=8739,fd=31))                        
+#> tcp   LISTEN 0      50                             192.168.178.55:445       0.0.0.0:*    users:(("smbd",pid=8739,fd=28))                        
+#> tcp   LISTEN 0      50                                      [::1]:445          [::]:*    users:(("smbd",pid=8739,fd=32))                        
+#> tcp   LISTEN 0      50                            [fd00:db8::55]:445          [::]:*    users:(("smbd",pid=8739,fd=29))                        
+#> tcp   LISTEN 0      50                           [2001:db8::55]:445          [::]:*    users:(("smbd",pid=8739,fd=30))   
 ```
 
 Store the Samba password in your password manager.
@@ -2125,10 +2125,10 @@ The job also fails if the Borg repository has not changed in 26 hours, which cat
    sudo ssh-keygen -t ed25519 -N '' -C dell-wyse-offsite -f /root/.ssh/dell-wyse-offsite
    sudo ssh-copy-id -p 23 -s -i /root/.ssh/dell-wyse-offsite.pub u123456-sub1@u123456.your-storagebox.de
    sudo ssh -p 23 -i /root/.ssh/dell-wyse-offsite u123456-sub1@u123456.your-storagebox.de ls -al
-   # total 10
-   # drwxr-xr-x 3 u123456-sub1 1113  3 Nov 17 12:40 .
-   # dr-x--x--x 7 root         root 11 Nov 17 12:36 ..
-   # drwx------ 2 u123456-sub1 1113  3 Nov 17 12:40 .ssh
+   #> total 10
+   #> drwxr-xr-x 3 u123456-sub1 1113  3 Nov 17 12:40 .
+   #> dr-x--x--x 7 root         root 11 Nov 17 12:36 ..
+   #> drwx------ 2 u123456-sub1 1113  3 Nov 17 12:40 .ssh
    ```
 
    `ls -al` lists the sub-account's home directory, still empty apart from what `ssh-copy-id` put there.
@@ -2281,7 +2281,7 @@ See [Tailscale in Docker](https://tailscale.com/docs/features/containers/docker)
 2. **Access controls:** add or check the following tags, and the Funnel attribute for `tag:nextcloud`, next to any existing entries (like `tag:container`) that other machines depend on.
    The host needs no Funnel:
 
-   ```json
+   ```json {file="Tailscale policy file (excerpt)"}
    "tagOwners": {
      "tag:container": ["autogroup:admin"],
      "tag:nextcloud": ["autogroup:admin"],
@@ -2297,7 +2297,7 @@ See [Tailscale in Docker](https://tailscale.com/docs/features/containers/docker)
    The AIO passphrase and your SSH keys still protect them.
    To narrow it down, allow 443 for every member, and 8080 and SSH only for admins:
 
-   ```json
+   ```json {file="Tailscale policy file (excerpt)"}
    "grants": [
      {
        "src": ["autogroup:member"],
@@ -2353,7 +2353,7 @@ sudo apt install --no-install-recommends tailscale -y
 sudo tailscale up --hostname=dell-wyse --advertise-tags=tag:server --accept-dns=false
 sudo tailscale set --auto-update
 tailscale status
-# 100.96.85.107    dell-wyse                dell-wyse.tailnet-name.ts.net  linux    -
+#> 100.96.85.107    dell-wyse                dell-wyse.tailnet-name.ts.net  linux    -
 ```
 
 * **`--advertise-tags=tag:server`** makes the host a tagged node: no key expiry, and not tied to your account.
@@ -2512,12 +2512,12 @@ sudo docker exec nextcloud-tailscale tailscale status --json | python3 -c \
   'import json,sys; print(json.load(sys.stdin)["Self"]["DNSName"].rstrip("."))'
 
 sudo docker exec nextcloud-tailscale tailscale serve status
-# # Funnel on:
-# #     - https://nextcloud.tailnet-name.ts.net
-# https://nextcloud.tailnet-name.ts.net (Funnel on)
-# |-- / proxy http://nextcloud-aio-apache:11000
-# https://nextcloud.tailnet-name.ts.net:8080 (tailnet only)
-# |-- / proxy https+insecure://nextcloud-aio-mastercontainer:8080
+#> # Funnel on:
+#> #     - https://nextcloud.tailnet-name.ts.net
+#> https://nextcloud.tailnet-name.ts.net (Funnel on)
+#> |-- / proxy http://nextcloud-aio-apache:11000
+#> https://nextcloud.tailnet-name.ts.net:8080 (tailnet only)
+#> |-- / proxy https+insecure://nextcloud-aio-mastercontainer:8080
 ```
 
 Proceed only if the printed name is exactly the one you planned, for example `nextcloud.tailnet-name.ts.net`.
@@ -2537,16 +2537,16 @@ Check the attribute on the **Wyse**; it should print `True`:
 ```sh
 sudo docker exec nextcloud-tailscale tailscale status --json | python3 -c \
   'import json,sys; s=json.load(sys.stdin)["Self"]; print(any("funnel" in c for c in list(s.get("Capabilities") or []) + list(s.get("CapMap") or {})))'
-# True
+#> True
 ```
 
 Then check the public DNS from another machine, such as the Mac, through a public resolver rather than MagicDNS:
 
 ```sh
 dig @1.1.1.1 +short nextcloud.tailnet-name.ts.net
-# 185.40.234.37
-# 185.40.234.172
-# 185.40.234.210
+#> 185.40.234.37
+#> 185.40.234.172
+#> 185.40.234.210
 ```
 
 These should be addresses outside `100.x`, but the record can take up to ten minutes to appear.
@@ -2570,11 +2570,11 @@ These should be addresses outside `100.x`, but the record can take up to ten min
      ip=$(dig @1.1.1.1 +short "$name" | grep -v ':' | head -1); echo "$ip"
      curl -sv --resolve "$name:443:$ip" "https://$name" -o /dev/null 2>&1 \
        | grep -E 'subject:|issuer:|SSL certificate verify|< HTTP'
-     #   185.40.234.37
-     #   *  subject: CN=nextcloud.tailnet-name.ts.net
-     #   *  issuer: C=US; O=Let's Encrypt; CN=YE1
-     #   *  SSL certificate verify ok.
-     #   < HTTP/2 302 
+     #>   185.40.234.37
+     #>   *  subject: CN=nextcloud.tailnet-name.ts.net
+     #>   *  issuer: C=US; O=Let's Encrypt; CN=YE1
+     #>   *  SSL certificate verify ok.
+     #>   < HTTP/2 302 
      ```
 
    Only then reload the interface as `https://nextcloud.tailnet-name.ts.net:8080/containers?skip_domain_validation` and enter the domain again.
