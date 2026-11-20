@@ -29,7 +29,7 @@ Anyways, pay attention to the cost if you decide to use Apple's eco system.
 
 ## Basic steps
 Do the initial macOS setup and sign in to your Apple ID.
-For me this required inserting my Security Key (Yubikey) which was not accepted directls due to some unknown error.
+For me this required inserting my Security Key (Yubikey) which was not accepted directly due to some unknown error.
 So I skipped the step and signed up again via system settings, which worked without any issues.
 You will get several notifications for Apple apps trying to access your data which you need to approve.
 
@@ -46,7 +46,7 @@ Go to System Settings, General, and Software Update.
 This takes a while and requires a reboot.
 
 ### Restore files either via Time Machine, Nextcloud or rsync
-The easiest way to restore everything is to use the migration assistant, but typically I only need to restore some folders and files from my Time Machine backups (or alternatively sync from my Nextcloud server or use `rsync -avuP /Volumes/T5/Documents/ /Users/wmutschl/Documents/).
+The easiest way to restore everything is to use the migration assistant, but typically I only need to restore some folders and files from my Time Machine backups (or alternatively sync from my Nextcloud server or use `rsync -avuP /Volumes/T5/Documents/ /Users/wmutschl/Documents/`).
 For Time Machine, click on the red exclamation mark and "Claim existing backups".
 I then do a full backup and activate both automatic backups as well as displaying it in the menu bar.
 After the first backup, you can either use Time Machine directly to restore certain folders and files or, alternatively, open the disk in finder, select the most recent snapshot and simply copy the files and folders over.
@@ -563,7 +563,7 @@ Restart Money Money, enter your database password and license.
 Then I go through the settings.
 
 ### Nextcloud (free)
-I have all my user files synced to my own Nextcloud server, see my [backup strategy](../../linux/backup), so I need the sync client, which can be [downloaded](https://nextcloud.com/install/#install-clients).
+I have all my user files synced to my own Nextcloud server, see my [backup strategy](/stuff/backup/), so I need the sync client, which can be [downloaded](https://nextcloud.com/install/#install-clients).
 Open nextcloud.app and set up the server and a first folder sync.
 After the first sync, I need to recheck the options and particularly launch the app on System startup, deactivate the 500 MB limit and edit the ignored files.
 Usually, I don't sync hidden files and add `*.photoslibrary`, `*.fcpbundle` and `*.musiclibrary` to the ignored files list only.
@@ -630,7 +630,7 @@ It can be installed from the [App Store](https://itunes.apple.com/app/id89319909
 I quite like its defaults.
 
 ### Latex related packages (free)
-I simply install [MacTex](http://www.tug.org/mactex/mactex-download.html) and use the [LaTex Workshop extension](https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop) for [VScode](#visual-studio-code-free) or [CursorAI](https://www.cursor.com/cursor) as my editor.
+I simply install [MacTex](http://www.tug.org/mactex/mactex-download.html) and use the [LaTex Workshop extension](https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop) for [VScode](https://code.visualstudio.com) or [CursorAI](https://www.cursor.com/cursor) as my editor.
 
 ### Microsoft Excel and Word (free via university, otherwise 69€/year)
 Sometimes I get documents which require [Microsoft Excel](https://apps.apple.com/us/app/microsoft-excel/id462058435?mt=12) and [Microsoft Word](https://apps.apple.com/us/app/microsoft-word/id462054704?mt=12) from the [App Store](https://apps.apple.com/de/app-bundle/microsoft-365/id1450038993?mt=12).
