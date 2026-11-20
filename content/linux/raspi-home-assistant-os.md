@@ -25,7 +25,8 @@ In this guide, I cover both ways I set it up:
 * **Restore from backup:** flash HAOS and restore my latest full backup (Steps 0 to 2, then Step 8).
   This is what I usually do, e.g. when an SD card dies or when I move to new hardware, and it just works.
 
-Step 9 covers a maintenance task: updating the firmware of the Zigbee coordinator.
+Step 0 also helps you decide between a microSD card and an SSD.
+Steps 9 and 10 cover maintenance: updating the firmware of the Zigbee coordinator, and checking the power supply and the Zigbee channel.
 The script and configuration files I use are in the [Raspberry-Pi-4-Model-B folder of my scripts repository](https://github.com/wmutschl/scripts/tree/main/Raspberry-Pi-4-Model-B).
 
 {{< callout note >}}
@@ -44,7 +45,7 @@ This is my hardware:
 * **Silicon Power 32 GB UHS-I Class 10 microSDHC card.**
   Home Assistant recommends at least 32 GB and an *Application Class 2* (A2) card, which handles the many small reads and writes of a running system better.
   My card is not A2 rated, so we will see how reliable it is; I have a spare one just in case.
-  The alternatives are to boot directly from a USB SSD, or to keep booting from the SD card and move the data to a USB SSD with **Settings → System → Storage → Move data disk**.
+  For the alternatives, an SSD in particular, see [SD card or SSD?](#sd-card-or-ssd) below.
 * **Sonoff Zigbee 3.0 USB Dongle Plus** (ZBDongle-P with the Texas Instruments CC2652P chip and a CP210x USB-to-serial bridge) as Zigbee coordinator.
   It sits on a 1.5 meter USB extension cable plugged into one of the black USB 2.0 ports.
 * **Ethernet cable** to my FRITZ!Box.
@@ -58,6 +59,105 @@ That's the same band Zigbee uses, so they can noticeably cut range and reliabili
 This is why [Zigbee2MQTT](https://www.zigbee2mqtt.io/advanced/zigbee/02_improve_network_range_and_stability.html) and Home Assistant both advise against USB 3.
 The extension cable also moves the dongle away from the Pi itself.
 {{< /callout >}}
+
+### SD card or SSD?
+
+Before you install, decide where HAOS lives.
+Home Assistant writes to its disk all the time: the database, the logs and app updates.
+That's what wears out SD cards, and it's why many people move to an SSD.
+These are the options:
+
+| Option | Upsides | Downsides |
+|---|---|---|
+| **microSD card** | Simplest: no extra parts, the [official installation path](https://www.home-assistant.io/installation/raspberrypi/), no load on the USB ports and no extra radio noise near the Zigbee dongle | Wears out; often fails silently, i.e. goes read-only or corrupts data while Home Assistant keeps running; slow at small random writes, especially without an A1 or A2 rating |
+| **2.5″ SATA SSD in a USB 3 enclosure** | Built for far more writes, with wear leveling, stronger error correction and SMART health data; much faster at small random writes | Needs an enclosure, whose bridge chip matters; USB 3 gives off radio noise near the Zigbee dongle; uses part of the Pi's USB power budget |
+| **NVMe SSD in a USB enclosure** | Same as the SATA SSD | Draws noticeably more power, which can exceed the Pi's USB power budget; no faster than a SATA SSD on the Pi; runs hotter |
+| **SD card plus SSD** | **Settings → System → Storage → Move data disk** moves the data, and with it almost all writes, to the SSD; no USB boot needed | Two devices that both have to keep working, plus the USB caveats of the SSD |
+
+**Speed.**
+The Pi 4 itself caps what a drive can deliver:
+
+| Connection | Limit on the Pi 4 |
+|---|---|
+| microSD slot | 50 MB/s (DDR50 bus mode); Raspberry Pi's own A2 cards manage [3,200 random 4 kB reads and 1,200 random 4 kB writes per second](https://www.raspberrypi.com/documentation/accessories/sd-cards.html) |
+| USB 2.0 ports (black) | 480 Mbit/s, about 35–40 MB/s in practice, shared by all four ports |
+| USB 3.0 ports (blue) | [Over 300 MB/s](https://www.jeffgeerling.com/blog/2019/raspberry-pi-microsd-card-performance-comparison-2019/) in practice, shared by all USB ports, because the USB controller sits on a single PCIe 2.0 lane |
+
+A 2.5″ SATA SSD such as the Samsung SSD 840 (500 GB: up to 540 MB/s read and 330 MB/s write) already reaches that ceiling.
+An NVMe SSD that manages several GB/s in a PC gets the same on the Pi.
+Sequential speed hardly matters for Home Assistant anyway: its disk work is small random writes, and there any SSD is far ahead of an SD card.
+In [Jeff Geerling's tests](https://www.jeffgeerling.com/blog/2020/uasp-makes-raspberry-pi-4-disk-io-50-faster/), a USB 3.0 SSD was ten times faster than the fastest microSD card.
+
+**Power.**
+The official power supply delivers 5.1 V at 3 A.
+According to [Raspberry Pi](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#power-supply), the Pi 4 itself draws about 0.6 A at idle and up to 1.25 A under full load, and all USB devices together may draw at most 1.2 A, not per port but across all four.
+A 2.5″ SATA SSD peaks at roughly 0.5 A (2–3 W) including its enclosure, and the Zigbee dongle needs a few tens of mA.
+An NVMe SSD in an enclosure can draw 1 A or more during heavy writes: NVMe drives are built for PCIe slots, where power is plentiful.
+On top of that, the enclosure converts the 5 V from USB down to the 3.3 V of M.2 drives, and its bridge chip needs more power than a SATA bridge.
+When the drive draws more than the Pi can supply, two different things can go wrong:
+
+1. The input voltage of the Pi drops below 4.63 V: an under-voltage.
+2. The voltage at the USB enclosure dips during a current spike, while the input of the Pi stays fine.
+   The enclosure or the drive briefly loses power and resets.
+   Linux loses the disk that holds the whole system, Home Assistant hangs, and the database or the data partition can be damaged.
+
+The spikes come with heavy writes, e.g. during updates or the nightly backup.
+So the Pi runs fine for days and then fails seemingly at random, which looks like a bad drive, cable or enclosure.
+[Step 10](#step-10-check-the-power-supply-and-the-zigbee-channel) shows how to check for both cases.
+
+**Zigbee.**
+An SSD on a USB 3.0 port is exactly the source of radio noise from the note above.
+Keep the dongle on its extension cable, away from the SSD, its enclosure and its cable.
+Count the channel access failures of Zigbee2MQTT before and after the move ([Step 10](#step-10-check-the-power-supply-and-the-zigbee-channel)).
+If they go up, move the SSD to the other black USB 2.0 port: about 35 MB/s is plenty for Home Assistant, and the noise comes from USB 3.0.
+
+**My take.**
+For a Pi that runs around the clock, a 2.5″ SATA SSD in a USB 3 enclosure is the best fit: it fixes the weak spot of the SD card and has none of the drawbacks of NVMe.
+An old SSD from the drawer is good enough, once it passes the health check below.
+Staying on the SD card until it fails is defensible, as long as the backups are off the Pi ([Step 6](#step-6-encrypted-backups-to-an-smb-share)) and you notice when Home Assistant goes down ([Step 7](#step-7-healthchecksio-heartbeat)).
+A dead card then costs at most a day of history, plus the time until you're home to replace it.
+But you don't get to choose when that happens, a card that corrupts data silently can spoil the backups made in the meantime, and a spare card of the same kind has the same weakness.
+
+### Booting from a USB SSD
+
+If you go for an SSD, this is what changes compared with the SD card:
+
+1. **Check a used SSD first.**
+   On a Linux computer, e.g. with a SATA-to-USB adapter, read its SMART data and run the long self-test:
+   ```sh
+   lsblk -o NAME,MODEL,SERIAL,SIZE,TRAN   # the SSD shows up with TRAN usb, e.g. as sdc
+   sudo smartctl -x /dev/sdc              # shows the model, SMART health and attributes
+   sudo smartctl -t long /dev/sdc         # starts the test and prints how long it takes
+   sudo smartctl -l selftest /dev/sdc     # afterwards: Completed without error
+   ```
+   If smartctl reports an unknown USB bridge, or fails with `Read NVMe Identify Controller failed`, add `-d sat` to all three smartctl commands.
+   The second error means smartctl mistook the adapter for an NVMe adapter and sent NVMe commands, which a SATA SSD can't answer.
+   smartctl goes by the adapter's USB ID, which `lsusb` shows, and some IDs, such as JMicron's `152d:0583` and Realtek's `0bda:9210`, also turn up in adapters for SATA drives.
+   Use the SSD only if the overall health says `PASSED`, the raw values of `Reallocated_Sector_Ct`, `Used_Rsvd_Blk_Cnt_Tot`, `Runtime_Bad_Block` and `Uncorrectable_Error_Cnt` are 0, and the normalized value of `Wear_Leveling_Count` is well above 0 (100 means new).
+   These are the attribute names on Samsung drives; other brands use similar ones.
+2. **Check the bridge chip of the enclosure.**
+   Some USB bridges misbehave on the Pi 4 with UAS, the faster USB storage protocol.
+   HAOS already turns UAS off for a list of them in the file `cmdline.txt` on its boot partition, including JMicron's JMS578 (SATA) and JMS583 (NVMe) and several ASMedia chips; these just run a bit slower.
+   On macOS, `system_profiler SPUSBHostDataType` shows the `USB Vendor ID` and `USB Product ID` of the enclosure (on Linux, `lsusb`).
+   Compare them with the `usb-storage.quirks=` list in [HAOS's cmdline.txt](https://github.com/home-assistant/operating-system/blob/dev/buildroot-external/board/raspberrypi/cmdline.txt).
+   If an enclosure that isn't on the list causes trouble, like a slow or hanging boot or USB resets, add its `VID:PID:u` to that list, separated by a comma.
+   A second `usb-storage.quirks=` would replace the built-in list.
+   After flashing, the Mac can read the boot partition; `cmdline.txt` must stay a single line, and HAOS updates keep your changes.
+3. **Flash the SSD instead of the SD card**, as in [Step 1](#step-1-flash-home-assistant-os-onto-the-sd-card).
+   The Imager lists USB drives as storage, and my script accepts any external disk up to 2 TiB without APFS or HFS+ partitions.
+   On the first boot, HAOS grows its data partition to the size of the disk.
+4. **Take the SD card out, and never attach two disks with HAOS at the same time.**
+   The Pi 4 tries the SD card first, so with the card inserted, the old system starts.
+   Worse, HAOS finds its root partition by a partition UUID that is the same on every disk flashed from the image, and its other partitions by their labels.
+   A fresh installation even renames the data partition of any other HAOS disk it finds to `hassos-data-dis`, which would ruin the old card as a fallback.
+   Keep the card in a drawer instead.
+5. **Plug the SSD into a blue USB 3.0 port**, and the Zigbee dongle on its extension cable into a black USB 2.0 port as before.
+6. **If the Pi doesn't boot from the SSD**, its bootloader may be too old for USB boot.
+   In the Imager, write **Misc utility images → Bootloader → USB Boot** to a spare SD card and boot the Pi from it.
+   When the green LED flashes steadily (and a connected screen turns green), unplug the power, take the card out and try again.
+
+To move a running installation to the SSD, create a full backup, shut the Pi down with `ha host shutdown` in the terminal, and restore the backup onto the SSD as in [Step 8](#step-8-restore-from-a-backup).
+The old card stays untouched, so you can always go back.
 
 ## Step 1: Flash Home Assistant OS onto the SD card
 
@@ -244,10 +344,9 @@ The files below are in the configuration folder of Home Assistant, which is `/ho
 5. Check the configuration with `ha core check` in the web terminal; it reports either success or the errors.
    Then restart Home Assistant with **Settings → ⋮ → Restart Home Assistant**.
    Afterwards, healthchecks.io should get a ping every minute, and the traces of the automation *Healthchecks Ping* show every run.
-
-{{< callout note >}}
-If you prefer the automation editor, put the **rest_command** section into **configuration.yaml** instead, create a new automation, switch to **Edit in YAML** and paste the automation from above without its **id** line.
-{{< /callout >}}
+   {{< callout note >}}
+   If you prefer the automation editor, put the **rest_command** section into **configuration.yaml** instead, create a new automation, switch to **Edit in YAML** and paste the automation from above without its **id** line.
+   {{< /callout >}}
 
 ## Step 8: Restore from a backup
 
@@ -383,3 +482,51 @@ The alternative is [cc2538-bsl](https://github.com/JelmerT/cc2538-bsl), which is
 * The Zigbee2MQTT interface shows **20250321** under **Settings → About**.
 * Toggle a few mains-powered devices like lights and plugs.
   Battery devices may take a while to report in again; that's normal.
+
+## Step 10: Check the power supply and the Zigbee channel
+
+These checks are my benchmark.
+I run them after an installation, and before and after every change that could affect power or radio: moving to an SSD, another USB port or cable, a new Wi-Fi channel, or a firmware update of the dongle as in [Step 9](#step-9-update-the-firmware-of-the-zigbee-dongle).
+
+### Under-voltage at the input of the Pi
+
+On a Raspberry Pi, Home Assistant sets up the **Raspberry Pi Power Supply Checker** integration by itself; you find it under **Settings → Devices & services**.
+It reads the under-voltage flag of the Pi, which is set when the input voltage drops below about 4.63 V.
+Its sensor **Power status** is on the device **Raspberry Pi**, under **Diagnostic**, and shows **Problem** during an under-voltage.
+Home Assistant then also raises the repair **Under-voltage detected** under **Settings → System → Repairs**.
+The sensor only polls every 30 seconds, though, while the kernel checks the flag every 2 seconds and logs every change.
+Short dips therefore often show up only in the kernel log, as `Undervoltage detected!` followed by `Voltage normalised`.
+This case catches a weak power supply or cable, and USB devices that draw more than the supply can deliver.
+
+### Brownouts at the USB disk
+
+If the voltage dips only at the USB enclosure, the input of the Pi stays fine, and the Power Supply Checker doesn't notice anything.
+All you get are kernel messages about the disk: `USB disconnect`, `reset SuperSpeed … USB device`, errors of the UAS driver (`uas_eh_…`), and I/O errors on `sda`.
+If the Pi hangs or reboots, the last messages may be missing, because the log is stored on the disk that went away.
+
+### Read the kernel log
+
+In the browser, open **Settings → System → Logs** and switch from **Home Assistant Core** to **Host**.
+In the terminal, this command lists the messages of both cases:
+```sh
+ha host logs -t kernel -n 10000 | grep -iE 'undervoltage|voltage normalised|usb disconnect|reset superspeed|uas_eh|i/o error'
+```
+Apart from devices you unplugged yourself, no output is the good result.
+
+### Channel access failures in Zigbee2MQTT
+
+When the coordinator wants to send but finds the channel busy, Zigbee2MQTT logs a `MAC channel access failure`.
+A steady stream of them points to radio interference, e.g. from Wi-Fi on an overlapping channel or from USB 3.
+Count them in the terminal:
+```sh
+grep -ric "channel access failure" /homeassistant/zigbee2mqtt/log
+```
+Zigbee2MQTT creates a new log folder, named by date and time, each time it starts, so you get one count per start.
+Note the counts before a change and compare them a few days after it.
+Home Assistant backups leave out all `*.log` files, so these logs don't survive a restore onto new hardware or an SSD: write the counts down before you switch.
+To see when the failures happened and which devices they hit:
+```sh
+grep -rih "channel access failure" /homeassistant/zigbee2mqtt/log | tail -n 20
+```
+Zero is the goal; a few during a burst of activity are harmless.
+If the count goes up after a change, undo it, or move the source of the noise further away from the dongle.
