@@ -1,0 +1,15 @@
+{{- /*
+  {{< svg-figure src="backup-map.svg" id="…" caption="Markdown caption" >}}
+  Inlines an SVG from assets/media/ into a figure, so the drawing can use the page's colour tokens
+  (and follows the theme toggle). The SVG brings its own <title> and <desc> for screen readers.
+  Lives in the project's layouts/ so it works with Wowchemy and the redesign themes alike.
+*/ -}}
+{{- $src := .Get "src" -}}
+{{- $svg := resources.Get (printf "media/%s" $src) -}}
+{{- if not $svg }}{{ errorf "svg-figure: assets/media/%s not found (%s)" $src .Position }}{{ end -}}
+<figure class="figure diagram"{{ with .Get "id" }} id="{{ . }}"{{ end }}>
+  <div class="diagram__scroll">{{ $svg.Content | replaceRE `<\?xml[^>]*\?>\s*` "" | safeHTML }}</div>
+  {{- with .Get "caption" }}
+  <figcaption class="figure__caption">{{ . | markdownify }}</figcaption>
+  {{- end }}
+</figure>

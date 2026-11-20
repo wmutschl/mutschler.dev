@@ -86,7 +86,7 @@ sudo blkid
 # /dev/sda1: UUID="87278135-9aec-4da7-9fe4-fca1ecf2aeb7" TYPE="crypto_LUKS" PARTLABEL="BACKUP" PARTUUID="582af379-1f24-49df-8097-eecc6dba85d5"
 # /dev/zram0: LABEL="zram0" UUID="62d6119a-a230-4561-8b97-665a19d13267" TYPE="swap"
 ```
-In my case `sda` is an internal SSD that I use for [my backup strategy](/stuff/backup/#dell-precision-7520-linux), whereas `zram0` is the swap partition. The system is installed to `nvme0n1` and it has 3 partitions:
+In my case `sda` is an internal SSD that I use for [my backup strategy](/stuff/backup_old/#dell-precision-7520-linux), whereas `zram0` is the swap partition. The system is installed to `nvme0n1` and it has 3 partitions:
 
 1. a 600 MiB FAT32 EFI partition
 1. a 1024 MiB EXT4 partition for /boot

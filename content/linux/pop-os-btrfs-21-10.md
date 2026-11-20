@@ -70,7 +70,7 @@ sudo parted /dev/nvme0n1 unit MiB print
 #  3      4596MiB    484288MiB  479692MiB
 #  4      484288MiB  488384MiB  4096MiB    linux-swap(v1)           swap
 ```
-In my case `sda` is an internal SSD that I use for [my backup strategy](/stuff/backup/#dell-precision-7520-linux), whereas `sdb` is the flash drive that contains the installation files. So, for me the installation target device is called `nvme0n1` and it has 4 partitions:
+In my case `sda` is an internal SSD that I use for [my backup strategy](/stuff/backup_old/#dell-precision-7520-linux), whereas `sdb` is the flash drive that contains the installation files. So, for me the installation target device is called `nvme0n1` and it has 4 partitions:
 
 1. a 498 MiB FAT32 EFI partition for the systemd bootloader
 1. a 4096 MiB FAT32 partition for the Pop!_OS recovery system

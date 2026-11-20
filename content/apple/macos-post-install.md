@@ -46,7 +46,7 @@ Go to System Settings, General, and Software Update.
 This takes a while and requires a reboot.
 
 ### Restore files either via Time Machine, Nextcloud or rsync
-The easiest way to restore everything is to use the migration assistant, but typically I only need to restore some folders and files from my Time Machine backups (or alternatively sync from my Nextcloud server or use `rsync -avuP /Volumes/T5/Documents/ /Users/wmutschl/Documents/`).
+The easiest way to restore everything is to use the migration assistant, but typically I only need to restore some folders and files from my Time Machine backups (or alternatively sync from my Nextcloud server or copy from an external disk with `rsync -avuP /Volumes/Backup/Documents/ /Users/wmutschl/Documents/`, where `Backup` is the name of the disk).
 For Time Machine, click on the red exclamation mark and "Claim existing backups".
 I then do a full backup and activate both automatic backups as well as displaying it in the menu bar.
 After the first backup, you can either use Time Machine directly to restore certain folders and files or, alternatively, open the disk in finder, select the most recent snapshot and simply copy the files and folders over.
@@ -934,8 +934,8 @@ MacBook Pro
   - `Remote Login`: Activate `Allow full disk access for remote users`, Allow access for `Only these users` *Administrators*
 - `Startup Disk`: Nothing to do.
 - `Time Machine`: Check the list of disks and the `Options`.
-  - I add two external disks, one at the office and one at home, and also a NAS which is on a Dell Wyse 5070 Thin Client and can be used as a Time Machine target.
-  - I do snapshots `Automatically Every Hour` snapshots (they alternate between the local disk and online NAS) and also activate `Back up on battery power`.
+  - I add two encrypted external disks, one at the office and one at home.
+  - I do snapshots `Automatically Every Hour` (to whichever of the two disks is connected) and also activate `Back up on battery power`.
   - I am excluding the following folders: `~/FinalCutRaw`, `~/Movies`, `~/Music/Music`, `~/Virtual Machines.localized`
 - `Device Management`: Nothing to do.
 - `Transfer or Reset`: Nothing to do.

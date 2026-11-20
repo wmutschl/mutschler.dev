@@ -64,7 +64,7 @@ lsblk
 # └─sdb3    8:19   1 1011.5M  0 part /var/crash
 # nvme0n1 259:0    0  476.9G  0 disk
 ```
-In my case `sda` is an internal SSD that I use for [my backup strategy](/stuff/backup/#dell-precision-7520-linux), whereas `sdb` is the flash drive that contains the installation files. So, for me the installation target device is called `nvme0n1`.
+In my case `sda` is an internal SSD that I use for [my backup strategy](/stuff/backup_old/#dell-precision-7520-linux), whereas `sdb` is the flash drive that contains the installation files. So, for me the installation target device is called `nvme0n1`.
 
 We'll now create a disk table and add four partitions on `nvme0n1`:
 
