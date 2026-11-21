@@ -42,15 +42,18 @@ This is my hardware:
 * **Raspberry Pi 4 Model B with 4 GB RAM.**
   Home Assistant needs at least 2 GB.
   Use a proper USB-C power supply such as the official one: Home Assistant warns that phone chargers may not be suitable and that the USB ports of a computer must not be used.
-* **Silicon Power 32 GB UHS-I Class 10 microSDHC card.**
-  Home Assistant recommends at least 32 GB and an *Application Class 2* (A2) card, which handles the many small reads and writes of a running system better.
-  My card is not A2 rated, so we will see how reliable it is; I have a spare one just in case.
-  For the alternatives, an SSD in particular, see [SD card or SSD?](#sd-card-or-ssd) below.
+* **Samsung SSD 840 500 GB** (2.5″ SATA) in a **UGREEN 50743** USB enclosure, plugged into one of the blue USB 3.0 ports; HAOS boots from it.
+  It's an old SSD from my drawer: after 13,000 power-on hours and 29 TB written, it passed the health check from [Booting from a USB SSD](#booting-from-a-usb-ssd).
+  The bridge chip of the enclosure is a Realtek RTL9201, for which HAOS turns UAS off; see the same section.
+* **Silicon Power 32 GB UHS-I Class 10 microSDHC card**, from which my Pi booted until I moved to the SSD in November 2026.
+  Home Assistant recommends at least 32 GB and an *Application Class 2* (A2) card, which handles the many small reads and writes of a running system better; mine is not A2 rated.
+  The card and a spare one now stay in a drawer as emergency boot media.
+  For the pros and cons of SD card and SSD, see [SD card or SSD?](#sd-card-or-ssd) below.
 * **Sonoff Zigbee 3.0 USB Dongle Plus** (ZBDongle-P with the Texas Instruments CC2652P chip and a CP210x USB-to-serial bridge) as Zigbee coordinator.
   It sits on a 1.5 meter USB extension cable plugged into one of the black USB 2.0 ports.
 * **Ethernet cable** to my FRITZ!Box.
   The installation requires Ethernet; Wi-Fi can be configured afterwards, but Ethernet is highly recommended.
-* **A computer with an SD card reader** to flash the card and to do the onboarding in the browser; for me, this is my Mac.
+* **A computer** to flash the SSD, or an SD card with a card reader, and to do the onboarding in the browser; for me, this is my Mac.
 
 {{< callout note >}}
 **Why the extension cable and the USB 2.0 port?**
@@ -137,12 +140,18 @@ If you go for an SSD, this is what changes compared with the SD card:
    These are the attribute names on Samsung drives; other brands use similar ones.
 2. **Check the bridge chip of the enclosure.**
    Some USB bridges misbehave on the Pi 4 with UAS, the faster USB storage protocol.
-   HAOS already turns UAS off for a list of them in the file `cmdline.txt` on its boot partition, including JMicron's JMS578 (SATA) and JMS583 (NVMe) and several ASMedia chips; these just run a bit slower.
+   HAOS already turns UAS off for a list of them in the file `cmdline.txt` on its boot partition, including JMicron's JMS578 (SATA) and JMS583 (NVMe), several ASMedia chips and Realtek's RTL9201 (SATA); these just run a bit slower.
    On macOS, `system_profiler SPUSBHostDataType` shows the `USB Vendor ID` and `USB Product ID` of the enclosure (on Linux, `lsusb`).
    Compare them with the `usb-storage.quirks=` list in [HAOS's cmdline.txt](https://github.com/home-assistant/operating-system/blob/dev/buildroot-external/board/raspberrypi/cmdline.txt).
+   My UGREEN enclosure reports `0x0bda` and `0x9201`: that's the RTL9201, which caused [random reboots on a Pi 4 with UAS](https://github.com/home-assistant/operating-system/issues/4609) and has been on the list since HAOS 18.0.
    If an enclosure that isn't on the list causes trouble, like a slow or hanging boot or USB resets, add its `VID:PID:u` to that list, separated by a comma.
    A second `usb-storage.quirks=` would replace the built-in list.
    After flashing, the Mac can read the boot partition; `cmdline.txt` must stay a single line, and HAOS updates keep your changes.
+   After the first boot from the SSD, the kernel log shows whether the Pi uses UAS:
+   ```sh
+   ha host logs -t kernel -n 10000 | grep -iE 'uas is ignored|scsi host'
+   ```
+   For a bridge on the list, you get `UAS is ignored for this device, using usb-storage instead` and `scsi host0: usb-storage …`; with UAS, `scsi host0: uas`.
 3. **Flash the SSD instead of the SD card**, as in [Step 1](#step-1-flash-home-assistant-os-onto-the-sd-card).
    The Imager lists USB drives as storage, and my script accepts any external disk up to 2 TiB without APFS or HFS+ partitions.
    On the first boot, HAOS grows its data partition to the size of the disk.
@@ -521,9 +530,9 @@ Count them in the terminal:
 ```sh
 grep -ric "channel access failure" /homeassistant/zigbee2mqtt/log
 ```
-Zigbee2MQTT creates a new log folder, named by date and time, each time it starts, so you get one count per start.
-Note the counts before a change and compare them a few days after it.
-Home Assistant backups leave out all `*.log` files, so these logs don't survive a restore onto new hardware or an SSD: write the counts down before you switch.
+Zigbee2MQTT creates a new log folder, named by date and time, each time it starts; `log1.log` and `log2.log` in a folder are older parts of the same run.
+It keeps the last ten folders by default, so note the counts before a change and compare them a few days after it.
+Home Assistant backups include these logs, so they survive a restore onto new hardware or an SSD: backups leave out only the `*.log` files directly in the configuration folder, such as `home-assistant.log`.
 To see when the failures happened and which devices they hit:
 ```sh
 grep -rih "channel access failure" /homeassistant/zigbee2mqtt/log | tail -n 20
