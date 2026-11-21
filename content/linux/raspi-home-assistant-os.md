@@ -42,9 +42,11 @@ This is my hardware:
 * **Raspberry Pi 4 Model B with 4 GB RAM.**
   Home Assistant needs at least 2 GB.
   Use a proper USB-C power supply such as the official one: Home Assistant warns that phone chargers may not be suitable and that the USB ports of a computer must not be used.
-* **Samsung SSD 840 500 GB** (2.5″ SATA) in a **UGREEN 50743** USB enclosure, plugged into one of the blue USB 3.0 ports; HAOS boots from it.
+  Mine runs on the official Raspberry Pi USB-C power supply (5.1 V, 3 A).
+* **Samsung SSD 840 500 GB** (2.5″ SATA) in a **UGREEN 50743** USB enclosure; HAOS boots from it.
   It's an old SSD from my drawer: after 13,000 power-on hours and 29 TB written, it passed the health check from [Booting from a USB SSD](#booting-from-a-usb-ssd).
   The bridge chip of the enclosure is a Realtek RTL9201, for which HAOS turns UAS off; see the same section.
+  The SSD sits in the other black USB 2.0 port, because on the blue USB 3.0 ports it dropped out during the first boot (also in that section).
 * **Silicon Power 32 GB UHS-I Class 10 microSDHC card**, from which my Pi booted until I moved to the SSD in November 2026.
   Home Assistant recommends at least 32 GB and an *Application Class 2* (A2) card, which handles the many small reads and writes of a running system better; mine is not A2 rated.
   The card and a spare one now stay in a drawer as emergency boot media.
@@ -151,7 +153,9 @@ If you go for an SSD, this is what changes compared with the SD card:
    ```sh
    ha host logs -t kernel -n 10000 | grep -iE 'uas is ignored|scsi host'
    ```
-   For a bridge on the list, you get `UAS is ignored for this device, using usb-storage instead` and `scsi host0: usb-storage …`; with UAS, `scsi host0: uas`.
+   `scsi host0: usb-storage …` means the Pi runs the disk without UAS, `scsi host0: uas` means with UAS.
+   On a blue USB 3.0 port, a bridge on the list also logs `UAS is ignored for this device, using usb-storage instead`.
+   On a black USB 2.0 port, that line is missing if the bridge offers UAS only over USB 3, like my RTL9201: the Pi shows just `scsi host0: usb-storage 1-1.4:1.0`.
 3. **Flash the SSD instead of the SD card**, as in [Step 1](#step-1-flash-home-assistant-os).
    The Imager lists USB drives as storage, and my script accepts any external disk up to 2 TiB without APFS or HFS+ partitions.
    On the first boot, HAOS grows its data partition to the size of the disk.
@@ -161,6 +165,13 @@ If you go for an SSD, this is what changes compared with the SD card:
    A fresh installation even renames the data partition of any other HAOS disk it finds to `hassos-data-dis`, which would ruin the old card as a fallback.
    Keep the card in a drawer instead.
 5. **Plug the SSD into a blue USB 3.0 port**, and the Zigbee dongle on its extension cable into a black USB 2.0 port as before.
+   If the first boot stops with `Buffer I/O error on dev sda3` and `erofs (device sda3): failed to read inode meta block (nid: …): -5`, the SSD has dropped off the USB bus.
+   HAOS only prints kernel errors on the screen, so the USB messages that would explain it don't show up there.
+   With my Samsung SSD 840, this happened on both blue ports with two different adapters, even with the official power supply and the latest bootloader (`ha os boards raspberrypi firmware` shows the version).
+   On the other black USB 2.0 port, it runs.
+   The likely cause is power, as described above: at USB 3 speed, the SSD writes several times faster and draws more current.
+   About 35 MB/s over USB 2.0 is plenty for Home Assistant, and it keeps the USB 3 noise away from the Zigbee dongle.
+   Flash the SSD again before you retry, so the next boot is a clean first boot.
 6. **If the Pi doesn't boot from the SSD**, its bootloader may be too old for USB boot.
    In the Imager, write **Misc utility images → Bootloader → USB Boot** to a spare SD card and boot the Pi from it.
    When the green LED flashes steadily (and a connected screen turns green), unplug the power, take the card out and try again.
@@ -511,7 +522,7 @@ This case catches a weak power supply or cable, and USB devices that draw more t
 ### Brownouts at the USB disk
 
 If the voltage dips only at the USB enclosure, the input of the Pi stays fine, and the Power Supply Checker doesn't notice anything.
-All you get are kernel messages about the disk: `USB disconnect`, `reset SuperSpeed … USB device`, errors of the UAS driver (`uas_eh_…`), and I/O errors on `sda`.
+All you get are kernel messages about the disk: `USB disconnect`, `reset SuperSpeed … USB device` (`reset high-speed …` on a USB 2.0 port), errors of the UAS driver (`uas_eh_…`), and I/O errors on `sda`.
 If the Pi hangs or reboots, the last messages may be missing, because the log is stored on the disk that went away.
 
 ### Read the kernel log
@@ -519,7 +530,7 @@ If the Pi hangs or reboots, the last messages may be missing, because the log is
 In the browser, open **Settings → System → Logs** and switch from **Home Assistant Core** to **Host**.
 In the terminal, this command lists the messages of both cases:
 ```sh
-ha host logs -t kernel -n 10000 | grep -iE 'undervoltage|voltage normalised|usb disconnect|reset superspeed|uas_eh|i/o error'
+ha host logs -t kernel -n 10000 | grep -iE 'undervoltage|voltage normalised|usb disconnect|reset superspeed|reset high-speed|uas_eh|i/o error'
 ```
 Apart from devices you unplugged yourself, no output is the good result.
 
