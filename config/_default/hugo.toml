@@ -1,13 +1,15 @@
-# Redesign prototype "handbook". Run: hugo server --configDir redesign/configs/handbook
-baseURL = "/"
+# mutschler.dev: the Handbook theme (themes/handbook over themes/base; design notes in themes/handbook/DESIGN.md).
+# Live since 21 November 2026; until then the site ran on Wowchemy (a Hugo module, configured in YAML).
+baseURL = "https://mutschler.dev/"
 title = "mutschler.dev"
 languageCode = "en-us"
 theme = ["handbook", "base"]
 enableGitInfo = true
 enableEmoji = true
+enableRobotsTXT = true
+removePathAccents = true
 summaryLength = 30
 disableKinds = []
-resourceDir = "redesign/resources/handbook"
 # Keep taxonomy terms as they are written in the content ("btrfs", "dell wyse"), as an index would.
 titleCaseStyle = "none"
 

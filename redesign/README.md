@@ -1,7 +1,6 @@
 # mutschler.dev redesign
 
-The new design of mutschler.dev: the Handbook, a real Hugo theme (`themes/handbook/` over the shared `themes/base/`, config `redesign/configs/handbook/`) that renders the real content in `content/`. Preview: http://localhost:1423 (port 1428 shows the Terminal setting for listings).
-Nothing here changes the live site: the live build still uses `config/_default/` and Wowchemy.
+The new design of mutschler.dev: the Handbook, a real Hugo theme (`themes/handbook/` over the shared `themes/base/`) that renders the real content in `content/`. It is the live site since 21 November 2026 (config `config/_default/hugo.toml`; see "Going live" below); before, the site ran on Wowchemy. This folder keeps the notes from the redesign.
 
 ## Round 2 lineup
 
@@ -49,7 +48,7 @@ You compared the Handbook with the Docs prototype on three points and kept the H
 
 Your listings used one `#` for three things: an explanation of a command, the command's output, and the content of a file. The two Dell Wyse guides now say which is which. Of four ways to set them you chose **Panels**: explanations as text in Literata after their `#`; each output in a white box (the first one in a listing labelled "Output", "Expected output" for a description); `cat` output boxed with the file's path, files written labelled on a thin rule. Listings keep their language label ("sh"); a fence that names its file or output shows the name instead (`~/.ssh/config`, "Kernel log").
 
-**Terminal stays one line away:** `code = "session"` in `redesign/configs/handbook/_default/hugo.toml` sets every marked listing as a terminal session instead (a `$` before each command, none on lines that continue it; output from the left edge, without `#`; explanations in italics; files labelled with their path). The independent review preferred it (all output in view, listings 0.5 % longer, where Panels adds about 4,000 px to chapter 8). "As now", "Folded", the "Only names" label and the switch on port 1428 are gone.
+**Terminal stays one line away:** `code = "session"` in `config/_default/hugo.toml` sets every marked listing as a terminal session instead (a `$` before each command, none on lines that continue it; output from the left edge, without `#`; explanations in italics; files labelled with their path). The independent review preferred it (all output in view, listings 0.5 % longer, where Panels adds about 4,000 px to chapter 8). "As now", "Folded", the "Only names" label and the switch on port 1428 are gone.
 
 The Copy button copies only what you can run: commands, file contents and explanations (as `#` comments), never output; selecting by hand keeps the `#` of output, so a pasted selection never runs output. Tested with real clicks and the real clipboard: all 225 listings of five guides (both Wyse guides, Pop!_OS 24.04, macOS, Debian) in Panels and the 113 of the two Wyse guides in Terminal copy exactly what the Markdown says, the listing in the margin note and browsers without a secure connection included.
 
@@ -76,15 +75,15 @@ Details: `themes/handbook/DESIGN.md`, section 20.
 
 **Also in this round:** the notes' blue wash is half as strong (`#F5F9FD`, dark mode `#1B2329`), and the review of the white paper fixed white bands at the ends of tables inside notes, a printed Caution tab that came out blank, photos staying dimmed in print after choosing dark mode, a footnote set twice in the margin, and two smaller things (DESIGN.md, section 19).
 
-**Found on the way, in your content (not changed):**
+**Found on the way, in your content, and fixed at your request on 21 November** (each fix checked by an independent reviewer, the copied text of every changed listing parsed with bash, zsh, dash or fish):
 
-- Chapter 8, line 546: the expected line written before the loop says `wyse-system UUID=... none luks,...`, but `lsinitrd` prints `/dev/disk/by-uuid/...` (shown right below it).
-- Chapter 8, lines 653 and 657 say "Install the editor and BTRFS tools", but only `btrfs-progs` is installed there (nano comes in section 5.1).
-- Chapter 8, line 717: the second `cat /etc/fstab` leaves out the three `# … was on /dev/sdaN during curtin installation` lines that are still in the file.
-- Chapter 8, line 856: `timedatectl status` is the only check in its block without output or a description.
-- Chapter 8: a whitespace-only output line at 1090, an empty last line in the block ending at 1624, and trailing spaces on some output lines.
-- macOS, elementary OS and Fedora post-install guides: one listing each shows the bash and the fish way to start ssh-agent on two lines (`eval "$(ssh-agent -s)"`, `eval (ssh-agent -c)`); copied whole, it fails in either shell.
-- Fedora post-install guide: `exit` after `matlab` is typed at MATLAB's prompt; indented under `matlab` it would get no `$` in the Terminal setting.
+- Chapter 8, section 3.3: the expected line before the `lsinitrd` loop now reads `wyse-system /dev/disk/by-uuid/... none luks,...`, as `lsinitrd` prints it.
+- Chapter 8, section 4: "install the BTRFS tools" (only `btrfs-progs` is installed there; nano comes in 5.1), in the text and in the listing.
+- Chapter 8, section 4: the second `cat /etc/fstab` shows the three `# … was on /dev/sdaN during curtin installation` lines that are still in the file.
+- Chapter 8, section 5.1: `timedatectl status` has a described output (time zone Europe/Berlin, clock synchronized, NTP service active).
+- Chapter 8: whitespace-only output lines are a bare `#>`, the empty last line of a listing in 7.2 and the trailing spaces of 95 output lines are gone; nothing visible changed.
+- macOS, elementary OS and Fedora post-install guides: the ssh-agent listing is two listings, one for bash or zsh and one for fish, each copyable as it is.
+- Fedora post-install guide: `exit` is indented under `matlab`, so it reads as typed at MATLAB's prompt.
 
 ## Tables (20–21 November 2026)
 
@@ -114,10 +113,10 @@ What a reader sees:
 
 ## Run it
 
-The previews on ports 1423 and 1428 are static builds served from a temporary folder. To run a live-reloading server, start it from your own terminal in the repository root (when the Claude app starts Hugo itself, macOS keeps asking whether "hugo" may access the Documents folder):
+To run a live-reloading server, start it from your own terminal in the repository root (when the Claude app starts Hugo itself, macOS keeps asking whether "hugo" may access the Documents folder):
 
 ```bash
-hugo server --configDir redesign/configs/handbook --port 1323 --bind 0.0.0.0 --baseURL http://macbook-pro:1323 --noBuildLock
+hugo server --port 1323 --bind 0.0.0.0 --baseURL http://macbook-pro:1323 --noBuildLock
 ```
 
 With `--bind 0.0.0.0` you can open it on your phone over Tailscale at `http://macbook-pro:1323`; all links are root-relative, so localhost works too. `HUGO_PARAMS_CODE=session` in front of the command shows listings in the Terminal setting. `.claude/launch.json` only attaches the app's browser to servers that are already running.
@@ -128,7 +127,7 @@ With `--bind 0.0.0.0` you can open it on your phone over Tailscale at `http://ma
 - `themes/base/data/catalog.yaml` groups the 26 guides by platform and marks each as current, previous or notes, with a short title and, for previous guides, why and which guide replaces them. These are proposals; please check them. If you pick a design, this could move into front matter.
 - The YouTube shortcode is click-to-load: nothing is requested from Google until a reader presses play.
 - The legacy "Please feel free to raise any comments…" line and the red Buy Me A Coffee badge at the top of each guide are removed at render time; every design offers feedback and support links in its layout instead.
-- Fonts (and Mermaid) load from CDNs in the preview. Production should self-host them, as on vierpunktberatung.de.
+- The fonts are self-hosted (`themes/handbook/static/fonts/`, with their licences); Mermaid, which draws the night chart on the backup pages, still loads from jsDelivr on those two pages.
 - Round 1's "Boot menu" and "Partition map" were rejected as too playful; they and round 2's other themes were deleted on 21 November 2026.
 
 ## Content fixes (18 and 19 November 2026, committed by you on 20 November)
@@ -140,9 +139,9 @@ With `--bind 0.0.0.0` you can open it on your phone over Tailscale at `http://ma
 - Three smaller slips: the ```` ```s ```` fence in `pop-os-btrfs-21-10.md` is now ```` ```sh ````, the `rsync -avuP …` command in `macos-post-install.md` got its closing backtick, and "directls" reads "directly".
 - In `raspi-home-assistant-os.md` (Step 7), the note "If you prefer the automation editor, …" is indented into step 5, the end of the procedure, without a blank line, so the list stays tight. In the Handbook it now sits beside step 5 from 1280 px (before: beside steps 1 and 2, and the listing of step 2 had to make room for it).
 
-## Going live
+## Going live (21 November 2026)
 
-1. Point `config/_default/` at the Handbook (`theme = ["handbook", "base"]`) instead of the Wowchemy module (or merge `redesign/configs/handbook/` into it) and remove the Wowchemy import from `config.yaml` and `go.mod`.
-2. Self-host the fonts.
-3. Optionally move the catalogue data into front matter.
-4. Delete `redesign/` once its config lives in `config/_default/`, and fold `themes/base/` into the Handbook if you like.
+- `config/_default/hugo.toml` is the Handbook's config, with the live address, `robots.txt` (with the sitemap, as before) and Wowchemy's accent-free paths. Wowchemy's YAML config, `go.mod` (its Hugo module) and its data files are gone; the publish action is unchanged (Hugo 0.120.3, full history for the revision table, `hugo --gc --minify`).
+- The fonts are self-hosted: 18 WOFF2 files (806 KB, one per script, as Google serves them; a page loads only what it uses) and their licence texts, downloaded from Google Fonts and google/fonts on GitHub. The text face's Latin file is preloaded.
+- Checked before the switch: every URL of the live sitemap except the empty `/categories/` and `/publication_types/` lists exists in the new build; the minified build looks exactly like the previews on all 96 pages at 390 and 1440 px, and every listing's Copy copies the same; no page throws an error or scrolls sideways; 0 broken internal links.
+- Still possible: move the catalogue data (`themes/base/data/catalog.yaml`, proposals) into front matter, and fold `themes/base/` into the Handbook.

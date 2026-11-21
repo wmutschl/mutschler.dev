@@ -28,10 +28,9 @@
   {{- if and (eq .Kind "section") (.OutputFormats.Get "rss") }}
   <link rel="alternate" type="application/rss+xml" title="{{ .LinkTitle }} – {{ site.Title }}" href="{{ (.OutputFormats.Get "rss").RelPermalink }}">
   {{- end }}
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,400..700;1,400..700&family=Literata:ital,opsz,wght@0,7..72,300..800;1,7..72,300..800&display=swap">
-  {{- $css := resources.Get "css/handbook.css" | minify | fingerprint }}
+  {{- /* self-hosted fonts (css/fonts.css, static/fonts/): nothing is loaded from Google; the text face's Latin file first */}}
+  <link rel="preload" href="{{ "fonts/literata-normal-latin.woff2" | relURL }}" as="font" type="font/woff2" crossorigin>
+  {{- $css := slice (resources.Get "css/fonts.css") (resources.Get "css/handbook.css") | resources.Concat "css/site.css" | minify | fingerprint }}
   <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
 </head>
 <body class="kind-{{ .Kind }}">
