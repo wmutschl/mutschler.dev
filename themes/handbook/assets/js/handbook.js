@@ -631,11 +631,11 @@
   }
 
   // Cells (table review, 20 November 2026). Runs once, before anything is measured. In text outside code, a number
-  // keeps its unit, HDD, SSD, USB or PCIe their number, a word its one-letter name ("Path B", "Model B"; not "I",
-  // nor before a comma),
-  // and a bold name of two short words inside a sentence its second word ("Audit Mode"), each with a no-break space
-  // (the last two against text-wrap: pretty, which would rather split them than leave a word alone on the last
-  // line). A path of more than 16 characters (code, or a
+  // keeps its unit or what it counts ("4 weekly"), HDD, SSD, USB or PCIe their number, a word its one-letter name
+  // ("Path B", "Model B"; not "I", nor before a comma), and a bold name of two short words inside a sentence its
+  // second word ("Audit Mode"), each with a no-break space (the last two against text-wrap: pretty, which would
+  // rather split them than leave a word alone on the last line); a range of numbers keeps its dash ("04:45–05:45",
+  // word joiners). A path of more than 16 characters (code, or a
   // link's text, without spaces) gets a break point after each slash inside it, never after a leading "/" or "~/".
   // With break-word (CSS) it then breaks between folders or after a hyphen; a shorter one moves to the next line
   // whole. Code without spaces of up to 25 characters (hosts, checks, short paths) is marked is-whole: in labelled
@@ -643,19 +643,20 @@
   // is marked is-phrase: it breaks at its spaces, and anywhere as before (CSS). Then the root gets has-cells, which
   // the CSS for code in cells waits for. No lookbehind: Safari before 16.4 cannot parse one, and the error would stop
   // all of this file.
-  var UNIT = /(\d)[ \t]+(?=(?:TiB|GiB|MiB|TB|GB|MB|kB|Mbit\/s|minutes?|hours?|days?|weeks?|months?|seconds?|AM|PM|UTC|CET|CEST)\b)/g;
+  var UNIT = /(\d)[ \t]+(?=(?:TiB|GiB|MiB|TB|GB|MB|kB|Mbit\/s|minutes?|hours?|days?|weeks?|months?|hourly|daily|weekly|monthly|seconds?|AM|PM|UTC|CET|CEST)\b)/g;
   var NUMBERED = /\b(HDD|SSD|USB|PCIe)[ \t]+(?=\d)/g;
-  var LETTER = /(\w)[ \t]+(?=[A-HJ-Z](?![\wÀ-ɏ\-\/.,]))/g; // not before "Zürich", nor "Path A," (a comma breaks well)
+  var LETTER = /(\w)[ \t]+(?=[A-HJ-Z](?![\w\u00c0-\u024f\-\/.,]))/g; // not before "Zürich", nor "Path A," (a comma breaks well)
+  var RANGE = /(\d)\u2013(?=\d)/g;
   $$(".prose td, .prose th").forEach(function (cell) {
     var tw = doc.createTreeWalker(cell, NodeFilter.SHOW_TEXT), n;
     while ((n = tw.nextNode())) {
-      if (!n.parentElement.closest("code, kbd")) n.data = n.data.replace(UNIT, "$1 ").replace(NUMBERED, "$1 ").replace(LETTER, "$1 ");
+      if (!n.parentElement.closest("code, kbd")) n.data = n.data.replace(UNIT, "$1\u00a0").replace(NUMBERED, "$1\u00a0").replace(LETTER, "$1\u00a0").replace(RANGE, "$1\u2060\u2013\u2060");
     }
     $$("strong", cell).forEach(function (b) {
       var s = b.textContent.trim();
       if (s.length > 12 || s.split(/\s+/).length !== 2 || s === cell.textContent.trim()) return;
       var bw = doc.createTreeWalker(b, NodeFilter.SHOW_TEXT), m;
-      while ((m = bw.nextNode())) if (!m.parentElement.closest("code, kbd")) m.data = m.data.replace(/ /g, " ");
+      while ((m = bw.nextNode())) if (!m.parentElement.closest("code, kbd")) m.data = m.data.replace(/ /g, "\u00a0");
     });
     $$("code, a", cell).forEach(function (el) {
       if (el.tagName === "A" && el.querySelector("code")) return; // its code is handled as code
