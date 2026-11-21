@@ -253,10 +253,14 @@ ssh-keygen -t ed25519 -C "Mac"
 ```
 Usually, however, I restore my `.ssh` folder from my backup (see above).
 Either way, afterwards, one needs to add the file containing your key, usually `id_rsa` or `id_ed25519`, to the ssh-agent.
-First start the ssh-agent in the background:
+First start the ssh-agent in the background.
+In bash or zsh:
 ```sh
-eval "$(ssh-agent -s)" # works in bash or zsh
-eval (ssh-agent -c)    # works in fish
+eval "$(ssh-agent -s)"
+```
+In fish:
+```fish
+eval (ssh-agent -c)
 ```
 Next, we need to modify `~/.ssh/config` file to automatically load keys into the ssh-agent and store passphrases in the keychain.
 As I restore from backup, I don't have to do this step.

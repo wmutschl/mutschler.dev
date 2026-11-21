@@ -164,27 +164,27 @@ Inspect first:
 lsblk -b -o NAME,SIZE,MODEL,SERIAL,TYPE,FSTYPE,MOUNTPOINTS
 #> NAME                  SIZE MODEL          SERIAL          TYPE FSTYPE   MOUNTPOINTS
 #> loop0           1335115776                                loop squashfs /rofs
-#> loop1            156299264                                loop squashfs 
-#> loop2             27041792                                loop squashfs 
-#> loop3                98304                                loop squashfs 
+#> loop1            156299264                                loop squashfs
+#> loop2             27041792                                loop squashfs
+#> loop3                98304                                loop squashfs
 #> loop4             70049792                                loop squashfs /snap/core24/1643
 #> loop5              1581056                                loop squashfs /snap/hwctl/123
 #> loop6             22769664                                loop squashfs /snap/subiquity/7403
 #> loop7             52535296                                loop squashfs /snap/snapd/27710
-#> sda          2048408248320 Verbatim Vi560 493653348990842 disk          
-#> |-sda1          1073741824                                part vfat     
-#> |-sda2          2147483648                                part ext4     
-#> |-sda3          8589934592                                part swap     
-#> `-sda4       2036595687424                                part btrfs    
-#> sdb            62914560000 Twist Line     64847016        disk iso9660  
+#> sda          2048408248320 Verbatim Vi560 493653348990842 disk
+#> |-sda1          1073741824                                part vfat
+#> |-sda2          2147483648                                part ext4
+#> |-sda3          8589934592                                part swap
+#> `-sda4       2036595687424                                part btrfs
+#> sdb            62914560000 Twist Line     64847016        disk iso9660
 #> |-sdb1          2922217472                                part iso9660  /cdrom
-#> |-sdb2             5271552                                part vfat     
-#> |-sdb3              307200                                part          
+#> |-sdb2             5271552                                part vfat
+#> |-sdb3              307200                                part
 #> `-sdb4         59983790080                                part ext4     /var/crash
 #>                                                                         /var/log
-#> mmcblk0        31268536320                0x3c238908      disk btrfs    
-#> mmcblk0boot0       4194304                0x3c238908      disk btrfs    
-#> mmcblk0boot1       4194304                0x3c238908      disk btrfs  
+#> mmcblk0        31268536320                0x3c238908      disk btrfs
+#> mmcblk0boot0       4194304                0x3c238908      disk btrfs
+#> mmcblk0boot1       4194304                0x3c238908      disk btrfs
 
 ls -l /dev/disk/by-id/ata-*
 #> lrwxrwxrwx 1 root root  9 Nov 16 08:34 /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842 -> ../../sda
@@ -220,11 +220,11 @@ The installer's shell runs as root, so the commands need no `sudo`:
 DISK=/dev/disk/by-id/ata-Verbatim_Vi560_493653348990842
 lsblk -o NAME,MODEL,SERIAL,SIZE,FSTYPE,MOUNTPOINTS "$DISK"
 #> NAME   MODEL          SERIAL           SIZE FSTYPE MOUNTPOINTS
-#> sda    Verbatim Vi560 493653348990842  1.9T        
-#> |-sda1                                   1G vfat   
-#> |-sda2                                   2G ext4   
-#> |-sda3                                   8G swap   
-#> `-sda4                                 1.9T btrfs 
+#> sda    Verbatim Vi560 493653348990842  1.9T
+#> |-sda1                                   1G vfat
+#> |-sda2                                   2G ext4
+#> |-sda3                                   8G swap
+#> `-sda4                                 1.9T btrfs
 
 # Make sure nothing on the disk is mounted or used as swap
 swapoff -a
@@ -244,10 +244,10 @@ partprobe "$DISK" # should print nothing, kernel should re-read the new partitio
 udevadm settle # should print nothing, udev should have processed all device events in the kernel queue
 lsblk -o NAME,SIZE,PARTLABEL,FSTYPE "$DISK"
 #> NAME    SIZE PARTLABEL   FSTYPE
-#> sda     1.9T             
-#> |-sda1    1G wyse-efi    
-#> |-sda2    2G wyse-boot   
-#> |-sda3    8G wyse-swap   
+#> sda     1.9T
+#> |-sda1    1G wyse-efi
+#> |-sda2    2G wyse-boot
+#> |-sda3    8G wyse-swap
 #> `-sda4   64G wyse-system
 
 # Prepare the EFI partition
@@ -257,15 +257,15 @@ mkfs.fat -F 32 -n WYSE_EFI "$DISK"-part1
 # Prepare the boot partition
 mkfs.ext4 -F -L wyse-boot "$DISK"-part2
 #> mke2fs 1.47.2 (1-Jan-2025)
-#> Discarding device blocks: done                            
+#> Discarding device blocks: done
 #> Creating filesystem with 524288 4k blocks and 131072 inodes
 #> Filesystem UUID: 3158056c-ac6e-454c-828c-45422492f5fa
-#> Superblock backups stored on blocks: 
+#> Superblock backups stored on blocks:
 #> 	32768, 98304, 163840, 229376, 294912
-#> Allocating group tables: done                            
-#> Writing inode tables: done                            
+#> Allocating group tables: done
+#> Writing inode tables: done
 #> Creating journal (16384 blocks): done
-#> Writing superblocks and filesystem accounting information: done 
+#> Writing superblocks and filesystem accounting information: done
 
 # Prepare the swap partition
 mkswap -L wyse-swap "$DISK"-part3
@@ -292,7 +292,7 @@ mkfs.btrfs -f -L wyse-system "$DISK"-part4
 #> Checksum:           crc32c
 #> Number of devices:  1
 #> Devices:
-#>    ID        SIZE  PATH                                                    
+#>    ID        SIZE  PATH
 #>     1    64.00GiB  /dev/disk/by-id/ata-Verbatim_Vi560_493653348990842-part4
 
 # Create the BTRFS subvolumes
@@ -377,13 +377,13 @@ lsblk -o NAME,SIZE,MODEL,SERIAL,FSTYPE,MOUNTPOINTS
 #> loop3        32.5M                                squashfs /snap/snapd/28332
 #> loop4          74M                                squashfs /snap/core22/3129
 #> loop5        13.2M                                squashfs /snap/canonical-livepatch/418
-#> sda           1.9T Verbatim Vi560 493653348990842          
+#> sda           1.9T Verbatim Vi560 493653348990842
 #> ├─sda1          1G                                vfat     /boot/efi
 #> ├─sda2          2G                                ext4     /boot
 #> ├─sda3          8G                                swap     [SWAP]
 #> └─sda4         64G                                btrfs    /
-#> mmcblk0      29.1G                0x3c238908      btrfs    
-#> mmcblk0boot0    4M                                         
+#> mmcblk0      29.1G                0x3c238908      btrfs
+#> mmcblk0boot0    4M
 #> mmcblk0boot1    4M
 ```
 
@@ -402,7 +402,7 @@ Listing `dracut` explicitly makes sure of that: it replaces `initramfs-tools` if
 sudo apt update
 sudo apt install --no-install-recommends cryptsetup systemd-cryptsetup dracut dracut-network
 dpkg-query -W -f='${Package} ${db:Status-Abbrev}\n' dracut initramfs-tools
-#> dracut ii 
+#> dracut ii
 #> initramfs-tools un
 ```
 
@@ -450,10 +450,10 @@ SYS="$DISK"-part4
 # Check that this is the prepared BTRFS partition and that nothing is mounted or used as swap
 lsblk -o NAME,SIZE,PARTLABEL,FSTYPE,LABEL,MOUNTPOINTS "$DISK"
 #> NAME    SIZE PARTLABEL   FSTYPE LABEL       MOUNTPOINTS
-#> sda     1.9T                                
-#> |-sda1    1G wyse-efi    vfat   WYSE_EFI    
-#> |-sda2    2G wyse-boot   ext4               
-#> |-sda3    8G wyse-swap   swap               
+#> sda     1.9T
+#> |-sda1    1G wyse-efi    vfat   WYSE_EFI
+#> |-sda2    2G wyse-boot   ext4
+#> |-sda3    8G wyse-swap   swap
 #> `-sda4   64G wyse-system btrfs  wyse-system
 swapoff -a
 
@@ -477,10 +477,10 @@ cryptsetup reencrypt --encrypt --type luks2 --reduce-device-size 32M "$SYS"
 #> WARNING!
 #> ========
 #> This will overwrite data on LUKS2-temp-b06d573e-c4d7-4696-80e5-58d2ce2bf9a3.new irrevocably.
-#> 
+#>
 #> Are you sure? (Type 'yes' in capital letters): YES
-#> Enter passphrase for LUKS2-temp-b06d573e-c4d7-4696-80e5-58d2ce2bf9a3.new: 
-#> Verify passphrase: 
+#> Enter passphrase for LUKS2-temp-b06d573e-c4d7-4696-80e5-58d2ce2bf9a3.new:
+#> Verify passphrase:
 #> Finished, time 06m18s,   63 GiB written, speed 172.9 MiB/s
 
 # Change the LUKS label
@@ -543,7 +543,7 @@ echo 'hostonly="yes"' > "$MNT/etc/dracut.conf.d/90-dell-wyse.conf"
 chroot "$MNT" update-initramfs -u -k all
 
 # Verify: every installed kernel's initrd must contain the wyse-system line
-# wyse-system UUID=... none luks,discard,x-initrd.attach   (one line per kernel; if one is missing, do not reboot)
+# wyse-system /dev/disk/by-uuid/... none luks,discard,x-initrd.attach   (one line per kernel; if one is missing, do not reboot)
 for v in $(chroot "$MNT" linux-version list); do
   chroot "$MNT" lsinitrd -f etc/crypttab "/boot/initrd.img-$v" | grep '^wyse-system '
 done
@@ -580,15 +580,15 @@ lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINTS
 #> loop3           50.1M loop  squashfs    /snap/snapd/27710
 #> loop4            1.5M loop  squashfs    /snap/hwctl/123
 #> loop5           32.5M loop  squashfs    /snap/snapd/28332
-#> sda              1.9T disk              
+#> sda              1.9T disk
 #> ├─sda1             1G part  vfat        /boot/efi
 #> ├─sda2             2G part  ext4        /boot
-#> ├─sda3             8G part              
+#> ├─sda3             8G part
 #> │ └─wyse-swap      8G crypt swap        [SWAP]
-#> └─sda4           1.9T part  crypto_LUKS 
+#> └─sda4           1.9T part  crypto_LUKS
 #>   └─wyse-system  1.9T crypt btrfs       /
-#> mmcblk0         29.1G disk  btrfs       
-#> mmcblk0boot0       4M disk              
+#> mmcblk0         29.1G disk  btrfs
+#> mmcblk0boot0       4M disk
 #> mmcblk0boot1       4M disk
 
 sudo cryptsetup status wyse-system
@@ -602,7 +602,7 @@ sudo cryptsetup status wyse-system
 #>   offset:  32768 [512-byte units] (16777216 [bytes])
 #>   size:    3977693839 [512-byte units] (2036579245568 [bytes])
 #>   mode:    read/write
-#>   flags:   discards 
+#>   flags:   discards
 
 swapon --show
 #> NAME      TYPE      SIZE USED PRIO
@@ -650,11 +650,11 @@ rm ~/dell-wyse-system-luks-header.img
 
 ## 4 Mount the other subvolumes before installing Docker
 
-At the **local console** of the fresh Ubuntu, install the editor and the BTRFS tools, then copy the initial home directory, including hidden files and imported keys.
+At the **local console** of the fresh Ubuntu, install the BTRFS tools, then copy the initial home directory, including hidden files and imported keys.
 Enter the commands one by one in the same terminal session, because they rely on the `POOL_UUID` shell variable.
 
 ```sh
-# Install the editor and BTRFS tools
+# Install the BTRFS tools
 sudo apt update
 sudo apt install --no-install-recommends btrfs-progs -y
 
@@ -715,8 +715,11 @@ EOF
 # Show the result
 cat /etc/fstab
 #> # <file system> <mount point>   <type>  <options>       <dump>  <pass>
+#> # / was on /dev/sda4 during curtin installation
 #> UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /  btrfs  defaults,noatime,subvol=@root,compress=zstd:3  0 0
+#> # /boot was on /dev/sda2 during curtin installation
 #> /dev/disk/by-uuid/b6f36e34-7f7a-4443-8c7c-09e168af28e4 /boot ext4 defaults 0 1
+#> # /boot/efi was on /dev/sda1 during curtin installation
 #> /dev/disk/by-uuid/1271-8172 /boot/efi vfat defaults 0 1
 #> /dev/mapper/wyse-swap  none  swap  sw  0 0
 #> UUID=51c948e0-74f2-4f5c-b5e3-90b06f3b421f  /home                btrfs  defaults,noatime,subvol=@home,compress=zstd:3        0 0
@@ -854,6 +857,7 @@ sudo timedatectl set-timezone Europe/Berlin
 
 # Check the time zone and the clock
 timedatectl status
+#~ Time zone: Europe/Berlin, System clock synchronized: yes, NTP service: active
 ```
 
 Automatic reboots stay off, because every boot waits for the passphrase over SSH (set up below).
@@ -1025,21 +1029,21 @@ sudo ufw status verbose
 #> New profiles: skip
 #> To                         Action      From
 #> --                         ------      ----
-#> 22/tcp on enp1s0           ALLOW IN    192.168.178.0/24 
+#> 22/tcp on enp1s0           ALLOW IN    192.168.178.0/24
 
 # List every port the machine is listening on, together with the program that owns it
 sudo ss -lntup
-#> Netid        State         Recv-Q        Send-Q                                    Local Address:Port                Peer Address:Port        Process                                                         
-#> udp          UNCONN        0             0                                            127.0.0.54:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=18))                     
-#> udp          UNCONN        0             0                                         127.0.0.53%lo:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=16))                     
-#> udp          UNCONN        0             0                                 192.168.178.55%enp1s0:68                       0.0.0.0:*            users:(("systemd-network",pid=1784,fd=37))                     
-#> udp          UNCONN        0             0                                             127.0.0.1:323                      0.0.0.0:*            users:(("chronyd",pid=1946,fd=4))                              
-#> udp          UNCONN        0             0                                                 [::1]:323                         [::]:*            users:(("chronyd",pid=1946,fd=5))                              
-#> udp          UNCONN        0             0                    [fe80::2e0:4cff:fe00:55]%enp1s0:546                         [::]:*            users:(("systemd-network",pid=1784,fd=36))                     
-#> tcp          LISTEN        0             4096                                            0.0.0.0:22                       0.0.0.0:*            users:(("sshd",pid=7164,fd=3),("systemd",pid=1,fd=194))        
-#> tcp          LISTEN        0             4096                                      127.0.0.53%lo:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=17))                     
-#> tcp          LISTEN        0             4096                                         127.0.0.54:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=19))                     
-#> tcp          LISTEN        0             4096                                               [::]:22                          [::]:*            users:(("sshd",pid=7164,fd=4),("systemd",pid=1,fd=195))        
+#> Netid        State         Recv-Q        Send-Q                                    Local Address:Port                Peer Address:Port        Process
+#> udp          UNCONN        0             0                                            127.0.0.54:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=18))
+#> udp          UNCONN        0             0                                         127.0.0.53%lo:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=16))
+#> udp          UNCONN        0             0                                 192.168.178.55%enp1s0:68                       0.0.0.0:*            users:(("systemd-network",pid=1784,fd=37))
+#> udp          UNCONN        0             0                                             127.0.0.1:323                      0.0.0.0:*            users:(("chronyd",pid=1946,fd=4))
+#> udp          UNCONN        0             0                                                 [::1]:323                         [::]:*            users:(("chronyd",pid=1946,fd=5))
+#> udp          UNCONN        0             0                    [fe80::2e0:4cff:fe00:55]%enp1s0:546                         [::]:*            users:(("systemd-network",pid=1784,fd=36))
+#> tcp          LISTEN        0             4096                                            0.0.0.0:22                       0.0.0.0:*            users:(("sshd",pid=7164,fd=3),("systemd",pid=1,fd=194))
+#> tcp          LISTEN        0             4096                                      127.0.0.53%lo:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=17))
+#> tcp          LISTEN        0             4096                                         127.0.0.54:53                       0.0.0.0:*            users:(("systemd-resolve",pid=1349,fd=19))
+#> tcp          LISTEN        0             4096                                               [::]:22                          [::]:*            users:(("sshd",pid=7164,fd=4),("systemd",pid=1,fd=195))
 ```
 
 Then confirm from the Mac that a new SSH connection still gets through.
@@ -1086,8 +1090,8 @@ Finally, check which services run on the host:
 
 ```sh
 systemctl --type=service --state=running
-#> UNIT                                                  LOAD   ACTIVE SUB     DESCRIPTION                                                      
-#>   
+#> UNIT                                                  LOAD   ACTIVE SUB     DESCRIPTION
+#>
 #> chrony.service                                        loaded active running chrony, an NTP client/server
 #> dbus.service                                          loaded active running D-Bus System Message Bus
 #> getty@tty1.service                                    loaded active running Getty on tty1
@@ -1106,11 +1110,11 @@ systemctl --type=service --state=running
 #> thermald.service                                      loaded active running Thermal Daemon Service
 #> unattended-upgrades.service                           loaded active running Unattended Upgrades Shutdown
 #> user@1000.service                                     loaded active running User Manager for UID 1000
-#> 
+#>
 #> Legend: LOAD   → Reflects whether the unit definition was properly loaded.
 #>       ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
 #>       SUB    → The low-level unit activation state, values depend on unit type.
-#> 
+#>
 #> 18 loaded units listed.
 ```
 
@@ -1228,13 +1232,13 @@ ssh dell-wyse-unlock
 #> This key is not known by any other names.
 #> Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
 #> Warning: Permanently added 'dell-wyse-initrd' (ED25519) to the list of known hosts.
-#> 
+#>
 #> Welcome to the early boot SSH environment. You may type
-#> 
+#>
 #>     systemd-tty-ask-password-agent
-#> 
+#>
 #> (or press "arrow up") to unlock your disks.
-#> 
+#>
 #> This shell will terminate automatically a few seconds after the
 #> unlocking process has succeeded and when the boot proceeds.
 ```
@@ -1420,8 +1424,8 @@ sudo apt install --no-install-recommends btrbk samba cryptsetup parted -y
 
 # Disable BTRBK's own timer, if the package ships one; the dell-wyse-* timers replace it
 systemctl list-unit-files 'btrbk*'
-#> UNIT FILE     STATE   PRESET 
-#> btrbk.service static  -      
+#> UNIT FILE     STATE   PRESET
+#> btrbk.service static  -
 #> btrbk.timer   enabled enabled
 #> 2 unit files listed.
 sudo systemctl disable --now btrbk.timer
@@ -1589,12 +1593,12 @@ Enter the commands one by one in the same terminal session, because they rely on
 ```sh
 # List the disks and their by-id paths; identify both HDDs by model, serial and size
 lsblk -o NAME,SIZE,MODEL,SERIAL,FSTYPE,MOUNTPOINTS
-#> sdb              5.5T WDC WD60NDZW-11C8XS0 WD-WX62D343TDXJ             
-#> ├─sdb1           200M                                      vfat        
-#> └─sdb2           5.5T                                      apfs        
-#> sdc              3.6T TOSHIBA MQ04UBB400   X0S7T0TWT                   
-#> ├─sdc1           200M                                      vfat        
-#> └─sdc2           3.6T                                      apfs        
+#> sdb              5.5T WDC WD60NDZW-11C8XS0 WD-WX62D343TDXJ
+#> ├─sdb1           200M                                      vfat
+#> └─sdb2           5.5T                                      apfs
+#> sdc              3.6T TOSHIBA MQ04UBB400   X0S7T0TWT
+#> ├─sdc1           200M                                      vfat
+#> └─sdc2           3.6T                                      apfs
 ls -l /dev/disk/by-id/usb-*
 #> lrwxrwxrwx 1 root root  9 Nov 16 13:29 /dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0 -> ../../sdc
 #> lrwxrwxrwx 1 root root 10 Nov 16 13:29 /dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0-part1 -> ../../sdc1
@@ -1610,13 +1614,12 @@ HDD2=/dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0
 # Confirm the choice: both disks with the expected model, serial and size, and nothing mounted
 lsblk -o NAME,MODEL,SERIAL,SIZE,FSTYPE,MOUNTPOINTS "$HDD1" "$HDD2"
 #> NAME   MODEL                SERIAL           SIZE FSTYPE MOUNTPOINTS
-#> sdb    WDC WD60NDZW-11C8XS0 WD-WX62D343TDXJ  5.5T        
-#> ├─sdb1                                       200M vfat   
-#> └─sdb2                                       5.5T apfs   
-#> sdc    TOSHIBA MQ04UBB400   X0S7T0TWT        3.6T        
-#> ├─sdc1                                       200M vfat   
-#> └─sdc2                                       3.6T apfs  
-
+#> sdb    WDC WD60NDZW-11C8XS0 WD-WX62D343TDXJ  5.5T
+#> ├─sdb1                                       200M vfat
+#> └─sdb2                                       5.5T apfs
+#> sdc    TOSHIBA MQ04UBB400   X0S7T0TWT        3.6T
+#> ├─sdc1                                       200M vfat
+#> └─sdc2                                       3.6T apfs
 ```
 
 **HDD 1.** Skip this block when you replace only HDD 2:
@@ -1656,7 +1659,7 @@ sudo mkfs.btrfs -L wyse-btrbk /dev/mapper/wyse-btrbk
 #> Checksum:           crc32c
 #> Number of devices:  1
 #> Devices:
-#>    ID        SIZE  PATH                  
+#>    ID        SIZE  PATH
 #>     1     5.46TiB  /dev/mapper/wyse-btrbk
 sudo cryptsetup close wyse-btrbk
 ```
@@ -1689,7 +1692,7 @@ sudo mkfs.btrfs -L wyse-borg "$HDD2"-part1
 #> Checksum:           crc32c
 #> Number of devices:  1
 #> Devices:
-#>    ID        SIZE  PATH                                                                  
+#>    ID        SIZE  PATH
 #>     1     3.64TiB  /dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0-part1
 ```
 
@@ -1699,9 +1702,9 @@ Check the result:
 # Verify: partition btrbk holds crypto_LUKS (wyse-btrbk-luks), partition borg holds btrfs (wyse-borg)
 lsblk -o NAME,SIZE,PARTLABEL,FSTYPE,LABEL "$HDD1" "$HDD2"
 #> NAME    SIZE PARTLABEL FSTYPE      LABEL
-#> sdb     5.5T                       
+#> sdb     5.5T
 #> └─sdb1  5.5T btrbk     crypto_LUKS wyse-btrbk-luks
-#> sdc     3.6T                       
+#> sdc     3.6T
 #> └─sdc1  3.6T borg      btrfs       wyse-borg
 ```
 
@@ -1738,9 +1741,9 @@ HDD2=/dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0
 # Confirm: partition btrbk holds crypto_LUKS (wyse-btrbk-luks), partition borg holds btrfs (wyse-borg)
 lsblk -o NAME,SIZE,PARTLABEL,FSTYPE,LABEL "$HDD1" "$HDD2"
 #> NAME    SIZE PARTLABEL FSTYPE      LABEL
-#> sdb     5.5T                       
+#> sdb     5.5T
 #> └─sdb1  5.5T btrbk     crypto_LUKS wyse-btrbk-luks
-#> sdc     3.6T                       
+#> sdc     3.6T
 #> └─sdc1  3.6T borg      btrfs       wyse-borg
 ```
 
@@ -1917,7 +1920,7 @@ It finds today's copies already on HDD 1, finishes in seconds and creates the ch
 sudo systemctl enable --now dell-wyse-btrbk-snapshot.timer dell-wyse-btrbk-send.timer
 sudo systemctl start dell-wyse-btrbk-send.service
 systemctl list-timers 'dell-wyse-*'
-#> NEXT                            LEFT LAST                             PASSED UNIT                            ACTIVATES                        
+#> NEXT                            LEFT LAST                             PASSED UNIT                            ACTIVATES
 #> Mon 2026-11-16 14:00:00 CET 2min 48s Mon 2026-11-16 13:55:07 CET 2min 4s ago dell-wyse-alive.timer          dell-wyse-alive.service
 #> Mon 2026-11-16 14:00:00 CET 2min 48s -                                     - dell-wyse-btrbk-snapshot.timer dell-wyse-btrbk-snapshot.service
 #> Tue 2026-11-17 01:30:00 CET      11h -                                     - dell-wyse-btrbk-send.timer     dell-wyse-btrbk-send.service
@@ -2027,18 +2030,18 @@ sudo ufw allow in on enp1s0 from 192.168.178.50 to any port 445 proto tcp
 sudo ufw status verbose
 #> To                         Action      From
 #> --                         ------      ----
-#> 22/tcp on enp1s0           ALLOW IN    192.168.178.0/24          
+#> 22/tcp on enp1s0           ALLOW IN    192.168.178.0/24
 #> 224.0.0.1/igmp on enp1s0   DENY IN     192.168.178.1/igmp         # IGMP queries from the router
 #> 53805/udp on enp1s0        DENY IN     Anywhere                   # FRITZ mesh discovery
-#> 445/tcp on enp1s0          ALLOW IN    192.168.178.50 
+#> 445/tcp on enp1s0          ALLOW IN    192.168.178.50
 #> 53805/udp (v6) on enp1s0   DENY IN     Anywhere (v6)              # FRITZ mesh discovery
 
 sudo ss -lntup | grep -E ':(139|445) '
-#> tcp   LISTEN 0      50                                  127.0.0.1:445       0.0.0.0:*    users:(("smbd",pid=8739,fd=31))                        
-#> tcp   LISTEN 0      50                             192.168.178.55:445       0.0.0.0:*    users:(("smbd",pid=8739,fd=28))                        
-#> tcp   LISTEN 0      50                                      [::1]:445          [::]:*    users:(("smbd",pid=8739,fd=32))                        
-#> tcp   LISTEN 0      50                            [fd00:db8::55]:445          [::]:*    users:(("smbd",pid=8739,fd=29))                        
-#> tcp   LISTEN 0      50                           [2001:db8::55]:445          [::]:*    users:(("smbd",pid=8739,fd=30))   
+#> tcp   LISTEN 0      50                                  127.0.0.1:445       0.0.0.0:*    users:(("smbd",pid=8739,fd=31))
+#> tcp   LISTEN 0      50                             192.168.178.55:445       0.0.0.0:*    users:(("smbd",pid=8739,fd=28))
+#> tcp   LISTEN 0      50                                      [::1]:445          [::]:*    users:(("smbd",pid=8739,fd=32))
+#> tcp   LISTEN 0      50                            [fd00:db8::55]:445          [::]:*    users:(("smbd",pid=8739,fd=29))
+#> tcp   LISTEN 0      50                           [2001:db8::55]:445          [::]:*    users:(("smbd",pid=8739,fd=30))
 ```
 
 Store the Samba password in your password manager.
@@ -2569,7 +2572,7 @@ These should be addresses outside `100.x`, but the record can take up to ten min
      #>   *  subject: CN=nextcloud.tailnet-name.ts.net
      #>   *  issuer: C=US; O=Let's Encrypt; CN=YE1
      #>   *  SSL certificate verify ok.
-     #>   < HTTP/2 302 
+     #>   < HTTP/2 302
      ```
 
    Only then reload the interface as `https://nextcloud.tailnet-name.ts.net:8080/containers?skip_domain_validation` and enter the domain again.

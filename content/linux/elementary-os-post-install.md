@@ -211,10 +211,15 @@ If I want to create a new SSH key, I run e.g.:
 ```bash
 ssh-keygen -t ed25519 -C "elementary-on-green-lantern"
 ```
-Usually, however, I restore my `.ssh` folder from my backup. Either way, afterwards, one needs to add the file containing your key, usually `id_rsa` or `id_ed25519`, to the ssh-agent:
+Usually, however, I restore my `.ssh` folder from my backup. Either way, afterwards, one needs to add the file containing your key, usually `id_rsa` or `id_ed25519`, to the ssh-agent.
+In bash:
 ```bash
-eval "$(ssh-agent -s)" #works in bash
-eval (ssh-agent -c) #works in fish
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+```
+In fish:
+```fish
+eval (ssh-agent -c)
 ssh-add ~/.ssh/id_ed25519
 ```
 Don't forget to add your public key to GitHub, Gitlab, Servers, etc.
