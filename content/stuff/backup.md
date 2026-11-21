@@ -51,7 +51,7 @@ The principles stayed the same:
 
 This is how the pieces fit together:
 
-{{< svg-figure src="backup-map.svg" id="backup-map" caption="Where my backups live in November 2026. Solid lines run today, dashed parts are planned, and the highlighted line is the server's off-site copy. Times are local (Europe/Berlin)." >}}
+{{< svg-figure src="backup-map.svg" id="backup-map" caption="Where my backups live in November 2026. The highlighted, dashed lines are the copies that leave the house; the plan for the next setup is in section 6.2. Times are local (Europe/Berlin)." >}}
 
 ## 1 The machines and their data
 
@@ -78,13 +78,13 @@ Every night, a consistent Gitea backup and an export of modCraft's statistics go
 
 These are the copies of the data on the Wyse:
 
-| # | Copy | Where | Versions | Encrypted | Protects against |
-|---|---|---|---|---|---|
-| 1 | Live data, plus Nextcloud's own trash and file versions | Vi560 SSD in the Wyse | Nextcloud's versions only | LUKS2 | Nothing beyond a quick undo in Nextcloud |
-| 2 | BTRBK snapshots | Same SSD | 48 hourly, 7 daily | LUKS2 | A deleted or overwritten file, a bad change on the host |
-| 3 | BTRBK send/receive | HDD 1, WD Elements 6 TB, USB | 30 daily, 12 weekly, 12 monthly | LUKS2 | A dead SSD; mistakes noticed weeks or months later |
-| 4 | AIO's Borg backup of Nextcloud | HDD 2, Toshiba 4 TB, USB | AIO's default: all of the last 7 days, 4 weekly, 6 monthly | Borg | A broken Nextcloud installation; the consistent copy to restore the application from |
-| 5 | Mirror of the Borg repository and the HA backups | Hetzner Storage Box | 10 daily Storage Box snapshots | Borg and Home Assistant, before they leave the house | Fire, theft or a power surge that takes all three disks at home |
+| Copy | Where | Versions | Encrypted | Protects against |
+|---|---|---|---|---|
+| Live data, plus Nextcloud's own trash and file versions | Vi560 SSD in the Wyse | Nextcloud's versions only | LUKS2 | Nothing beyond a quick undo in Nextcloud |
+| BTRBK snapshots | Same SSD | 48 hourly, 7 daily | LUKS2 | A deleted or overwritten file, a bad change on the host |
+| BTRBK send/receive | HDD 1, WD Elements 6 TB, USB | 30 daily, 12 weekly, 12 monthly | LUKS2 | A dead SSD; mistakes noticed weeks or months later |
+| AIO's Borg backup | HDD 2, Toshiba 4 TB, USB | AIO's default: all of the last 7 days, 4 weekly, 6 monthly | Borg | A broken Nextcloud installation; the consistent copy to restore the application from |
+| Mirror of the Borg repository and the HA backups | Hetzner Storage Box | 10 daily Storage Box snapshots | Borg, and Home Assistant's key | Fire, theft or a power surge that takes all three disks at home |
 
 Some details matter:
 
@@ -100,6 +100,7 @@ Some details matter:
 * **The two HDDs hang off different internal USB hubs** of the Wyse, so one hub reset does not take out both.
 * **The off-site copy is a mirror, not a second Borg repository.**
   Nothing writes to it except the nightly rsync.
+  Both of its parts are encrypted before they leave the house: the repository by Borg, the HA backups by Home Assistant.
   What protects it against a sync that copies damage or deletions are the Storage Box's own daily snapshots.
   I manage those only in the Hetzner Console; the Wyse's SSH key cannot touch them, so even a compromised Wyse cannot delete them ([section 7.6](/linux/wyse-ubuntu-nextcloud-aio/#76-off-site-mirror-on-a-hetzner-storage-box)).
 * **None of these copies is offline.**
@@ -131,23 +132,25 @@ Apart from the devices themselves, there is no second copy of them.
 
 The Wyse's timers run in its local time, Europe/Berlin.
 AIO reads its backup time as UTC, and the Storage Box's snapshot time is UTC as well.
+My AIO backup at 04:00 UTC (the guide's example is 03:00 UTC) therefore starts at 05:00 CET or 06:00 CEST, and the snapshot at 13:00 UTC is taken at 14:00 CET or 15:00 CEST.
+Home Assistant runs its daily backup at its "System optimal" time, between 04:45 and 05:45.
 
-| When | Job | From → to | Reports to |
+| When | Job | From → to | Reports to healthchecks.io as |
 |---|---|---|---|
-| Every five minutes | Uptime ping | – | healthchecks.io: `dell-wyse-alive` |
-| Every minute | Home Assistant heartbeat | – | healthchecks.io |
-| Hourly | BTRBK snapshot | Live subvolumes → snapshots on the SSD | healthchecks.io: `dell-wyse-btrbk-snapshot` |
-| Daily, 01:30 | BTRBK send/receive | Snapshots → HDD 1 | healthchecks.io: `dell-wyse-btrbk-send` |
-| Daily, at HA's "System optimal" time, between 04:45 and 05:45 | Home Assistant backup | Pi → share on the Wyse, then to HDD 1 with the next night's send | healthchecks.io: `dell-wyse-ha-backup-check` at 07:00; a repair in HA |
-| Daily, 04:00 UTC on my Wyse (the guide's example is 03:00 UTC), i.e. 05:00 CET or 06:00 CEST | AIO's updates, then the Borg backup, then the containers start again | Nextcloud → HDD 2 | AIO notifies its administrators in Nextcloud if it fails |
-| Daily, 06:30, once AIO's backup has finished | Off-site mirror | Borg repository and HA backups → Storage Box | healthchecks.io: `dell-wyse-offsite` |
-| Daily, 13:00 UTC, i.e. 14:00 CET or 15:00 CEST | Storage Box snapshot, 10 kept | Inside the Storage Box | – |
-| Daily, 02:30 | Gitea backup on the Mac mini (`pg_dump` and `gitea dump`) | Gitea → `~/Backups/gitea`, then Time Machine | healthchecks.io: `mac-mini-gitea-backup` |
+| Every five minutes | Uptime ping | – | `dell-wyse-alive` |
+| Every minute | Home Assistant heartbeat | – | Home Assistant heartbeat |
+| Hourly | BTRBK snapshot | Live subvolumes → snapshots on the SSD | `dell-wyse-btrbk-snapshot` |
+| Daily, 01:30 | BTRBK send/receive | Snapshots → HDD 1 | `dell-wyse-btrbk-send` |
+| Daily, 04:45–05:45 | Home Assistant backup | Pi → share on the Wyse, then to HDD 1 with the next night's send | `dell-wyse-ha-backup-check` at 07:00 |
+| Daily, 04:00 UTC | AIO's updates, then the Borg backup, then the containers start again | Nextcloud → HDD 2 | – |
+| Daily, 06:30 | Off-site mirror, once AIO's backup has finished | Borg repository and HA backups → Storage Box | `dell-wyse-offsite` |
+| Daily, 13:00 UTC | Storage Box snapshot, 10 kept | Inside the Storage Box | – |
+| Daily, 02:30 | Gitea backup on the Mac mini (`pg_dump` and `gitea dump`) | Gitea → `~/Backups/gitea`, then Time Machine | `mac-mini-gitea-backup` |
 | Daily, 03:30 | modCraft statistics export on the Mac mini | modCraft → its backups folder, then Time Machine | – |
-| Hourly | Time Machine on each Mac | Mac → its Time Machine disk | macOS warns after days without a backup |
+| Hourly | Time Machine on each Mac | Mac → its Time Machine disk | – |
 | Weekly | TRIM of the SSD | – | – |
-| Sundays 11:00, and the 15th at 11:00 | SMART short and long self-tests | Vi560 and both HDDs | healthchecks.io: `dell-wyse-smartd`, failures only |
-| Monthly, on the 1st at 10:00 | BTRFS scrub and error counters | Vi560 and both HDDs | healthchecks.io: `dell-wyse-scrub` |
+| Sundays 11:00, and the 15th at 11:00 | SMART short and long self-tests | Vi560 and both HDDs | `dell-wyse-smartd`, failures only |
+| Monthly, on the 1st at 10:00 | BTRFS scrub and error counters | Vi560 and both HDDs | `dell-wyse-scrub` |
 
 The night looks roughly like this, in winter time (CET).
 The bars show start times; their lengths are rough guesses and vary from night to night.

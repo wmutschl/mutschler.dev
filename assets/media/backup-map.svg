@@ -1,18 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="bm" viewBox="0 0 1100 740" role="img" aria-labelledby="bm-title bm-desc">
+<svg xmlns="http://www.w3.org/2000/svg" class="bm" viewBox="0 0 1100 630" role="img" aria-labelledby="bm-title bm-desc">
   <title id="bm-title">Map of my backups in November 2026</title>
-  <desc id="bm-desc">Four locations drawn as frames. Home, from top to bottom: the Raspberry Pi 4 with Home Assistant OS sends a daily encrypted backup at about 05:00 over SMB to the Dell Wyse 5070. The Mac mini does not sync to Nextcloud; it runs Gitea, which mirrors my repositories on GitHub, GitLab and Dynare's GitLab, and modCraft, and it keeps my Photos library; it backs up hourly with Time Machine to a Samsung T7 2 TB, which therefore also holds the Photos library and the nightly Gitea backups. My wife's MacBook Air backs up hourly with Time Machine to a Crucial P1 1 TB. My MacBook Pro backs up hourly with Time Machine to a SanDisk 4 TB at home and, when docked in the office, to a LaCie 2 TB there. Both MacBooks sync to Nextcloud on the Wyse over Tailscale. All Time Machine disks are encrypted. On the Wyse, the encrypted system SSD holds the Nextcloud data, the host and the Home Assistant backups, with hourly btrbk snapshots (48 hourly, 7 daily). btrbk sends a copy every day at 01:30 to HDD 1, a 6 TB WD Elements with LUKS2 that keeps 30 daily, 12 weekly and 12 monthly copies. Nextcloud All-in-One makes an encrypted Borg backup every early morning to HDD 2, a 4 TB Toshiba. Hetzner data centre: every day at 06:30 rsync over SSH mirrors the Borg repository and the Home Assistant backups to a Storage Box, which takes its own daily snapshots. Planned, drawn dashed: an HP Elite Tower 800 G9 becomes the main server at home; the Wyse with the WD Elements moves to my mom's and pulls btrbk copies from the HP over Tailscale, probably replacing the Storage Box; the Toshiba becomes an offline copy in the office, updated by hand with btrbk; a second Time Machine disk for the Mac mini stays in the office and is swapped with the T7.</desc>
+  <desc id="bm-desc">Three locations drawn as frames; disks and storage are drawn as tinted cylinders, machines as plain boxes. Home, left column from top to bottom: the Raspberry Pi with Home Assistant OS sends a daily encrypted backup at about 05:00 over SMB to the SSD of the Dell Wyse 5070 to its right. Below the Pi, the Mac mini does not sync to Nextcloud; it runs Gitea, which mirrors my repositories on GitHub, GitLab and Dynare's GitLab, and modCraft, and it keeps my Photos library; it backs up hourly with Time Machine to a Samsung T7 2 TB below it, which therefore also holds the Photos library and the nightly Gitea backups. On the Wyse, the encrypted system SSD holds the Nextcloud data, the host and the Home Assistant backups, with hourly btrbk snapshots (48 hourly, 7 daily). btrbk sends a copy every day at 01:30 to HDD 1, a 6 TB WD Elements with LUKS2 that keeps 30 daily, 12 weekly and 12 monthly copies. Nextcloud All-in-One makes an encrypted Borg backup every early morning to HDD 2, a 4 TB Toshiba. Below the Wyse, side by side, my wife's MacBook Air and my MacBook Pro sync to Nextcloud over Tailscale: their lines meet and go up into the Wyse's SSD. Each also backs up hourly with Time Machine to the disk below it: the MacBook Air to a Crucial P1 1 TB, the MacBook Pro to a SanDisk 4 TB. All Time Machine disks are encrypted. Two copies leave the house and are highlighted as dashed lines. Hetzner data centre, to the right of the Wyse: every day at 06:30 rsync over SSH mirrors two things to a Storage Box, which takes its own daily snapshots: AIO's Borg repository from HDD 2 and the Home Assistant backups from the SSD. Office, to the right of the MacBook Pro: when the MacBook Pro is docked there, Time Machine backs it up to a LaCie 2 TB.</desc>
   <style>
     /* Colours come from the page's tokens when the SVG is inlined (Handbook), with fallbacks for anywhere else. */
-    .bm { --bm-paper: var(--paper, #F6F7F8); --bm-ink: var(--ink, #1C1F24); --bm-pencil: var(--pencil, #4A515B); --bm-rule: var(--rule, #C9CED4); --bm-spot: var(--spot, #B0122C); }
+    .bm { --bm-paper: var(--paper, #F6F7F8); --bm-ink: var(--ink, #1C1F24); --bm-pencil: var(--pencil, #4A515B); --bm-rule: var(--rule, #C9CED4); --bm-spot: var(--spot, #B0122C); --bm-tint: var(--tint, #E8EBEE); }
     @media (prefers-color-scheme: dark) {
-      .bm { --bm-paper: var(--paper, #1D2126); --bm-ink: var(--ink, #E3E5E8); --bm-pencil: var(--pencil, #A7AEB7); --bm-rule: var(--rule, #3A4048); --bm-spot: var(--spot, #F27D8F); }
+      .bm { --bm-paper: var(--paper, #1D2126); --bm-ink: var(--ink, #E3E5E8); --bm-pencil: var(--pencil, #A7AEB7); --bm-rule: var(--rule, #3A4048); --bm-spot: var(--spot, #F27D8F); --bm-tint: var(--tint, #272C33); }
     }
     .bm .bm-paper { fill: var(--bm-paper); }
     .bm .bm-box { fill: var(--bm-paper); stroke: var(--bm-ink); stroke-width: 1.2; }
+    /* Disks and storage are drawn as cylinders on a light wash; machines stay plain boxes */
+    .bm .bm-ghost { fill: none; stroke: none; }
+    .bm .bm-disk { fill: var(--bm-tint); stroke: var(--bm-ink); stroke-width: 1.2; }
+    .bm .bm-lid { fill: none; stroke: var(--bm-ink); stroke-width: 1.2; }
+    .bm .bm-tinted { fill: var(--bm-tint); }
     .bm .bm-frame { fill: none; stroke: var(--bm-rule); stroke-width: 1.6; }
     .bm .bm-line { fill: none; stroke: var(--bm-pencil); stroke-width: 1.4; }
-    .bm .bm-accent { fill: none; stroke: var(--bm-spot); stroke-width: 2; }
-    .bm .bm-dash { stroke-dasharray: 6 5; }
+    /* Copies that leave the house: red and dashed, so they stand out without colour too */
+    .bm .bm-accent { fill: none; stroke: var(--bm-spot); stroke-width: 2; stroke-dasharray: 7 5; }
     .bm .bm-head-pencil { fill: var(--bm-pencil); }
     .bm .bm-head-accent { fill: var(--bm-spot); }
     .bm text { font-family: var(--text-font, Literata, Georgia, serif); font-size: 13px; fill: var(--bm-ink); }
@@ -31,187 +36,167 @@
     </marker>
   </defs>
 
-  <rect class="bm-paper" x="0" y="0" width="1100" height="740"/>
+  <rect class="bm-paper" x="0" y="0" width="1100" height="630"/>
 
-  <!-- Location frames -->
-  <rect class="bm-frame" x="16" y="16" width="734" height="708" rx="18"/>
+  <!-- Location frames: Hetzner centred on the Wyse, the office on the MacBook Pro's line -->
+  <rect class="bm-frame" x="16" y="16" width="740" height="598" rx="18"/>
   <text class="bm-loc" x="36" y="46">Home</text>
 
-  <rect class="bm-frame" x="770" y="16" width="314" height="184" rx="18"/>
-  <text class="bm-loc" x="790" y="46">Hetzner data centre</text>
+  <rect class="bm-frame" x="776" y="142" width="308" height="188" rx="18"/>
+  <text class="bm-loc" x="796" y="172">Hetzner data centre</text>
 
-  <rect class="bm-frame bm-dash" x="770" y="216" width="314" height="176" rx="18"/>
-  <text class="bm-loc" x="790" y="246">My mom's (planned)</text>
+  <rect class="bm-frame" x="776" y="404" width="308" height="134" rx="18"/>
+  <text class="bm-loc" x="796" y="434">Office</text>
 
-  <rect class="bm-frame" x="770" y="408" width="314" height="316" rx="18"/>
-  <text class="bm-loc" x="790" y="438">The office</text>
+  <!-- Home, left column: Raspberry Pi, then the Mac mini with its Time Machine disk -->
+  <rect class="bm-box" x="36" y="88" width="176" height="80" rx="8"/>
+  <text class="bm-h" x="48" y="112">Raspberry Pi</text>
+  <text x="48" y="132">Home Assistant OS,</text>
+  <text x="48" y="148">keeps 60 backups itself</text>
 
-  <!-- Home, left column from top to bottom: Raspberry Pi, Mac mini, MacBook Air, MacBook Pro -->
-  <rect class="bm-box" x="36" y="58" width="176" height="80" rx="8"/>
-  <text class="bm-h" x="48" y="82">Raspberry Pi 4</text>
-  <text x="48" y="102">Home Assistant OS,</text>
-  <text x="48" y="118">keeps 60 backups itself</text>
-
-  <path class="bm-line" d="M212,98 L318,98" marker-end="url(#bm-arrow)"/>
-  <text class="bm-lbl" x="265" y="90" text-anchor="middle">HA backup, SMB</text>
-  <text class="bm-lbl" x="265" y="116" text-anchor="middle">daily ~05:00</text>
+  <text class="bm-lbl" x="266" y="120" text-anchor="middle">HA backup, SMB</text>
+  <text class="bm-lbl" x="266" y="146" text-anchor="middle">daily ~05:00</text>
 
   <!-- Mac mini: no Nextcloud sync; Time Machine is its only backup -->
-  <rect class="bm-box" x="36" y="152" width="176" height="114" rx="8"/>
-  <text class="bm-h" x="48" y="176">Mac mini M4 Pro</text>
-  <text x="48" y="196">Gitea mirrors GitHub,</text>
-  <text x="48" y="212">GitLab, Dynare's GitLab</text>
-  <text x="48" y="228">Photos library, modCraft</text>
-  <text class="bm-note" x="48" y="250">no Nextcloud sync</text>
+  <rect class="bm-box" x="36" y="200" width="176" height="114" rx="8"/>
+  <text class="bm-h" x="48" y="224">Mac mini</text>
+  <text x="48" y="244">Gitea mirrors GitHub,</text>
+  <text x="48" y="260">GitLab, Dynare's GitLab</text>
+  <text x="48" y="276">Photos library, modCraft</text>
+  <text class="bm-note" x="48" y="298">no Nextcloud sync</text>
 
-  <path class="bm-line" d="M80,266 L80,292" marker-end="url(#bm-arrow)"/>
-  <text class="bm-lbl" x="90" y="284">Time Machine, hourly</text>
+  <path class="bm-line" d="M72,314 L72,340" marker-end="url(#bm-arrow)"/>
+  <text class="bm-lbl" x="82" y="332">Time Machine, hourly</text>
 
-  <rect class="bm-box" x="36" y="294" width="176" height="74" rx="8"/>
-  <text class="bm-h" x="48" y="318">Samsung T7 2 TB</text>
-  <text x="48" y="336">with the Photos library</text>
-  <text x="48" y="352">and the Gitea backups</text>
-
-  <!-- MacBook Air -->
-  <rect class="bm-box" x="36" y="382" width="176" height="60" rx="8"/>
-  <text class="bm-h" x="48" y="406">MacBook Air</text>
-  <text x="48" y="426">M1, my wife's laptop</text>
-
-  <path class="bm-line" d="M80,442 L80,468" marker-end="url(#bm-arrow)"/>
-  <text class="bm-lbl" x="90" y="460">Time Machine, hourly</text>
-
-  <rect class="bm-box" x="36" y="470" width="176" height="58" rx="8"/>
-  <text class="bm-h" x="48" y="494">Crucial P1 1 TB</text>
-  <text x="48" y="512">external SSD</text>
-
-  <!-- MacBook Pro -->
-  <rect class="bm-box" x="36" y="542" width="176" height="60" rx="8"/>
-  <text class="bm-h" x="48" y="566">MacBook Pro</text>
-  <text x="48" y="586">M2 Max, my laptop</text>
-
-  <path class="bm-line" d="M80,602 L80,628" marker-end="url(#bm-arrow)"/>
-  <text class="bm-lbl" x="90" y="620">Time Machine, hourly</text>
-
-  <rect class="bm-box" x="36" y="630" width="176" height="58" rx="8"/>
-  <text class="bm-h" x="48" y="654">SanDisk 4 TB</text>
-  <text x="48" y="672">external SSD at home</text>
-
-  <!-- Both MacBooks sync to Nextcloud on the Wyse: one line into the Wyse -->
-  <path class="bm-line" d="M212,556 L290,556 L290,396 L318,396" marker-end="url(#bm-arrow)"/>
-  <path class="bm-line" d="M212,412 L290,412"/>
-  <circle class="bm-head-pencil" cx="290" cy="412" r="3"/>
-  <text class="bm-lbl" x="251" y="474" text-anchor="middle">Nextcloud</text>
-  <text class="bm-lbl" x="251" y="490" text-anchor="middle">sync over</text>
-  <text class="bm-lbl" x="251" y="506" text-anchor="middle">Tailscale</text>
-
-  <!-- The MacBook Pro in the office -->
-  <path class="bm-line" d="M212,588 L878,588" marker-end="url(#bm-arrow)"/>
-  <text class="bm-lbl" x="822" y="580" text-anchor="middle">Time Machine</text>
-  <text class="bm-lbl" x="822" y="604" text-anchor="middle">when docked</text>
+  <rect class="bm-box bm-ghost" x="36" y="342" width="176" height="74"/>
+  <path class="bm-disk" d="M36,347 A88,5 0 0 1 212,347 L212,411 A88,5 0 0 1 36,411 Z"/>
+  <path class="bm-lid" d="M36,347 A88,5 0 0 0 212,347"/>
+  <text class="bm-h" x="48" y="369">Samsung T7 2 TB</text>
+  <text x="48" y="387">with the Photos library</text>
+  <text x="48" y="403">and the Gitea backups</text>
 
   <!-- Home: Dell Wyse 5070 -->
-  <rect class="bm-box" x="320" y="56" width="416" height="360" rx="10"/>
-  <text class="bm-h" x="336" y="80">Dell Wyse 5070 (dell-wyse)</text>
+  <rect class="bm-box" x="320" y="56" width="422" height="360" rx="10"/>
+  <text class="bm-h" x="336" y="80">Dell Wyse 5070</text>
   <text class="bm-note" x="336" y="98">Nextcloud AIO, Samba share for Home Assistant</text>
 
-  <rect class="bm-box" x="336" y="112" width="140" height="288" rx="6"/>
-  <text class="bm-h" x="346" y="136">System SSD</text>
-  <text x="346" y="154">Verbatim 2 TB</text>
-  <text x="346" y="170">LUKS2 + BTRFS</text>
-  <text x="346" y="198">Nextcloud data</text>
-  <text x="346" y="214">host: @root, @home</text>
-  <text x="346" y="246">/srv/ha-backups</text>
-  <text x="346" y="270">btrbk snapshots</text>
-  <text x="346" y="286">every hour, keeps</text>
-  <text x="346" y="302">48 hourly, 7 daily</text>
+  <rect class="bm-box bm-ghost" x="336" y="112" width="146" height="288"/>
+  <path class="bm-disk" d="M336,117 A73,5 0 0 1 482,117 L482,395 A73,5 0 0 1 336,395 Z"/>
+  <path class="bm-lid" d="M336,117 A73,5 0 0 0 482,117"/>
+  <text class="bm-h" x="346" y="139">System SSD</text>
+  <text x="346" y="157">Verbatim 2 TB</text>
+  <text x="346" y="173">LUKS2 + BTRFS</text>
+  <text x="346" y="201">Nextcloud data</text>
+  <text x="346" y="217">host: @root, @home</text>
+  <text x="346" y="249">/srv/ha-backups</text>
+  <text x="346" y="273">btrbk snapshots</text>
+  <text x="346" y="289">every hour, keeps</text>
+  <text x="346" y="305">48 hourly, 7 daily</text>
 
-  <rect class="bm-box" x="576" y="112" width="148" height="124" rx="6"/>
-  <text class="bm-h" x="586" y="136">HDD 1</text>
-  <text x="586" y="154">WD Elements 6 TB</text>
-  <text x="586" y="170">LUKS2 + BTRFS</text>
-  <text x="586" y="190">keeps 30 daily,</text>
-  <text x="586" y="206">12 weekly,</text>
-  <text x="586" y="222">12 monthly</text>
+  <rect class="bm-box bm-ghost" x="582" y="112" width="148" height="124"/>
+  <path class="bm-disk" d="M582,117 A74,5 0 0 1 730,117 L730,231 A74,5 0 0 1 582,231 Z"/>
+  <path class="bm-lid" d="M582,117 A74,5 0 0 0 730,117"/>
+  <text class="bm-h" x="592" y="139">HDD 1</text>
+  <text x="592" y="157">WD Elements 6 TB</text>
+  <text x="592" y="173">LUKS2 + BTRFS</text>
+  <text x="592" y="193">keeps 30 daily,</text>
+  <text x="592" y="209">12 weekly,</text>
+  <text x="592" y="225">12 monthly</text>
 
-  <rect class="bm-box" x="576" y="276" width="148" height="124" rx="6"/>
-  <text class="bm-h" x="586" y="300">HDD 2</text>
-  <text x="586" y="318">Toshiba 4 TB</text>
-  <text x="586" y="334">BTRFS, no LUKS</text>
-  <text x="586" y="354">AIO's Borg</text>
-  <text x="586" y="370">repository,</text>
-  <text x="586" y="386">Borg-encrypted</text>
+  <rect class="bm-box bm-ghost" x="582" y="276" width="148" height="124"/>
+  <path class="bm-disk" d="M582,281 A74,5 0 0 1 730,281 L730,395 A74,5 0 0 1 582,395 Z"/>
+  <path class="bm-lid" d="M582,281 A74,5 0 0 0 730,281"/>
+  <text class="bm-h" x="592" y="303">HDD 2</text>
+  <text x="592" y="321">Toshiba 4 TB</text>
+  <text x="592" y="337">BTRFS, no LUKS</text>
+  <text x="592" y="357">AIO's Borg</text>
+  <text x="592" y="373">repository,</text>
+  <text x="592" y="389">Borg-encrypted</text>
 
-  <path class="bm-line" d="M476,174 L574,174" marker-end="url(#bm-arrow)"/>
-  <text class="bm-lbl" x="526" y="166" text-anchor="middle">btrbk send</text>
-  <text class="bm-lbl" x="526" y="190" text-anchor="middle">daily 01:30</text>
+  <path class="bm-line" d="M482,174 L580,174" marker-end="url(#bm-arrow)"/>
+  <text class="bm-lbl" x="532" y="166" text-anchor="middle">btrbk send</text>
+  <text class="bm-lbl" x="532" y="190" text-anchor="middle">daily 01:30</text>
 
-  <path class="bm-line" d="M476,338 L574,338" marker-end="url(#bm-arrow)"/>
-  <text class="bm-lbl" x="526" y="330" text-anchor="middle">AIO Borg</text>
-  <text class="bm-lbl" x="526" y="354" text-anchor="middle">early morning</text>
+  <path class="bm-line" d="M482,338 L580,338" marker-end="url(#bm-arrow)"/>
+  <text class="bm-lbl" x="532" y="330" text-anchor="middle">AIO Borg</text>
+  <text class="bm-lbl" x="532" y="354" text-anchor="middle">early morning</text>
 
-  <!-- Off-site mirror: the only accent -->
-  <path class="bm-accent" d="M724,338 L743,338 L743,124 L878,124" marker-end="url(#bm-arrow-accent)"/>
-  <path class="bm-accent" d="M476,250 L743,250"/>
-  <text class="bm-lbl-accent" x="822" y="116" text-anchor="middle">rsync over SSH</text>
-  <text class="bm-lbl-accent" x="822" y="140" text-anchor="middle">daily 06:30</text>
+  <!-- The Pi's HA backup into the SSD: drawn after the Wyse box so the box does not cover its arrowhead -->
+  <path class="bm-line" d="M212,128 L334,128" marker-end="url(#bm-arrow)"/>
+
+  <!-- Off-site mirror of the server: accent; one straight line from /srv/ha-backups, HDD 2 joins it -->
+  <path class="bm-accent" d="M482,250 L886,250" marker-end="url(#bm-arrow-accent)"/>
+  <path class="bm-accent" d="M700,276 L700,250"/>
+  <circle class="bm-head-accent" cx="700" cy="250" r="3"/>
+  <text class="bm-lbl-accent" x="532" y="242" text-anchor="middle">HA backups</text>
+  <text class="bm-lbl-accent" x="694" y="268" text-anchor="end">Borg repository</text>
+  <text class="bm-lbl-accent" x="832" y="242" text-anchor="middle">rsync over SSH</text>
+  <text class="bm-lbl-accent" x="832" y="268" text-anchor="middle">daily 06:30</text>
 
   <!-- Hetzner: Storage Box -->
-  <rect class="bm-box" x="880" y="60" width="184" height="128" rx="8"/>
-  <text class="bm-h" x="892" y="84">Storage Box</text>
-  <text x="892" y="102">Borg repository</text>
-  <text x="892" y="118">and HA backups</text>
-  <text x="892" y="134">(a mirror)</text>
-  <text class="bm-note" x="892" y="158">own daily snapshots,</text>
-  <text class="bm-note" x="892" y="174">set in the Console</text>
+  <rect class="bm-box bm-ghost" x="888" y="186" width="176" height="128"/>
+  <path class="bm-disk" d="M888,191 A88,5 0 0 1 1064,191 L1064,309 A88,5 0 0 1 888,309 Z"/>
+  <path class="bm-lid" d="M888,191 A88,5 0 0 0 1064,191"/>
+  <text class="bm-h" x="900" y="213">Storage Box</text>
+  <text x="900" y="231">Borg repository</text>
+  <text x="900" y="247">and HA backups</text>
+  <text x="900" y="263">(a mirror)</text>
+  <text class="bm-note" x="900" y="287">own daily snapshots,</text>
+  <text class="bm-note" x="900" y="303">set in the Console</text>
 
-  <!-- Planned: HP Elite Tower 800 G9 at home -->
-  <rect class="bm-box bm-dash" x="336" y="448" width="400" height="124" rx="10"/>
-  <text class="bm-h" x="350" y="472">HP Elite Tower 800 G9 (planned)</text>
-  <text x="350" y="492">next main server: NVMe SSD, two 3.5-inch CMR HDDs</text>
-  <text x="350" y="508">takes over Nextcloud, btrbk, Borg and the HA share</text>
-  <text x="350" y="524">with the same snapshots and two daily copies</text>
-  <text class="bm-note" x="350" y="552">the Wyse moves to my mom's, the Toshiba to the office</text>
+  <!-- Home, under the Wyse: MacBook Air and MacBook Pro, each with its Time Machine disk below -->
+  <rect class="bm-box" x="320" y="456" width="176" height="58" rx="8"/>
+  <text class="bm-h" x="332" y="480">MacBook Air</text>
+  <text x="332" y="498">M1, my wife's laptop</text>
 
-  <!-- Planned: my mom's -->
-  <path class="bm-line bm-dash" d="M736,460 L757,460 L757,318 L878,318" marker-end="url(#bm-arrow)"/>
-  <text class="bm-lbl" x="822" y="310" text-anchor="middle">btrbk pull</text>
-  <text class="bm-lbl" x="822" y="334" text-anchor="middle">over Tailscale</text>
+  <rect class="bm-box" x="566" y="456" width="176" height="58" rx="8"/>
+  <text class="bm-h" x="578" y="480">MacBook Pro</text>
+  <text x="578" y="498">M2 Max, my laptop</text>
 
-  <rect class="bm-box bm-dash" x="880" y="262" width="184" height="114" rx="8"/>
-  <text class="bm-h" x="892" y="286">Dell Wyse 5070</text>
-  <text x="892" y="304">with the WD Elements</text>
-  <text x="892" y="320">off-site btrbk target</text>
-  <text class="bm-note" x="892" y="344">probably replaces</text>
-  <text class="bm-note" x="892" y="360">the Storage Box</text>
+  <!-- Both MacBooks sync to Nextcloud on the Wyse: one line up into the Wyse, under the System SSD -->
+  <path class="bm-line" d="M408,456 L408,402" marker-end="url(#bm-arrow)"/>
+  <path class="bm-line" d="M654,456 L654,436 L408,436"/>
+  <circle class="bm-head-pencil" cx="408" cy="436" r="3"/>
+  <text class="bm-lbl" x="398" y="441" text-anchor="end">Nextcloud sync over Tailscale</text>
 
-  <!-- The office -->
-  <path class="bm-line bm-dash" d="M736,484 L878,484" marker-end="url(#bm-arrow)"/>
-  <text class="bm-lbl" x="822" y="476" text-anchor="middle">btrbk</text>
-  <text class="bm-lbl" x="822" y="500" text-anchor="middle">by hand</text>
+  <path class="bm-line" d="M356,514 L356,540" marker-end="url(#bm-arrow)"/>
+  <text class="bm-lbl" x="366" y="532">Time Machine, hourly</text>
 
-  <rect class="bm-box bm-dash" x="880" y="452" width="184" height="66" rx="8"/>
-  <text class="bm-h" x="892" y="474">Toshiba 4 TB</text>
-  <text x="892" y="492">offline copy (planned)</text>
-  <text x="892" y="508">LUKS2, today HDD 2</text>
+  <rect class="bm-box bm-ghost" x="320" y="542" width="176" height="58"/>
+  <path class="bm-disk" d="M320,547 A88,5 0 0 1 496,547 L496,595 A88,5 0 0 1 320,595 Z"/>
+  <path class="bm-lid" d="M320,547 A88,5 0 0 0 496,547"/>
+  <text class="bm-h" x="332" y="569">Crucial P1 1 TB</text>
+  <text x="332" y="587">external SSD</text>
 
-  <rect class="bm-box" x="880" y="554" width="184" height="68" rx="8"/>
-  <text class="bm-h" x="892" y="577">LaCie 2 TB</text>
-  <text x="892" y="595">Time Machine of the</text>
-  <text x="892" y="611">MacBook Pro, docked</text>
+  <path class="bm-line" d="M602,514 L602,540" marker-end="url(#bm-arrow)"/>
+  <text class="bm-lbl" x="612" y="532">Time Machine, hourly</text>
 
-  <rect class="bm-box bm-dash" x="880" y="638" width="184" height="68" rx="8"/>
-  <text class="bm-h" x="892" y="660">Mac mini, disk 2</text>
-  <text x="892" y="678">Time Machine, swapped</text>
-  <text x="892" y="694">with the T7 (planned)</text>
+  <rect class="bm-box bm-ghost" x="566" y="542" width="176" height="58"/>
+  <path class="bm-disk" d="M566,547 A88,5 0 0 1 742,547 L742,595 A88,5 0 0 1 566,595 Z"/>
+  <path class="bm-lid" d="M566,547 A88,5 0 0 0 742,547"/>
+  <text class="bm-h" x="578" y="569">SanDisk 4 TB</text>
+  <text x="578" y="587">external SSD</text>
 
-  <!-- Legend, under the HP box -->
-  <path class="bm-line" d="M350,620 L390,620"/>
-  <text class="bm-note" x="398" y="624">running today</text>
-  <path class="bm-line bm-dash" d="M498,620 L538,620"/>
-  <text class="bm-note" x="546" y="624">planned</text>
-  <path class="bm-accent" d="M610,620 L650,620"/>
-  <text class="bm-note" x="658" y="624">off-site copy</text>
-  <text class="bm-note" x="350" y="652">Times are local (Europe/Berlin).</text>
-  <text class="bm-note" x="350" y="670">Time Machine disks are encrypted.</text>
-  <text class="bm-note" x="350" y="688">Wyse jobs report to healthchecks.io; AIO reports in Nextcloud.</text>
+  <!-- The MacBook Pro's second Time Machine disk is in the office: an off-site copy, so accent -->
+  <path class="bm-accent" d="M742,485 L886,485" marker-end="url(#bm-arrow-accent)"/>
+  <text class="bm-lbl-accent" x="832" y="477" text-anchor="middle">Time Machine</text>
+  <text class="bm-lbl-accent" x="832" y="503" text-anchor="middle">when docked</text>
+
+  <!-- Office -->
+  <rect class="bm-box bm-ghost" x="888" y="448" width="176" height="74"/>
+  <path class="bm-disk" d="M888,453 A88,5 0 0 1 1064,453 L1064,517 A88,5 0 0 1 888,517 Z"/>
+  <path class="bm-lid" d="M888,453 A88,5 0 0 0 1064,453"/>
+  <text class="bm-h" x="900" y="475">LaCie 2 TB</text>
+  <text x="900" y="493">Time Machine of the</text>
+  <text x="900" y="509">MacBook Pro, docked</text>
+
+  <!-- Legend, bottom left under the Mac mini -->
+  <path class="bm-line" d="M36,492 L76,492"/>
+  <text class="bm-note" x="84" y="496">copy at home</text>
+  <path class="bm-accent" d="M36,512 L76,512"/>
+  <text class="bm-note" x="84" y="516">off-site copy</text>
+  <text class="bm-note" x="36" y="542">Times are local (Europe/Berlin).</text>
+  <text class="bm-note" x="36" y="560">Time Machine disks are encrypted.</text>
+  <text class="bm-note" x="36" y="578">Wyse jobs report to healthchecks.io;</text>
+  <text class="bm-note" x="36" y="596">AIO reports in Nextcloud.</text>
 </svg>
