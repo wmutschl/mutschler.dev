@@ -160,7 +160,7 @@ If you go for an SSD, this is what changes compared with the SD card:
    The Imager lists USB drives as storage, and my script accepts any external disk up to 2 TiB without APFS or HFS+ partitions.
    On the first boot, HAOS grows its data partition to the size of the disk.
 4. **Take the SD card out, and never attach two disks with HAOS at the same time.**
-   The Pi 4 tries the SD card first, so with the card inserted, the old system starts.
+   With the factory boot order, the Pi 4 tries the SD card first, so with the card inserted, the old system starts.
    Worse, HAOS finds its root partition by a partition UUID that is the same on every disk flashed from the image, and its other partitions by their labels.
    A fresh installation even renames the data partition of any other HAOS disk it finds to `hassos-data-dis`, which would ruin the old card as a fallback.
    Keep the card in a drawer instead.
@@ -175,6 +175,12 @@ If you go for an SSD, this is what changes compared with the SD card:
 6. **If the Pi doesn't boot from the SSD**, its bootloader may be too old for USB boot.
    In the Imager, write **Misc utility images → Bootloader → USB Boot** to a spare SD card and boot the Pi from it.
    When the green LED flashes steadily (and a connected screen turns green), unplug the power, take the card out and try again.
+   This image also makes the Pi try USB before the SD card; **SD Card Boot** installs the same bootloader with the factory order, SD card first.
+7. **Update the bootloader with such a card later, too.**
+   Since HAOS 18.0, `ha os boards raspberrypi firmware` compares the installed bootloader (`current_version`) with the one HAOS ships (`latest_version`).
+   HAOS can install it with `ha os boards raspberrypi firmware update`, but on a Pi 4 only when it booted from an SD card.
+   Booted from the SSD, it reports `update_blocked: true` with `blocked_reason: unsupported_boot_device`.
+   So when `latest_version` is newer, write the bootloader image to the spare card again and boot from it as in item 6.
 
 To move a running installation to the SSD, create a full backup, shut the Pi down with `ha host shutdown` in the terminal, and restore the backup onto the SSD as in [Step 8](#step-8-restore-from-a-backup).
 The old card stays untouched, so you can always go back.
