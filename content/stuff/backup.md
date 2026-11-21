@@ -1,7 +1,8 @@
 ---
 title: My backup strategy
+# "Storage Box" and "Time Machine" in the summary are written with a no-break space (U+00A0), so they never split.
 summary: >-
-  A map of my backups as of November 2026: a Dell Wyse 5070 home server with hourly BTRFS snapshots, two USB backup disks and an off-site mirror on a Hetzner Storage Box, Home Assistant backups that travel the same way, and Time Machine on my Macs.
+  A map of my backups as of November 2026: a Dell Wyse 5070 home server with hourly BTRFS snapshots, two USB backup disks and an off-site mirror on a Hetzner Storage Box, Home Assistant backups that travel the same way, and Time Machine on my Macs.
   It explains which copies exist, where they live, when they run, how I notice failures and where I restore from, with links to the guides that set up each part.
 diagram: true
 header:
