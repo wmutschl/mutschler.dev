@@ -1,14 +1,19 @@
 {{- /*
   Shared behaviour: copy buttons on code blocks, click-to-load YouTube, search API (window.siteSearch).
-  Mermaid is loaded only on pages that contain a ```mermaid block.
+  Mermaid is loaded only on pages that contain a ```mermaid block, from the site itself: Mermaid 10.9.8, the
+  single-file build (assets/js/vendor/mermaid.min.js; MIT licence in static/js/vendor/mermaid-LICENSE.txt),
+  self-hosted since 21 November 2026, so no page requests anything from a CDN.
   Usage: put {{ partial "base/scripts.html" . }} right before </body>.
 */ -}}
 {{- $js := resources.Get "js/base.js" | js.Build (dict "minify" hugo.IsProduction "target" "es2018") | fingerprint -}}
 <script src="{{ $js.RelPermalink }}" defer data-search-index="{{ "index.json" | relURL }}"></script>
 {{- if and .IsPage (strings.Contains .RawContent "```mermaid") }}
-<script type="module">
-  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs";
-  const dark = document.documentElement.dataset.theme === "dark" || (!document.documentElement.dataset.theme && matchMedia("(prefers-color-scheme: dark)").matches);
-  mermaid.initialize({ startOnLoad: true, theme: dark ? "dark" : "neutral", securityLevel: "strict" });
+{{- $mermaid := resources.Get "js/vendor/mermaid.min.js" | fingerprint }}
+<script src="{{ $mermaid.RelPermalink }}" integrity="{{ $mermaid.Data.Integrity }}" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const dark = document.documentElement.dataset.theme === "dark" || (!document.documentElement.dataset.theme && matchMedia("(prefers-color-scheme: dark)").matches);
+    mermaid.initialize({ startOnLoad: true, theme: dark ? "dark" : "neutral", securityLevel: "strict" });
+  });
 </script>
 {{- end }}

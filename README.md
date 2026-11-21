@@ -7,6 +7,7 @@ Source code for my technical homepage at [mutschler.dev](https://mutschler.dev).
 - **Static Site Generator**: [Hugo](https://github.com/gohugoio/hugo) 0.120.3 (extended)
 - **Theme**: the Handbook, a typeset book with contents, chapters and margin notes (`themes/handbook/` over the shared `themes/base/`), written for this site; until November 2026 the site used [Wowchemy](https://github.com/wowchemy/starter-hugo-academic)
 - **Fonts**: Literata and Atkinson Hyperlegible Mono, self-hosted (`themes/handbook/static/fonts/`, SIL Open Font License); no requests to Google or other font services
+- **Diagrams**: Mermaid 10.9.8, self-hosted (`themes/base/assets/js/vendor/`, MIT licence), loaded only on pages with a chart; no page requests anything from another server
 - **Hosting**: [GitHub Pages](https://pages.github.com/)
 - **CI/CD**: GitHub Actions (automatic deployment on push to main branch)
 

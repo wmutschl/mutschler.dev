@@ -127,7 +127,7 @@ With `--bind 0.0.0.0` you can open it on your phone over Tailscale at `http://ma
 - `themes/base/data/catalog.yaml` groups the 26 guides by platform and marks each as current, previous or notes, with a short title and, for previous guides, why and which guide replaces them. These are proposals; please check them. If you pick a design, this could move into front matter.
 - The YouTube shortcode is click-to-load: nothing is requested from Google until a reader presses play.
 - The legacy "Please feel free to raise any comments…" line and the red Buy Me A Coffee badge at the top of each guide are removed at render time; every design offers feedback and support links in its layout instead.
-- The fonts are self-hosted (`themes/handbook/static/fonts/`, with their licences); Mermaid, which draws the night chart on the backup pages, still loads from jsDelivr on those two pages.
+- The fonts are self-hosted (`themes/handbook/static/fonts/`, with their licences), and so is Mermaid, which draws the night chart on the backup pages (`themes/base/assets/js/vendor/`, version 10.9.8, MIT licence): no page loads anything from another server.
 - Round 1's "Boot menu" and "Partition map" were rejected as too playful; they and round 2's other themes were deleted on 21 November 2026.
 
 ## Content fixes (18 and 19 November 2026, committed by you on 20 November)
