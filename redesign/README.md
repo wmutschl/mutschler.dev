@@ -92,6 +92,25 @@ Details: `themes/handbook/DESIGN.md`, section 20.
 - macOS, elementary OS and Fedora post-install guides: one listing each shows the bash and the fish way to start ssh-agent on two lines (`eval "$(ssh-agent -s)"`, `eval (ssh-agent -c)`); copied whole, it fails in either shell.
 - Fedora post-install guide: `exit` after `matlab` is typed at MATLAB's prompt; indented under `matlab` it would get no `$` in the Terminal setting.
 
+## Tables (20–21 November 2026)
+
+You asked for a check of how all tables look on phones and desktops. Independent reviewers went through all 37 tables (six pages) at eight widths; the fixes went in over three rounds, each checked independently (every before/after pair, the code, resizing, print, pages without JavaScript). Over 19 widths from 360 to 2560 px: no word breaks inside any more (134 before), code runs onto a second line far less often (706 → 202 times), cells that end in a single word 1,867 → 967, the tables 2.6 % shorter in all, and nothing scrolls sideways. Details: `themes/handbook/DESIGN.md`, section 21.
+
+What a reader sees:
+
+- **Phones:** paths and names no longer break inside a word. Two-column tables such as File | Purpose become a list of entries (the path as title, its purpose below), every reflowed row has a semibold title, and the BIOS "System Information" group reads as one entry.
+- **Code in cells** breaks after a slash or a hyphen; a path that fits on a line moves there whole, and short names stay whole where that costs little.
+- **Words that belong together** stay together: "6 TB", "1 day", "section 2.2", "Path B", "PCIe 2.0", "Audit Mode". No cell ends in a lone word where the browser can avoid it.
+- **BIOS menus:** a setting without a note runs on under the Note column. **Contents page:** wrapped titles in the revision table hang under their first word.
+
+**Labels on tablets (you kept them, 21 November):** from 640 to 1279 px five tables let their first-column labels wrap, because that makes them 7–19 % shorter with wider text columns: Home Assistant Option and App, Mac mini jobs, chapter 8's Path | Result and the backup page's restore table. That relaxes round 3's "labels up to 15.5em never wrap" for these five; the before/after images are in `redesign/previews/tables/`.
+
+**Suggestions for your content (not changed):**
+
+- Chapter 8, section 7.2: one Port | USB | Address table for the rear and front ports instead of two whose columns do not line up ("2.0" rather than "2.0 only"), with one lead sentence in your words.
+- Chapter 7, section 3.4: the "No changes" row can go (the section already says unmentioned settings stay as they are); the lockout row could read "Admin Setup Lockout to Password Jumper", if those four pages follow each other in the BIOS, or become a sentence after the table.
+- Backup page (you are rewriting it): in the schedule, keep When to the schedule and put only check names under "Reports to healthchecks.io as" (the table then gets shorter than before on tablets); in the copies table, the "#" column is used nowhere; writing `Storage&nbsp;Box`, `Raspberry&nbsp;Pi`, `Time&nbsp;Machine` and `Mac&nbsp;mini` keeps those names on one line.
+
 ## What to look at
 
 - **Handbook.** Chapter 8, section 7 (`/linux/wyse-ubuntu-nextcloud-aio/#7-backup-disks-snapshots-alerts-and-the-home-assistant-share`) at your usual width: the table and the listings run across the margin, short notes sit beside the text without covering code, listings have muted printing-ink colours. Round 3: section 3.1 of the same chapter (`#31-prepare-the-disk-in-the-installer-shell`) at 1440 or 2000 px for the SSH note in the margin, and chapter 7, section 3 (`/linux/wyse-hardware/#3-go-through-the-bios-settings`) for the BIOS tables.

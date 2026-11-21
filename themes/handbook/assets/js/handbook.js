@@ -333,21 +333,26 @@
   // Narrow tables (round 3 review). Whole labels must not cost more than they give. On tablets and small laptops
   // (640 to 1279 px) a table can be too narrow for its whole labels and for the paths and names in its other
   // columns: those then break in the middle. A table whose paths and names (code without spaces) break at fewer
-  // places when its labels wrap lets them wrap, as in round 2. Every line a path runs onto counts, in every column,
-  // so that a first column of paths never shrinks to a few characters. Series keep the rule (fitSeries sets their
-  // columns). From 1280 px, where wide tables also take the margin, whole labels always stay.
-  function codeBreaks(t) {
+  // places when its labels wrap lets them wrap, as in round 2. So does a table that gets shorter when its labels
+  // wrap, without more breaks: at least 5 % with the first column's floor of 9.5em, at least 8 % without it (table
+  // review, 20 November 2026). Every line a path runs onto counts, in every column, so that a first column of paths
+  // never shrinks to a few characters. Series keep the rule (fitSeries sets their columns). From 1280 px, where wide
+  // tables also take the margin, whole labels always stay.
+  function lineCount(el) { // the lines the text of el runs onto
+    var r = doc.createRange(), tops = [];
+    r.selectNodeContents(el); // the text itself: a code box that starts at the end of a line is not a break
+    Array.prototype.forEach.call(r.getClientRects(), function (x) {
+      var top = Math.round(x.top);
+      if (x.width >= 1 && tops.indexOf(top) < 0) tops.push(top);
+    });
+    return tops.length;
+  }
+  function codeBreaks(t, sel) {
     var n = 0;
-    $$("td code, th code", t).forEach(function (c) {
+    $$(sel || "td code, th code", t).forEach(function (c) {
       var s = c.textContent.trim();
       if (!s || /\s/.test(s)) return;
-      var r = doc.createRange(), tops = [];
-      r.selectNodeContents(c); // the text itself: a code box that starts at the end of a line is not a break
-      Array.prototype.forEach.call(r.getClientRects(), function (x) {
-        var top = Math.round(x.top);
-        if (x.width >= 1 && tops.indexOf(top) < 0) tops.push(top);
-      });
-      n += Math.max(0, tops.length - 1);
+      n += Math.max(0, lineCount(c) - 1);
     });
     return n;
   }
@@ -360,14 +365,46 @@
       if (count[headerSig(t)] > 1) return;
       var labels = $$("tr > .is-label", t);
       if (!labels.length) return;
-      var whole = codeBreaks(t);
-      if (!whole) return;
+      var whole = codeBreaks(t), tall = t.getBoundingClientRect().height;
       var long = t.classList.contains("has-long-labels");
       labels.forEach(function (c) { c.classList.remove("is-label"); });
       t.classList.remove("has-long-labels");
-      if (codeBreaks(t) < whole) { t.classList.add("is-relieved"); return; }
+      var bare = codeBreaks(t), low = t.getBoundingClientRect().height;
+      if (bare < whole) { t.classList.add("is-relieved"); return; }
+      // Whole labels must not cost height either (table review, 20 November 2026): wrapped labels also stay when no
+      // path breaks more and the table gets shorter, at least 5 % with the first column's floor of 9.5em, otherwise
+      // at least 8 % without it, as above. The floor's lower bar keeps a table from switching between the two forms
+      // from one width to the next (its gain lies close to 8 % on the backup page).
+      t.classList.add("has-long-labels");
+      var floorB = codeBreaks(t), floorH = t.getBoundingClientRect().height;
+      if (floorB <= whole && floorH < .95 * tall) { t.classList.add("is-relieved"); return; }
+      t.classList.remove("has-long-labels");
+      if (bare <= whole && low < .92 * tall) {
+        // the floor wherever it helps at all, so that labels do not collapse to their longest word for a few pixels
+        if (floorB <= whole && floorH < tall) t.classList.add("has-long-labels");
+        t.classList.add("is-relieved"); return;
+      }
       labels.forEach(function (c) { c.classList.add("is-label"); });
       t.classList.toggle("has-long-labels", long);
+    });
+  }
+
+  // Two columns on phones (table review, 20 November 2026). A table with two columns stays a table, unless its paths
+  // and names (code without spaces) break at fewer places as rows and the rows are no taller than the table, or it
+  // scrolls sideways and the rows do not. Then each row reads as an entry: the first cell as its title, the second
+  // below it, without a label. Only the body counts, since rows hide the header.
+  function stackTables() {
+    var pairs = $$(".prose table.is-pair");
+    pairs.forEach(function (t) { t.classList.remove("is-reflow"); });
+    if (!tableQuery || tableQuery.matches) return;
+    pairs.forEach(function (t) {
+      var w = t.parentNode, scrolls = w.scrollWidth > w.clientWidth + 1;
+      var breaks = codeBreaks(t, "td code");
+      if (!breaks && !scrolls) return;
+      var tall = t.getBoundingClientRect().height;
+      t.classList.add("is-reflow");
+      if (scrolls && w.scrollWidth <= w.clientWidth + 1) return;
+      if (codeBreaks(t, "td code") >= breaks || t.getBoundingClientRect().height > tall + 1) t.classList.remove("is-reflow");
     });
   }
 
@@ -400,9 +437,31 @@
   }
   function unfix(t) {
     $$("colgroup[data-series]", t).forEach(function (g) { g.parentNode.removeChild(g); });
+    $$("[data-spanned]", t).forEach(function (c) {
+      c.removeAttribute("data-spanned");
+      c.style.display = "";
+      c.previousElementSibling.colSpan = 1;
+    });
     t.classList.remove("is-series");
     t.style.tableLayout = "";
     t.style.width = "";
+  }
+  // A row of a series without a note (an empty last cell) lets the cell before it run on under the last column; in a
+  // table without any note the header does the same. The columns stay the series' columns (table review, 20 November
+  // 2026). unfix undoes it, so measuring, phones and a table that yields see the rows as written.
+  function spanEmpty(t, n) {
+    var rows = $$("tbody tr", t), every = rows.length > 0;
+    function span(cells) {
+      cells[n - 2].colSpan = 2;
+      cells[n - 1].style.display = "none";
+      cells[n - 1].setAttribute("data-spanned", "");
+    }
+    rows.forEach(function (tr) {
+      if (tr.cells.length !== n || tr.cells[n - 1].textContent.trim()) { every = false; return; }
+      span(tr.cells);
+    });
+    var head = t.tHead && t.tHead.rows[0];
+    if (every && head && head.cells.length === n) span(head.cells);
   }
   function fitSeries() {
     var groups = {};
@@ -454,13 +513,175 @@
         t.classList.add("is-series");
         t.style.tableLayout = "fixed";
         t.style.width = (100 * total / place).toFixed(3) + "%"; // a fixed layout needs a set width
+        if (widths.length > 2) spanEmpty(t, widths.length);
       });
     });
   }
 
-  // Labels for tables that reflow into rows on phones
+  // The last word on code in cells (table review, 20 November 2026), decided on every layout after the columns, in
+  // this order, and dropped first (undecide) or when a table yields to a margin note:
+  // - Names. A table shown as a table whose names (is-whole) break keeps them whole (keeps-names, CSS), if it then
+  //   breaks code at fewer places, still fits its place and grows by at most 1 % for each break it saves, 5 % in
+  //   all. Rows on phones keep their names whole anyway (CSS). A series has fixed columns, where a name kept whole
+  //   would run into the next column.
+  // - Paths that fit. A path broken at its slashes that would fit on one line of its cell moves to the next line
+  //   whole, if the table then breaks code at fewer places, grows by no more than a pixel and does not scroll. It
+  //   does so as an inline block (is-fit-box, CSS), which keeps every column within a pixel, or else without
+  //   wrapping (is-fit), which may widen its column; the lower table wins, the block within a pixel. The paths of a
+  //   table are tried together, then one by one. A block is not used for code in a link or under a strike-through
+  //   (it would lose the line), nor right after or before anything but a space (a parenthesis or a comma could then
+  //   part from it). In rows every value has the whole line. Loose code never makes a block wrap inside itself.
+  // - Loose code. A table lets code break anywhere again, as before the review (code-anywhere, CSS), if that breaks
+  //   code at fewer places and costs at most a pixel, or at as many places and makes the table shorter, and every
+  //   break that remains falls after a hyphen or a slash: keeping the pieces of a path whole would only take width
+  //   from its other columns. A table that scrolls sideways takes it whenever that ends the scrolling.
+  function undecide(t) {
+    $$("code.is-fit, code.is-fit-box", t || prose).forEach(function (c) { c.classList.remove("is-fit", "is-fit-box"); });
+    (t ? [t] : $$(".prose table")).forEach(function (x) { x.classList.remove("keeps-names", "code-anywhere"); });
+  }
+  function wholeNames() {
+    if (!tableQuery) return;
+    $$(".prose table").forEach(function (t) {
+      if (t.classList.contains("is-series") || (!tableQuery.matches && t.classList.contains("is-reflow"))) return;
+      if (!codeBreaks(t, "code.is-whole")) return;
+      var w = t.parentNode, breaks = codeBreaks(t), tall = t.getBoundingClientRect().height;
+      t.classList.add("keeps-names");
+      var saved = breaks - codeBreaks(t);
+      if (w.scrollWidth > w.clientWidth + 1 || saved < 1 || t.getBoundingClientRect().height > tall * (1 + Math.min(.05, .01 * saved))) t.classList.remove("keeps-names");
+    });
+  }
+  function fitCode() {
+    function room(c) { var td = c.closest("td"), cs = getComputedStyle(td); return td.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight); }
+    function boxable(c) { // a block loses the underline or strike-through around it, and may part from what touches it
+      var td = c.closest("td"), r = doc.createRange();
+      if (c.closest("a")) return false;
+      for (var el = c.parentNode; el; el = el === td ? null : el.parentNode) if (getComputedStyle(el).textDecorationLine !== "none") return false;
+      r.setStart(td, 0);
+      r.setEndBefore(c);
+      if (!/(\s|^)$/.test(r.toString())) return false;
+      r.setStartAfter(c);
+      r.setEnd(td, td.childNodes.length);
+      return /^(\s|$)/.test(r.toString());
+    }
+    $$(".prose table").forEach(function (t) {
+      if (t.classList.contains("is-series")) return;
+      var broken = $$("td code", t).filter(function (c) { return c.querySelector("wbr") && lineCount(c) >= 2; });
+      if (!broken.length) return;
+      var copies = broken.map(function (c) { // each on one line, without its break points, measured in one go
+        var s = c.cloneNode(true);
+        $$("wbr", s).forEach(function (b) { b.parentNode.removeChild(b); });
+        s.style.cssText = "position:absolute;left:0;top:0;visibility:hidden;white-space:nowrap";
+        c.parentNode.appendChild(s);
+        return s;
+      });
+      var wide = copies.map(function (s) { return s.getBoundingClientRect().width; });
+      copies.forEach(function (s) { s.parentNode.removeChild(s); });
+      var fits = broken.filter(function (c, i) { return wide[i] <= room(c); });
+      if (!fits.length) return;
+      var w = t.parentNode, breaks = codeBreaks(t), tall = t.getBoundingClientRect().height;
+      function settle(set) {
+        var best = null;
+        (set.every(boxable) ? ["is-fit-box", "is-fit"] : ["is-fit"]).forEach(function (k) {
+          set.forEach(function (c) { c.classList.add(k); });
+          var n = codeBreaks(t), h = t.getBoundingClientRect().height;
+          if (n < breaks && h <= tall + 1 && w.scrollWidth <= w.clientWidth + 1 && (!best || h < best.h - 1 || (h <= best.h + 1 && n < best.n))) best = { k: k, n: n, h: h };
+          set.forEach(function (c) { c.classList.remove(k); });
+        });
+        if (best) { set.forEach(function (c) { c.classList.add(best.k); }); breaks = best.n; }
+        return !!best;
+      }
+      if (!settle(fits) && fits.length > 1) fits.forEach(function (c) { settle([c]); });
+    });
+  }
+  function cleanBreaks(t) { // every line a code without spaces runs onto starts after a hyphen or a slash
+    var r = doc.createRange();
+    return $$("td code", t).every(function (c) {
+      if (/\s/.test(c.textContent.trim()) || lineCount(c) < 2) return true;
+      var tw = doc.createTreeWalker(c, NodeFilter.SHOW_TEXT), n, top = null, prev = "";
+      while ((n = tw.nextNode())) {
+        for (var i = 0; i < n.data.length; i++) {
+          r.setStart(n, i);
+          r.setEnd(n, i + 1);
+          var x = r.getClientRects()[0];
+          if (!x || x.width < 1) continue;
+          if (top !== null && Math.abs(x.top - top) > 2 && !/[-\/]/.test(prev)) return false;
+          top = x.top;
+          prev = n.data[i];
+        }
+      }
+      return true;
+    });
+  }
+  function looseCode() {
+    $$(".prose table").forEach(function (t) {
+      if (t.classList.contains("is-series") || !t.querySelector("td code")) return;
+      if (tableQuery && !tableQuery.matches && t.classList.contains("is-reflow")) return; // rows: overflow-wrap cannot change them
+      var w = t.parentNode, scrolls = w.scrollWidth > w.clientWidth + 1;
+      var breaks = codeBreaks(t), tall = t.getBoundingClientRect().height, keeps = t.classList.contains("keeps-names");
+      t.classList.add("code-anywhere");
+      t.classList.remove("keeps-names");
+      var now = codeBreaks(t), low = t.getBoundingClientRect().height;
+      var ok = scrolls ? w.scrollWidth <= w.clientWidth + 1 : now <= breaks && low <= tall + (now < breaks ? 1 : -1) && (!now || cleanBreaks(t));
+      ok = ok && !$$("code.is-fit-box", t).some(function (c) { return lineCount(c) > 1; }); // never a block that wraps inside itself
+      if (!ok) {
+        t.classList.remove("code-anywhere");
+        t.classList.toggle("keeps-names", keeps);
+      }
+    });
+  }
+
+  // Cells (table review, 20 November 2026). Runs once, before anything is measured. In text outside code, a number
+  // keeps its unit, HDD, SSD, USB or PCIe their number, a word its one-letter name ("Path B", "Model B"; not "I",
+  // nor before a comma),
+  // and a bold name of two short words inside a sentence its second word ("Audit Mode"), each with a no-break space
+  // (the last two against text-wrap: pretty, which would rather split them than leave a word alone on the last
+  // line). A path of more than 16 characters (code, or a
+  // link's text, without spaces) gets a break point after each slash inside it, never after a leading "/" or "~/".
+  // With break-word (CSS) it then breaks between folders or after a hyphen; a shorter one moves to the next line
+  // whole. Code without spaces of up to 25 characters (hosts, checks, short paths) is marked is-whole: in labelled
+  // rows it never breaks (CSS), and in a table it stays whole where that costs little (wholeNames). Code with spaces
+  // is marked is-phrase: it breaks at its spaces, and anywhere as before (CSS). Then the root gets has-cells, which
+  // the CSS for code in cells waits for. No lookbehind: Safari before 16.4 cannot parse one, and the error would stop
+  // all of this file.
+  var UNIT = /(\d)[ \t]+(?=(?:TiB|GiB|MiB|TB|GB|MB|kB|Mbit\/s|minutes?|hours?|days?|weeks?|months?|seconds?|AM|PM|UTC|CET|CEST)\b)/g;
+  var NUMBERED = /\b(HDD|SSD|USB|PCIe)[ \t]+(?=\d)/g;
+  var LETTER = /(\w)[ \t]+(?=[A-HJ-Z](?![\wÀ-ɏ\-\/.,]))/g; // not before "Zürich", nor "Path A," (a comma breaks well)
+  $$(".prose td, .prose th").forEach(function (cell) {
+    var tw = doc.createTreeWalker(cell, NodeFilter.SHOW_TEXT), n;
+    while ((n = tw.nextNode())) {
+      if (!n.parentElement.closest("code, kbd")) n.data = n.data.replace(UNIT, "$1 ").replace(NUMBERED, "$1 ").replace(LETTER, "$1 ");
+    }
+    $$("strong", cell).forEach(function (b) {
+      var s = b.textContent.trim();
+      if (s.length > 12 || s.split(/\s+/).length !== 2 || s === cell.textContent.trim()) return;
+      var bw = doc.createTreeWalker(b, NodeFilter.SHOW_TEXT), m;
+      while ((m = bw.nextNode())) if (!m.parentElement.closest("code, kbd")) m.data = m.data.replace(/ /g, " ");
+    });
+    $$("code, a", cell).forEach(function (el) {
+      if (el.tagName === "A" && el.querySelector("code")) return; // its code is handled as code
+      var s = el.textContent.trim();
+      if (!s) return;
+      if (/\s/.test(s)) { if (el.tagName === "CODE") el.classList.add("is-phrase"); return; }
+      if (el.tagName === "CODE" && s.length <= 25) el.classList.add("is-whole");
+      if (s.length <= 16) return;
+      var w = doc.createTreeWalker(el, NodeFilter.SHOW_TEXT), texts = [], m;
+      while ((m = w.nextNode())) texts.push(m);
+      texts.forEach(function (t) {
+        var parts = t.data.replace(/([^\s~])\/(?=[^\/\s])/g, "$1/\u0000").split("\u0000");
+        if (parts.length < 2) return;
+        var f = doc.createDocumentFragment();
+        parts.forEach(function (p, i) { if (i) f.appendChild(doc.createElement("wbr")); f.appendChild(doc.createTextNode(p)); });
+        t.parentNode.replaceChild(f, t);
+      });
+    });
+  });
+  root.classList.add("has-cells");
+
+  // Labels for tables that reflow into rows on phones. A table with two columns gets none: it is marked is-pair, and
+  // stackTables decides on every layout whether it reflows (table review, 20 November 2026).
   $$(".prose table").forEach(function (t) {
     var ths = $$("thead th", t);
+    if (ths.length === 2) { t.classList.add("is-pair"); return; }
     if (ths.length < 3) return;
     var labels = ths.map(function (th) { return th.textContent.trim(); });
     $$("tbody tr", t).forEach(function (tr) {
@@ -539,7 +760,7 @@
   function yieldTo(el) {
     el.classList.add("is-yielding");
     var t = el.classList.contains("table-wrap--wide") && el.querySelector("table");
-    if (t) unfix(t); // a table of a series leaves the shared widths: in the column it is narrower than the rest anyway
+    if (t) { unfix(t); undecide(t); } // a table of a series leaves the shared widths, and every table what was decided for its wider place: in the column it is narrower than the rest anyway
   }
   function alignNotes() {
     var notes = marginNotes();
@@ -577,15 +798,24 @@
   }
 
   // ---------- Layout ----------
-  // Wide tables, first columns, narrow tables, series, margin notes and scroll regions, in that order (each depends
-  // on the one before). Again after the web fonts load (labels and notes change size), when images have loaded, and on resize.
+  // Two-column tables on phones, wide tables, first columns, narrow tables, series, the last word on code in cells,
+  // margin notes and scroll regions, in that order (each depends on the one before). Again after the web fonts load
+  // (labels and notes change size), when images have loaded, and on resize.
+  var laidW = 0; // the window width the last layout ran at
   function layout() {
+    laidW = window.innerWidth;
     if (prose) {
       resetNotes();
+      $$(".prose table.is-series").forEach(unfix); // measured below as written, without the last pass's spans
+      undecide(); // and without the last pass's names, paths that fit and loose code
+      stackTables();
       classifyTables();
       labelTables();
       relieveTables();
       fitSeries();
+      wholeNames();
+      fitCode();
+      looseCode();
       alignNotes();
     }
     tableRegions();
@@ -620,12 +850,14 @@
   $$(".codeblock[data-roles] pre").forEach(function (pre) {
     pre.addEventListener("scroll", function () { scrollShade(pre); }, { passive: true });
   });
-  var lt = 0, lastW = window.innerWidth;
+  var lt = 0, rt = 0;
   window.addEventListener("resize", function () {
-    if (window.innerWidth === lastW) return; // phones resize the height as their toolbars come and go; nothing here depends on it
-    lastW = window.innerWidth;
-    clearTimeout(lt);
-    lt = setTimeout(layout, 150);
+    // Against the width the last layout ran at, not the last event's: a pass that ran at a passing width (a capture
+    // tool sets the window to 1 × 1 px for a moment) is always redone. Phones resize the height as their toolbars
+    // come and go; nothing here depends on it.
+    clearTimeout(rt);
+    if (window.innerWidth === laidW) return;
+    rt = setTimeout(layout, 150);
   }, { passive: true });
   // Mermaid draws a diagram after the page has loaded; when that changes its height, the notes below move with it
   var diagrams = prose ? $$("pre.mermaid", prose) : [];

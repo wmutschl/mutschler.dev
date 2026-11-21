@@ -508,10 +508,13 @@ html:not(.js) .rh__search, html:not(.js) .rh__theme { display: none; }
   border-bottom: 1px solid var(--rule);
 }
 .revisions__table tr:last-child td { border-bottom: 0; }
+/* The last column ends where the rules end, as in the prose tables, and a wrapped chapter title hangs under its
+   first word, as in the contents entries (table review, 20 November 2026). */
+.revisions__table th:last-child, .revisions__table td:last-child { padding-right: 0; }
 .rev__date { white-space: nowrap; font-variant-numeric: lining-nums tabular-nums; }
-.rev__chapter a { text-decoration: none; }
+.rev__chapter a { display: inline-grid; grid-template-columns: auto minmax(0, 1fr); column-gap: .55em; text-decoration: none; }
 .rev__chapter a:hover { text-decoration: underline; text-decoration-color: var(--spot); }
-.rev__no { color: var(--spot); font-variant-numeric: lining-nums tabular-nums; margin-right: .3em; }
+.rev__no { color: var(--spot); font-variant-numeric: lining-nums tabular-nums; }
 .rev__no--earlier { color: var(--pencil); }
 .rev__change a { text-decoration-color: var(--pencil); }
 .rev__change a:hover { text-decoration-color: var(--spot); }
@@ -962,6 +965,16 @@ kbd {
 .prose tr:last-child td { border-bottom: 0; }
 .prose th:last-child, .prose td:last-child { padding-right: 0; }
 .prose td code { overflow-wrap: anywhere; }
+/* Code in cells (table review, 20 November 2026). Once handbook.js has added break points after the slashes of
+   paths (has-cells), a name or path keeps the pieces between its break points whole (break-word, not anywhere), so
+   a column of names and paths is never narrower than its longest piece: a path breaks after a slash, a name after a
+   hyphen, and only a piece longer than the whole line breaks inside. Code with spaces (is-phrase) breaks at its
+   spaces, and anywhere as before. Without handbook.js the rule above stays; code in a header keeps the default. */
+.has-cells .prose td code:not(.is-phrase) { overflow-wrap: break-word; }
+/* No lone word on the last line of a cell or a header ("Reports to / healthchecks.io as", "Period / / grace";
+   table review), once handbook.js has bound the words that must not part (numbers and units, "Path B"). The
+   longhand: the shorthand text-wrap would also set text-wrap-mode and could undo the nowrap of a label. */
+.has-cells .prose th, .has-cells .prose td { text-wrap-style: pretty; }
 /* First columns (round 3). handbook.js measures every first-column label on one line: a label up to 15.5em wide
    is marked is-label and never wraps; a table with longer labels lets those wrap, but its first column keeps at
    least 9.5em for the text (plus the cell's padding), so it never collapses to its longest word. Phones keep their
@@ -971,6 +984,19 @@ kbd {
   .prose .is-label { white-space: nowrap; }
   .prose .has-long-labels tr > :first-child { min-width: calc(9.5em + .9rem); }
 }
+/* The last word on code in cells (handbook.js, wholeNames, fitCode and looseCode; table review): names stay whole
+   in a table where that costs it little, a path that fits its cell moves to the next line whole (as an inline block
+   or without wrapping), and a table lets code break anywhere again where that saves a break or height without
+   breaking inside a piece. Screen only: paper lays its tables out for its own width. A <wbr> is hidden where a name
+   or path stays whole without wrapping, since Chrome breaks at one even where nothing may wrap. */
+@media screen {
+  .prose table.keeps-names code.is-whole, .prose td code.is-fit { white-space: nowrap; }
+  .prose table.keeps-names code.is-whole wbr, .prose td code.is-fit wbr { display: none; }
+  .prose td code.is-fit-box { display: inline-block; line-height: normal; } /* moves whole and keeps its column within a pixel */
+  .has-cells .prose table.code-anywhere td code { overflow-wrap: anywhere; }
+}
+/* A row with an empty first cell continues the row above (BIOS 3.1): no rule under the label inside the group. */
+.prose tr:has(+ tr > td:first-child:empty) > td:first-child { border-bottom-color: transparent; }
 
 /* Notes and cautions. Round 4 (DESIGN.md 17): a very light wash behind notes in the text column (blue, with a 2px
    blue bar), Cautions (red, between the carmine rules) and the earlier-edition notice (sand); listings and inline
@@ -1360,7 +1386,7 @@ svg[id^="mermaid"] .edgeLabel rect { fill: var(--paper) !important; opacity: 1 !
   .callout--warning .callout__body { font-size: var(--s1); }
   .pager__link--next { text-align: left; }
 
-  /* Revision table and three-column tables reflow into labelled rows */
+  /* Revision table, tables of three or more columns and the two-column tables handbook.js stacks reflow into rows */
   .revisions__table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .revisions__table, .revisions__table tbody, .revisions__table tr, .revisions__table td { display: block; }
   .revisions__table tr { padding: .6rem 0; border-bottom: 1px solid var(--rule); }
@@ -1379,6 +1405,16 @@ svg[id^="mermaid"] .edgeLabel rect { fill: var(--paper) !important; opacity: 1 !
     font-style: italic;
     color: var(--pencil);
   }
+  /* A name (code without spaces, up to 25 characters; handbook.js marks it is-whole) moves to the next line whole
+     instead of breaking at a hyphen. In labelled rows every value has the whole line. */
+  .prose table.is-reflow code.is-whole { white-space: nowrap; }
+  .prose table.is-reflow code.is-whole wbr { display: none; }
+  /* The first cell is its row's title, a step heavier, as in the headings (600, its code 500); a title bold in the
+     Markdown keeps its 650. A row with an empty first cell continues the row above: no hairline between them. */
+  .prose table.is-reflow td:first-child:not(:has(strong)) { font-weight: 600; }
+  .prose table.is-reflow td:first-child:not(:has(strong)) code { font-weight: 500; }
+  .prose table.is-reflow tr:has(+ tr > td:first-child:empty) { border-bottom: 0; padding-bottom: .3rem; }
+  .prose table.is-reflow tr:has(> td:first-child:empty) { padding-top: .3rem; }
 }
 
 /* ---------- 13. Wide screens: margins, hanging numbers, side TOC ---------- */
@@ -1782,6 +1818,10 @@ svg[id^="mermaid"] .edgeLabel rect { fill: var(--paper) !important; opacity: 1 !
   .prose table.is-series { table-layout: fixed !important; }
   .prose table.is-series col { width: var(--print-w, auto) !important; }
   .prose tr { break-inside: avoid; }
+  /* each BIOS menu on one page; the address printed after a link in a first-column label wraps, though the label
+     does not (table review, 20 November 2026) */
+  .prose table.is-series { break-inside: avoid; }
+  .prose .is-label a[href]::after { white-space: normal; }
   /* !important: on screen handbook.js sets each margin note's offset inline; on paper the notes are inline */
   .prose .callout--margin, .js .prose .callout--margin { float: none; width: auto; margin: 10pt 0 !important; font-size: 9.5pt; color: #000; }
   /* Inline notes are asides: one step below the 10.5 pt text, like the margin notes (on screen 1rem printed 12 pt) */
