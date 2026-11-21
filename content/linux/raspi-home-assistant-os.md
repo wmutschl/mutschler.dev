@@ -152,7 +152,7 @@ If you go for an SSD, this is what changes compared with the SD card:
    ha host logs -t kernel -n 10000 | grep -iE 'uas is ignored|scsi host'
    ```
    For a bridge on the list, you get `UAS is ignored for this device, using usb-storage instead` and `scsi host0: usb-storage …`; with UAS, `scsi host0: uas`.
-3. **Flash the SSD instead of the SD card**, as in [Step 1](#step-1-flash-home-assistant-os-onto-the-sd-card).
+3. **Flash the SSD instead of the SD card**, as in [Step 1](#step-1-flash-home-assistant-os).
    The Imager lists USB drives as storage, and my script accepts any external disk up to 2 TiB without APFS or HFS+ partitions.
    On the first boot, HAOS grows its data partition to the size of the disk.
 4. **Take the SD card out, and never attach two disks with HAOS at the same time.**
@@ -168,15 +168,16 @@ If you go for an SSD, this is what changes compared with the SD card:
 To move a running installation to the SSD, create a full backup, shut the Pi down with `ha host shutdown` in the terminal, and restore the backup onto the SSD as in [Step 8](#step-8-restore-from-a-backup).
 The old card stays untouched, so you can always go back.
 
-## Step 1: Flash Home Assistant OS onto the SD card
+## Step 1: Flash Home Assistant OS
 
 ### Option A: Raspberry Pi Imager
 
 This is the [official way](https://www.home-assistant.io/installation/raspberrypi/):
 
 1. Install the [Raspberry Pi Imager](https://www.raspberrypi.com/software/), on macOS e.g. with `brew install --cask raspberry-pi-imager`.
-2. Insert the SD card and open the Imager.
-3. Choose **Raspberry Pi 4** as device, then **Other specific-purpose OS → Home automation → Home Assistant → Home Assistant OS 18.5 (RPi 4/400)** as operating system, and the SD card as storage.
+2. Insert the SD card or connect the SSD.
+   Open the Imager.
+3. Choose **Raspberry Pi 4** as device, then **Other specific-purpose OS → Home automation → Home Assistant → Home Assistant OS 18.5 (RPi 4/400)** as operating system, and the SD card or SSD as storage.
    Don't pick the entries for the Home Assistant Yellow.
 4. Write the card.
    There are no customisation settings for HAOS.
@@ -189,7 +190,7 @@ It takes the image and its SHA-256 checksums from the metadata that the Imager u
 It refuses internal disks, disks with APFS or HFS+ partitions and disks larger than 2 TiB, and asks you to type the disk identifier before it erases anything.
 It needs `xz` (`brew install xz`) and `jq`, which ships with macOS 15 and later.
 
-Find the identifier of the SD card (e.g. `disk5`) by its size:
+Find the identifier of the SD card or SSD (e.g. `disk5`) by its size:
 ```sh
 diskutil list external physical
 ```
@@ -198,19 +199,19 @@ Then run the script with it:
 git clone https://github.com/wmutschl/scripts.git
 ./scripts/Raspberry-Pi-4-Model-B/flash-haos.sh disk5
 ```
-It keeps the downloaded image in `~/Library/Caches/flash-haos`, so flashing a spare card right afterwards doesn't download it again.
+It keeps the downloaded image in `~/Library/Caches/flash-haos`, so flashing a spare card or disk right afterwards doesn't download it again.
 If macOS shows a dialog that it cannot read the disk, select **Ignore**: HAOS uses filesystems that macOS doesn't know.
 
 ## Step 2: First boot and a fixed IP address
 
-1. Insert the SD card into the Pi, connect Ethernet, plug the Zigbee dongle (on its extension cable) into one of the black USB 2.0 ports, and finally connect the power supply.
+1. Insert the SD card into or connect the SSD to the Pi, connect Ethernet, plug the Zigbee dongle (on its extension cable) into one of the black USB 2.0 ports, and finally connect the power supply.
 2. On your computer, open [http://homeassistant.local](http://homeassistant.local).
    If that doesn't load, try `http://homeassistant.local:8123` or the IP address of the Pi, which you find in the router.
    The page should come up within a few minutes; then Home Assistant may show **Preparing Home Assistant** while it downloads the latest version, which can take 20 minutes or more.
 3. In the meantime, give the Pi a fixed IP address in the router.
    In the FRITZ!Box, open the device (it shows up as `homeassistant`) under **Home Network → Network → Network Connections**, edit it and turn on the permanent IPv4 address (**Always assign this network device the same IPv4 address**; newer FRITZ!OS versions call it **Assign permanent IPv4 address**).
 
-The reservation is tied to the MAC address of the Pi's Ethernet port, so it survives reflashing the card and restoring backups.
+The reservation is tied to the MAC address of the Pi's Ethernet port, so it survives reflashing the card or disk and restoring backups.
 In Home Assistant, I leave the network settings (**Settings → System → Network**) on automatic, with Wi-Fi disabled.
 
 ## Step 3: Onboarding
@@ -297,7 +298,7 @@ In Home Assistant:
    - **Locations:** **This system**, for quick restores on the Pi, and `dell_wyse`.
 
    The cog next to a location opens its own retention and encryption settings.
-   On **This system**, I keep 60 backups; at about 40 MB each, they are cheap, but they die with the SD card.
+   On **This system**, I keep 60 backups; at about 40 MB each, they are cheap, but they die with the SD card or SSD.
    `dell_wyse` uses the global 7, since the server's snapshots keep older ones for months anyway.
    Both locations should say *Backups made to this location will be encrypted*.
 3. On the **Encryption key** card, select **Download emergency kit** and store the file in your password manager.
@@ -359,7 +360,7 @@ The files below are in the configuration folder of Home Assistant, which is `/ho
 
 ## Step 8: Restore from a backup
 
-This is the path for a dead SD card, a move to other hardware, or a fresh start with the old configuration.
+This is the path for a dead SD card or broken SSD, a move to other hardware, or a fresh start with the old configuration.
 
 ### What you need
 
@@ -381,14 +382,14 @@ This is the path for a dead SD card, a move to other hardware, or a fresh start 
   If the old system still runs, you can also download a backup in its web interface under **Settings → System → Backups → Show all backups**.
 * **The encryption key** from the emergency kit.
   A backup downloaded through the web interface is decrypted on the fly by default and needs no key.
-* **Enough space:** the new card needs more free space than the old system used, plus 2 GB.
-  In the terminal, `ha host info` shows the usage as `disk_used`; mine uses 9.1 GB of the 28.6 GB that HAOS gets on the 32 GB card.
-* **Only one Home Assistant at a time:** if the old system still runs, shut it down first.
+* **Enough space:** the new card or disk needs more free space than the old system used, plus 2 GB.
+  In the terminal, `ha host info` shows the usage as `disk_used`; mine uses 9.1 GB of the 28.6 GB that HAOS gets on the 32 GB card (or from the 500 GB SSD).
+* **Only one Home Assistant at a time:** if the old system still runs, shut it down first: `ha host shutdown`.
   Otherwise both would control the same Matter devices and cloud integrations, and claim the same machine in the tailnet.
 
 ### Restore during the onboarding
 
-1. Flash and boot as in [Step 1](#step-1-flash-home-assistant-os-onto-the-sd-card) and [Step 2](#step-2-first-boot-and-a-fixed-ip-address), with the Zigbee dongle in the same USB 2.0 port as before.
+1. Flash and boot as in [Step 1](#step-1-flash-home-assistant-os) and [Step 2](#step-2-first-boot-and-a-fixed-ip-address), with the Zigbee dongle in the same USB 2.0 port as before.
    On the same Pi, the FRITZ!Box hands out the same IP address.
    On a different Pi, move the reservation to the new device.
 2. On the welcome screen, select **Upload backup** below **Or restore**, then **Select backup file** and choose the `.tar` file.
