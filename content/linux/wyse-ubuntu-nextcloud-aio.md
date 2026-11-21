@@ -1535,23 +1535,18 @@ for d in /sys/block/sd?; do readlink -f $d | tr / '\n' | grep -E '^[0-9]+-[0-9.]
 ```
 
 `2-1.x` is the rear hub and `2-6.x` the front one; both should show 5000M in `lsusb -t`.
-Seen from the back of the Wyse, the rear ports map like this:
+The ports map like this, the rear ones as seen from the back of the Wyse and the front ones from top to bottom:
 
-| Rear port | USB | Address |
+| Port | USB | Address |
 |---|---|---|
-| Top left | 3.0 | `2-1.1` |
-| Top right | 3.0 | `2-1.2` |
-| Bottom left | 3.0 | `2-1.3` |
-| Bottom right | 3.0 | `2-1.4` |
-
-The front ports, from top to bottom:
-
-| Front port | USB | Address |
-|---|---|---|
-| USB-C | 3.0 | `2-2` (directly on the controller, no hub) |
-| Blue USB-A | 3.0 | `2-6.2` |
-| Upper black USB-A | 2.0 only | `1-3` |
-| Lower black USB-A | 2.0 only | `1-4` |
+| Rear, top left | 3.0 | `2-1.1` |
+| Rear, top right | 3.0 | `2-1.2` |
+| Rear, bottom left | 3.0 | `2-1.3` |
+| Rear, bottom right | 3.0 | `2-1.4` |
+| Front, USB-C | 3.0 | `2-2` (directly on the controller, no hub) |
+| Front, blue USB-A | 3.0 | `2-6.2` |
+| Front, upper black USB-A | 2.0 | `1-3` |
+| Front, lower black USB-A | 2.0 | `1-4` |
 
 The BIOS shows the same under **System Configuration → Front USB Configuration** and **Rear USB Configuration**: an asterisk marks all four rear ports and the two upper front ports, **Top** and **Top Medium**, as USB 3.0-capable.
 A USB 3 device in a black port runs at 480M, under bus 1 in `lsusb -t`.

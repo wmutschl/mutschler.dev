@@ -128,11 +128,11 @@ When you are done, click **Apply** to save the settings and **Exit** to restart.
 | **Admin Password** | Set a new password | Protects the BIOS settings; store it in your password manager |
 | **System Password** | **Not Set** | No password at power-on, so that the Wyse boots on its own, e.g. after a power outage |
 | **Internal HDD-0 Password** | **Not Set** | Not needed; my system SSD is encrypted with LUKS anyway ([section 3 of the Nextcloud guide](/linux/wyse-ubuntu-nextcloud-aio/#3-install-ubuntu-on-an-encrypted-system-disk)) |
-| **Strong Password**, **Password Configuration**, **Password Bypass**, **Password Change** | No changes | |
 | **UEFI Capsule Firmware Updates** | Activate **Enable UEFI Capsule Firmware Updates** | Allows BIOS updates from UEFI capsule packages, e.g. through fwupd and the LVFS on Linux |
 | **PTT Security** | Enable only **PTT On** | Intel Platform Trust Technology, the firmware TPM 2.0 |
 | **Chassis Intrusion** | **On-Silent** | Detects an opened case without a warning at startup |
-| **Admin Setup Lockout**, **Master Password Lockout**, **SMM Security Mitigation**, **Password Jumper** | Make sure they are disabled | |
+
+Make sure **Admin Setup Lockout**, **Master Password Lockout**, **SMM Security Mitigation** and **Password Jumper** are disabled.
 
 ### 3.5 Secure Boot
 

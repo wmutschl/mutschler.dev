@@ -1,21 +1,15 @@
-# mutschler.dev redesign prototypes
+# mutschler.dev redesign
 
-Design options for mutschler.dev, each a real Hugo theme that renders the real content in `content/`.
+The new design of mutschler.dev: the Handbook, a real Hugo theme (`themes/handbook/` over the shared `themes/base/`, config `redesign/configs/handbook/`) that renders the real content in `content/`. Preview: http://localhost:1423 (port 1428 shows the Terminal setting for listings).
 Nothing here changes the live site: the live build still uses `config/_default/` and Wowchemy.
 
 ## Round 2 lineup
 
-| Option | Idea | Theme | Config | Preview |
-|---|---|---|---|---|
-| Handbook | Typeset book: contents, chapters, margin notes, earlier editions | `themes/handbook/` | `redesign/configs/handbook/` | http://localhost:1423 |
-| Console | Sibling of mutschler.eu: Roboto Mono paths, `=` underlined titles, link blue | `themes/console/` | `redesign/configs/console/` | http://localhost:1424 |
-| Workbench | modCraft's design system: monochrome, one blue for "where you are", STIX proof page | `themes/workbench/` | `redesign/configs/workbench/` | http://localhost:1425 |
-| Column | Minimal: one reading column in Inter Tight and Inter, dark terminal panes | `themes/column/` | `redesign/configs/column/` | http://localhost:1426 |
-| Docs | Minimal: documentation layout in Geist, all guides in a sidebar | `themes/docs/` | `redesign/configs/docs/` | http://localhost:1427 |
+Round 2 compared five themes on the same content: Handbook (a typeset book with contents, chapters and margin notes), Console (a sibling of mutschler.eu), Workbench (modCraft's design system), Column (one reading column) and Docs (a documentation layout with all guides in a sidebar). You chose the Handbook on 19 November; the other four, round 1's Boot menu and Partition map, their configs and briefs and the overview screenshots were deleted on 21 November 2026.
 
-All five follow the round-2 priorities (see `redesign/BRIEF.md`, "Round 2"): readability first, nothing playful; on computers the text and the layout grow with the window (about 19 px at 1440 px, 21 to 22 px from 2000 px); command windows are wider than the text column; syntax colours tell commands, flags, strings, variables, numbers and the `#` comment/output lines apart, each at least 4.5:1 in light and dark mode.
+All five followed the round-2 priorities (see `redesign/BRIEF.md`, "Round 2"), which the Handbook keeps: readability first, nothing playful; on computers the text and the layout grow with the window (about 19 px at 1440 px, 21 to 22 px from 2000 px); command windows are wider than the text column; syntax colours tell commands, flags, strings, variables, numbers and the `#` comment/output lines apart, each at least 4.5:1 in light and dark mode.
 
-Each theme's `DESIGN.md` documents its tokens, type scale, layout, syntax palette and review notes. Overview screenshots are in `redesign/previews/`.
+`themes/handbook/DESIGN.md` documents its tokens, type scale, layout, syntax palette and every round's decisions and review notes.
 
 ## Round 3: the Handbook (19 November 2026)
 
@@ -37,7 +31,7 @@ Left as it is, on purpose:
 
 - "UEFI Capsule Firmware Updates" (just over the threshold) wraps in the BIOS tables, where round 2 kept it whole from 1440 px; in exchange the four short labels round 2 broke at 1024 px are whole.
 - A listing beside a margin note scrolls in the text column, e.g. the 33-line `lsblk` listing in chapter 8, section 3.1, shows about 64 of its 98 characters per line at 1440 px.
-- Checked in headless Chrome only; one look in Safari at chapter 8, sections 3.1 and 7, and at chapter 7 is worth it.
+- Checked in headless Chrome only; one look in Safari at chapter 8, sections 3.1 and 7, and at chapter 7 is worth it. (You looked at the tables in Safari on 21 November: fine.)
 
 ## Round 4: note icon and tints (decided 20 November 2026)
 
@@ -100,50 +94,33 @@ What a reader sees:
 
 - **Phones:** paths and names no longer break inside a word. Two-column tables such as File | Purpose become a list of entries (the path as title, its purpose below), every reflowed row has a semibold title, and the BIOS "System Information" group reads as one entry.
 - **Code in cells** breaks after a slash or a hyphen; a path that fits on a line moves there whole, and short names stay whole where that costs little.
-- **Words that belong together** stay together: "6 TB", "1 day", "section 2.2", "Path B", "PCIe 2.0", "Audit Mode". No cell ends in a lone word where the browser can avoid it.
+- **Words that belong together** stay together: "6 TB", "1 day", "4 weekly", "04:45–05:45", "section 2.2", "Path B", "PCIe 2.0", "Audit Mode". No cell ends in a lone word where the browser can avoid it.
 - **BIOS menus:** a setting without a note runs on under the Note column. **Contents page:** wrapped titles in the revision table hang under their first word.
 
-**Labels on tablets (you kept them, 21 November):** from 640 to 1279 px five tables let their first-column labels wrap, because that makes them 7–19 % shorter with wider text columns: Home Assistant Option and App, Mac mini jobs, chapter 8's Path | Result and the backup page's restore table. That relaxes round 3's "labels up to 15.5em never wrap" for these five; the before/after images are in `redesign/previews/tables/`.
+**Labels on tablets (you kept them, 21 November):** from 640 to 1279 px five tables let their first-column labels wrap, because that makes them 7–19 % shorter with wider text columns: Home Assistant Option and App, Mac mini jobs, chapter 8's Path | Result and the backup page's restore table. That relaxes round 3's "labels up to 15.5em never wrap" for these five.
 
-**Suggestions for your content (not changed):**
+**Content changes the review suggested, made at your request on 21 November:**
 
-- Chapter 8, section 7.2: one Port | USB | Address table for the rear and front ports instead of two whose columns do not line up ("2.0" rather than "2.0 only"), with one lead sentence in your words.
-- Chapter 7, section 3.4: the "No changes" row can go (the section already says unmentioned settings stay as they are); the lockout row could read "Admin Setup Lockout to Password Jumper", if those four pages follow each other in the BIOS, or become a sentence after the table.
-- Backup page (you are rewriting it): in the schedule, keep When to the schedule and put only check names under "Reports to healthchecks.io as" (the table then gets shorter than before on tablets); in the copies table, the "#" column is used nowhere; writing `Storage&nbsp;Box`, `Raspberry&nbsp;Pi`, `Time&nbsp;Machine` and `Mac&nbsp;mini` keeps those names on one line.
+- Chapter 8, section 7.2: one Port | USB | Address table for the rear and front ports, instead of two whose columns did not line up ("2.0" rather than "2.0 only"), with one lead sentence.
+- Chapter 7, section 3.4: the "No changes" row is gone (the section already says that unmentioned settings stay as they are), and the four lockout pages are a sentence after the table, as in 3.12.
+- Backup page, schedule: When holds only the schedule; the UTC/CET/CEST conversions and Home Assistant's "System optimal" time moved into the paragraph above, and the last column, "Reports to healthchecks.io as", holds only check names ("–" for AIO and Time Machine, whose own alerts section 4 describes). Copies table: the "#" column is gone, row 4 reads "AIO's Borg backup" and row 5's Encrypted cell "Borg, and Home Assistant's key" (that keeps the columns balanced), and "before they leave the house" moved into the note on the off-site mirror. Both tables are now shorter than before at every width. These two are in your working copy, next to your own uncommitted edits, not committed.
+- Still open, if you like it: writing `Storage&nbsp;Box`, `Raspberry&nbsp;Pi`, `Time&nbsp;Machine` and `Mac&nbsp;mini` on the backup page keeps those names on one line.
 
 ## What to look at
 
-- **Handbook.** Chapter 8, section 7 (`/linux/wyse-ubuntu-nextcloud-aio/#7-backup-disks-snapshots-alerts-and-the-home-assistant-share`) at your usual width: the table and the listings run across the margin, short notes sit beside the text without covering code, listings have muted printing-ink colours. Round 3: section 3.1 of the same chapter (`#31-prepare-the-disk-in-the-installer-shell`) at 1440 or 2000 px for the SSH note in the margin, and chapter 7, section 3 (`/linux/wyse-hardware/#3-go-through-the-bios-settings`) for the BIOS tables.
-- **Console.** The home page next to mutschler.eu, then the Nextcloud guide at 2000 px: the contents column follows you, command windows hold up to 120 characters. Search "luks timeshift" ranks the current guides first.
-- **Workbench.** Any guide at 2000 px: the white sheet with your text, the grey dock with the proof page (written for, status, dates, reading time), contents and pill actions; the one blue marks only where you are. On a phone, `/linux/wyse-hardware/#34-security` shows the BIOS tables as stacked rows.
-- **Column.** A long guide at 1440 and 2000 px: the contents list tracks your position, dark command windows hold 116 to 132 characters. On a phone, the Contents bar at the bottom.
-- **Docs.** The sidebar with every guide (previous versions folded per platform), "On this page" with your step numbers, the petrol mark for where you are; on a phone the current section stays pinned under the top bar.
+- Chapter 8, section 7 (`/linux/wyse-ubuntu-nextcloud-aio/#7-backup-disks-snapshots-alerts-and-the-home-assistant-share`) at your usual width: the table and the listings run across the margin, short notes sit beside the text without covering code, listings have muted printing-ink colours.
+- Section 3.1 of the same chapter (`#31-prepare-the-disk-in-the-installer-shell`) at 1440 or 2000 px for the SSH note in the margin, and chapter 7, section 3 (`/linux/wyse-hardware/#3-go-through-the-bios-settings`) for the BIOS tables.
+- On a phone: chapter 8's File | Purpose table (in the overview) and its Installed on the Wyse table (section 7) as lists of entries, and the backup page's schedule.
 
-## Run them
+## Run it
 
-The previews above are static builds served from a temporary folder. To run live-reloading servers, start them from your own terminal in the repository root (when the Claude app starts Hugo itself, macOS keeps asking whether "hugo" may access the Documents folder):
+The previews on ports 1423 and 1428 are static builds served from a temporary folder. To run a live-reloading server, start it from your own terminal in the repository root (when the Claude app starts Hugo itself, macOS keeps asking whether "hugo" may access the Documents folder):
 
 ```bash
 hugo server --configDir redesign/configs/handbook --port 1323 --bind 0.0.0.0 --baseURL http://macbook-pro:1323 --noBuildLock
 ```
 
-```bash
-hugo server --configDir redesign/configs/console --port 1324 --bind 0.0.0.0 --baseURL http://macbook-pro:1324 --noBuildLock
-```
-
-```bash
-hugo server --configDir redesign/configs/workbench --port 1325 --bind 0.0.0.0 --baseURL http://macbook-pro:1325 --noBuildLock
-```
-
-```bash
-hugo server --configDir redesign/configs/column --port 1326 --bind 0.0.0.0 --baseURL http://macbook-pro:1326 --noBuildLock
-```
-
-```bash
-hugo server --configDir redesign/configs/docs --port 1327 --bind 0.0.0.0 --baseURL http://macbook-pro:1327 --noBuildLock
-```
-
-With `--bind 0.0.0.0` you can open them on your phone over Tailscale at `http://macbook-pro:1323` to `:1327`; all links are root-relative, so localhost works too. `.claude/launch.json` only attaches the app's browser to servers that are already running.
+With `--bind 0.0.0.0` you can open it on your phone over Tailscale at `http://macbook-pro:1323`; all links are root-relative, so localhost works too. `HUGO_PARAMS_CODE=session` in front of the command shows listings in the Terminal setting. `.claude/launch.json` only attaches the app's browser to servers that are already running.
 
 ## How it is put together
 
@@ -151,8 +128,8 @@ With `--bind 0.0.0.0` you can open them on your phone over Tailscale at `http://
 - `themes/base/data/catalog.yaml` groups the 26 guides by platform and marks each as current, previous or notes, with a short title and, for previous guides, why and which guide replaces them. These are proposals; please check them. If you pick a design, this could move into front matter.
 - The YouTube shortcode is click-to-load: nothing is requested from Google until a reader presses play.
 - The legacy "Please feel free to raise any comments…" line and the red Buy Me A Coffee badge at the top of each guide are removed at render time; every design offers feedback and support links in its layout instead.
-- Fonts (and Mermaid) load from CDNs in these prototypes. Production should self-host them, as on vierpunktberatung.de.
-- Round 1's "Boot menu" and "Partition map" were rejected as too playful. They are still in `themes/bootmenu/`, `themes/partition/` and `redesign/briefs/`; delete them whenever you like.
+- Fonts (and Mermaid) load from CDNs in the preview. Production should self-host them, as on vierpunktberatung.de.
+- Round 1's "Boot menu" and "Partition map" were rejected as too playful; they and round 2's other themes were deleted on 21 November 2026.
 
 ## Content fixes (18 and 19 November 2026, committed by you on 20 November)
 
@@ -163,9 +140,9 @@ With `--bind 0.0.0.0` you can open them on your phone over Tailscale at `http://
 - Three smaller slips: the ```` ```s ```` fence in `pop-os-btrfs-21-10.md` is now ```` ```sh ````, the `rsync -avuP …` command in `macos-post-install.md` got its closing backtick, and "directls" reads "directly".
 - In `raspi-home-assistant-os.md` (Step 7), the note "If you prefer the automation editor, …" is indented into step 5, the end of the procedure, without a blank line, so the list stays tight. In the Handbook it now sits beside step 5 from 1280 px (before: beside steps 1 and 2, and the listing of step 2 had to make room for it).
 
-## If you choose one
+## Going live
 
-1. Point `config/_default/` at the chosen theme instead of the Wowchemy module (or merge the prototype config into it) and remove the Wowchemy import from `config.yaml` and `go.mod`.
+1. Point `config/_default/` at the Handbook (`theme = ["handbook", "base"]`) instead of the Wowchemy module (or merge `redesign/configs/handbook/` into it) and remove the Wowchemy import from `config.yaml` and `go.mod`.
 2. Self-host the fonts.
 3. Optionally move the catalogue data into front matter.
-4. Delete the themes you did not choose and `redesign/`, and fold `themes/base/` into the chosen theme if you like.
+4. Delete `redesign/` once its config lives in `config/_default/`, and fold `themes/base/` into the Handbook if you like.
