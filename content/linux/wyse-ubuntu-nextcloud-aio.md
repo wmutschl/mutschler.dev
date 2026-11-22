@@ -1400,7 +1400,7 @@ Set this up before either Nextcloud path, so that the first data already lands o
 |---|---|---|---|
 | BTRBK snapshot | Hourly | Live subvolumes → `@snapshots` on the Vi560 | `dell-wyse-btrbk-snapshot` |
 | BTRBK send/receive | Daily, 01:30 | `@snapshots` → HDD 1, `/mnt/btrbk/wyse` | `dell-wyse-btrbk-send` |
-| AIO Borg backup | Daily, 03:00 UTC, i.e. 04:00 CET or 05:00 CEST (set in AIO, [section 10.1](#101-aio-borg-backup-to-hdd-2)) | Nextcloud → HDD 2, `/mnt/backup/borg` | AIO notifies its administrators; the off-site job notices a backup that never ran |
+| AIO Borg backup | Daily, 03:00 UTC, i.e. 04:00 CET or 05:00 CEST (set in AIO, [section 10.1](#101-aio-borg-backup-to-hdd-2)) | Nextcloud → HDD 2, `/mnt/backup/borg` | AIO notifies its administrators when Borg fails; the off-site job notices a backup that never ran |
 | Home Assistant backup | Daily, at HA's "System optimal" time | Pi → `/srv/ha-backups`, then to HDD 1 with the next daily send | `dell-wyse-ha-backup-check`, daily at 07:00 |
 | Off-site mirror | Daily, 06:30, once AIO's backup has finished | Borg repository and `/srv/ha-backups` → Storage Box | `dell-wyse-offsite` |
 | BTRFS scrub | Monthly, on the 1st at 10:00 | Vi560 and both HDDs | `dell-wyse-scrub` |
@@ -2085,10 +2085,11 @@ See [Home Assistant network storage](https://www.home-assistant.io/common-tasks/
 ### 7.6 Off-site mirror on a Hetzner Storage Box
 
 `dell-wyse-offsite` copies two things that are encrypted before they leave the house: AIO's Borg repository from HDD 2, and the HA backups.
-It starts at 06:30 and first waits until AIO's backup container and any Borg lock are gone.
+It starts at 06:30 and first waits until AIO's whole daily run is over, including its image pulls and the restart of the containers, and no Borg lock is left.
 Then it copies the repository in three passes: new data segments first, then the index files that reference them, and only then deletions.
 So once the first run has finished, even an interrupted run leaves a usable repository on the Storage Box; at worst it holds some newer segments, which the restore in [section 7.7](#77-restore-from-the-storage-box) removes.
-The job also fails if the Borg repository has not changed in 26 hours, which catches an AIO backup that never ran.
+The job also fails if the Borg repository has not changed in 20 hours.
+Right after AIO's daily run, its newest backup is minutes old, so this catches an AIO backup that never ran on the same morning.
 
 1. **Storage Box.**
    Order one in the Hetzner Console, sized for the Borg repository plus growth and snapshots: with about 860 GiB of Nextcloud data, the 1 TB box is too small.
@@ -2162,7 +2163,7 @@ The job also fails if the Borg repository has not changed in 26 hours, which cat
 **Monitoring a running upload.**
 The journal stays silent after "Starting…", because rsync prints nothing; the job is still working as long as `systemctl status` says `activating (start)`.
 `pgrep -a rsync` shows the pass: `--include=/data/***` is the bulk of the data segments, `--exclude=/data` the index files, `--delete` with `/mnt/backup/borg/` the cleanup, and `/srv/ha-backups/` the HA copy at the very end.
-No rsync process means that the job is waiting for AIO's backup or a Borg lock to finish, for up to four hours.
+No rsync process means that the job is waiting for AIO's daily run or a Borg lock to finish, for up to four hours.
 
 ```sh
 systemctl status dell-wyse-offsite.service --no-pager
@@ -2174,6 +2175,32 @@ sudo bash -c '. /etc/dell-wyse/host.env; ssh -p "${OFFSITE_PORT:-23}" -i /root/.
 
 The copies are in `borg/` and `ha-backups/` in the sub-account's home directory, which the main account sees as `dell-wyse/`.
 [Storage Box access](https://docs.hetzner.com/storage/storage-box/access/access-ssh-rsync-borg/) and [Storage Box snapshots](https://docs.hetzner.com/storage/storage-box/snapshots/) provide further information.
+
+**Checking that the mirror is current.**
+Borg keeps a single `index.N`, named after its newest transaction, and the job copies it only after all the segments it needs.
+So the same `index.N` on both sides means that the Storage Box holds HDD 2's newest backup.
+The check takes a few seconds and needs no Borg password:
+
+```sh
+sudo bash -c '. /etc/dell-wyse/host.env
+  box() { ssh -p "${OFFSITE_PORT:-23}" -i /root/.ssh/dell-wyse-offsite "$OFFSITE_TARGET" "$@"; }
+  echo "Borg index, Wyse then Storage Box:"
+  ls -l /mnt/backup/borg | grep index; box ls -l borg | grep index
+  echo "HA backups, Wyse then Storage Box:"
+  ls -l /srv/ha-backups; box ls -l ha-backups'
+#> Borg index, Wyse then Storage Box:
+#> -rw------- 1 root root 17825978 Nov 20 05:31 index.533
+#> -rw------- 1 u123456-sub1 1113 17825978 Nov 20 04:31 index.533
+#> HA backups, Wyse then Storage Box:
+#> …
+```
+
+* **After the morning run:** both index lines show the same name and size, and the two HA lists hold the same files with the same sizes.
+  The Storage Box prints its times in UTC.
+* **Between AIO's backup and the end of the job:** the Wyse has the newer index; that is expected.
+* **Two index files on the Storage Box:** a run stopped after copying the index files; the next run removes the older one.
+* **The Wyse's index is more than a day old:** AIO's backup has not run since then, even if both sides match.
+  AIO doesn't always notify you of that; look at its log, `sudo docker logs --since 24h nextcloud-aio-mastercontainer`, and at the note **When AIO's daily backup does not run** in [section 10.1](#101-aio-borg-backup-to-hdd-2).
 
 {{< callout warning >}}
 **The Storage Box copy is a mirror.**
@@ -2218,21 +2245,28 @@ Then mount it as the note **Replacing a single HDD** at the start of [section 7.
 
    ```sh
    sudo apt install --no-install-recommends borgbackup -y
-   sudo bash -euo pipefail <<'EOF' &&
+   sudo bash -euo pipefail -c '
    cd /mnt/backup/borg.restore
+   shopt -s nullglob
    [ -f config ] && [ -s nonce ] || { echo "Not a complete Borg repository" >&2; exit 1; }
    # The newest non-empty index names the last transaction the copy holds completely
-   n=$(find . -maxdepth 1 -type f -size +0 -name 'index.*' -printf '%f\n' |
-     sed -n 's/^index\.\([0-9][0-9]*\)$/\1/p' | sort -n | tail -n 1)
+   n=""
+   for f in index.*; do
+     s=${f#index.}
+     if [[ $s =~ ^[0-9]+$ && -s $f ]] && { [ -z "$n" ] || (( s > n )); }; then n=$s; fi
+   done
    [ -n "$n" ] || { echo "No index: this copy never finished a run" >&2; exit 1; }
-   [ -n "$(find data -mindepth 2 -maxdepth 2 -type f -size +0 -name "$n")" ] ||
+   seg=(data/*/"$n")
+   [ -s "${seg[0]:-}" ] ||
      { echo "Segment $n, which index.$n needs, is missing: run step 2 again if it broke off, else copy from a snapshot (section 7.7, step 3)" >&2; exit 1; }
    # Drop the segments newer than that transaction, then move the nonce counter ahead by 2^40
-   find data -mindepth 2 -maxdepth 2 -type f -printf '%f %p\n' |
-     awk -v n="$n" '$1 ~ /^[0-9]+$/ && $1 + 0 > n + 0 { print $2 }' | xargs -r rm -v --
-   printf '%016x' $(( 0x$(cat nonce) + (1 << 40) )) > nonce
-   EOF
-   sudo mv -T /mnt/backup/borg.restore /mnt/backup/borg &&
+   for f in data/*/*; do
+     s=${f##*/}
+     if [[ $s =~ ^[0-9]+$ ]] && (( s > n )); then rm -v -- "$f"; fi
+   done
+   printf "%016x" $(( 0x$(cat nonce) + (1 << 40) )) > nonce
+   ' &&
+     sudo mv -T /mnt/backup/borg.restore /mnt/backup/borg &&
      sudo borg check /mnt/backup/borg
    ```
 
@@ -2870,6 +2904,22 @@ In AIO's backup section:
 
 AIO's daily backup can also update the containers automatically afterwards, which is reasonable once a few manual updates went smoothly.
 External Storage app mounts need separate coverage; see [AIO backup coverage](https://github.com/nextcloud/all-in-one#backup).
+
+{{< callout note >}}
+**When AIO's daily backup does not run.**
+AIO pulls each image before it uses it, and when the registry refuses the pull, it falls back on the copy already on the Wyse.
+ghcr.io refuses pulls at times, for example with `error from registry: retry-after: … allowed: 44000/minute`.
+If the Borg image is missing on the Wyse as well, AIO stops the containers, logs `Could not pull image ghcr.io/nextcloud-releases/aio-borgbackup:latest`, skips the backup and starts the containers again, without a notification.
+The off-site job reports the missing backup the same morning ([section 7.6](#76-off-site-mirror-on-a-hetzner-storage-box)).
+Pull the image by hand, repeat the pull if the registry refuses it again, and check that it is there:
+
+```sh
+sudo docker pull ghcr.io/nextcloud-releases/aio-borgbackup:latest
+sudo docker image inspect --format '{{.Id}}' ghcr.io/nextcloud-releases/aio-borgbackup:latest
+```
+
+Then click **Create backup** in AIO's backup section and, once it has finished, **Start containers**, or let the next daily backup run.
+{{< /callout >}}
 
 ### 10.2 Host configuration and recovery material
 
