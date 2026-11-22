@@ -42,6 +42,10 @@ This is my hardware:
 My separate guide [Dell Wyse 5070 Thin Client: RAM and SSD upgrade, BIOS update and BIOS settings](/linux/wyse-hardware/) shows how I upgraded the RAM and the SSD, flashed the latest BIOS and went through the BIOS settings.
 This guide starts where that one ends.
 
+The commands work in bash, Ubuntu's default shell, and in fish, which is my login shell on the Mac and on the Wyse.
+That is why they set shell variables with `export NAME=value`, which both shells understand, and run loops and other bash syntax through `bash -c '…'` or `sudo bash -c '…'`.
+Only the installer shell in sections 3.1 and 3.3 is always bash, so its commands use plain bash syntax.
+
 {{< callout note >}}
 **What is new in Ubuntu 26.04 LTS (Resolute Raccoon) compared with 22.04 and 24.04:**
 
@@ -659,7 +663,7 @@ sudo apt update
 sudo apt install --no-install-recommends btrfs-progs -y
 
 # Read the UUID of the BTRFS pool that holds /
-POOL_UUID=$(findmnt -n -o UUID /)
+export POOL_UUID="$(findmnt -n -o UUID /)"
 echo "$POOL_UUID"
 #> 51c948e0-74f2-4f5c-b5e3-90b06f3b421f
 
@@ -703,14 +707,14 @@ cat /etc/fstab
 sudo sed -i -E "s|^[^#[:space:]]+[[:space:]]+/[[:space:]]+btrfs[[:space:]].*|UUID=$POOL_UUID  /  btrfs  defaults,noatime,subvol=@root,compress=zstd:3  0 0|" /etc/fstab
 
 # Add the other six entries
-sudo tee -a /etc/fstab >/dev/null <<EOF
-UUID=$POOL_UUID  /home                btrfs  defaults,noatime,subvol=@home,compress=zstd:3        0 0
-UUID=$POOL_UUID  /var/lib/docker      btrfs  defaults,noatime,subvol=@docker,compress=zstd:3      0 0
-UUID=$POOL_UUID  /var/lib/containerd  btrfs  defaults,noatime,subvol=@containerd,compress=zstd:3  0 0
-UUID=$POOL_UUID  /srv/nextcloud       btrfs  defaults,noatime,subvol=@nextcloud,compress=zstd:3   0 0
-UUID=$POOL_UUID  /srv/ha-backups      btrfs  defaults,noatime,subvol=@ha-backups,compress=zstd:3  0 0
-UUID=$POOL_UUID  /mnt/wyse-top        btrfs  defaults,noatime,subvolid=5,compress=zstd:3          0 0
-EOF
+printf '%s\n' \
+  "UUID=$POOL_UUID  /home                btrfs  defaults,noatime,subvol=@home,compress=zstd:3        0 0" \
+  "UUID=$POOL_UUID  /var/lib/docker      btrfs  defaults,noatime,subvol=@docker,compress=zstd:3      0 0" \
+  "UUID=$POOL_UUID  /var/lib/containerd  btrfs  defaults,noatime,subvol=@containerd,compress=zstd:3  0 0" \
+  "UUID=$POOL_UUID  /srv/nextcloud       btrfs  defaults,noatime,subvol=@nextcloud,compress=zstd:3   0 0" \
+  "UUID=$POOL_UUID  /srv/ha-backups      btrfs  defaults,noatime,subvol=@ha-backups,compress=zstd:3  0 0" \
+  "UUID=$POOL_UUID  /mnt/wyse-top        btrfs  defaults,noatime,subvolid=5,compress=zstd:3          0 0" |
+  sudo tee -a /etc/fstab >/dev/null
 
 # Show the result
 cat /etc/fstab
@@ -831,9 +835,7 @@ sudo apt install --no-install-recommends -y \
 sudo dpkg-reconfigure --priority=low unattended-upgrades
 
 # Keep automatic reboots disabled (see the explanation below)
-sudo tee /etc/apt/apt.conf.d/52-local-reboot-policy >/dev/null <<'APT'
-Unattended-Upgrade::Automatic-Reboot "false";
-APT
+echo 'Unattended-Upgrade::Automatic-Reboot "false";' | sudo tee /etc/apt/apt.conf.d/52-local-reboot-policy >/dev/null
 apt-config dump | grep Automatic-Reboot
 #> Unattended-Upgrade::Automatic-Reboot "false";
 
@@ -871,7 +873,7 @@ A clean report is no guarantee for the future and no substitute for backups; [se
 
 ```sh
 # Set the whole-disk path of the Vi560 again (the same as in section 3.1; use the TAB key to complete the path)
-DISK=/dev/disk/by-id/ata-Verbatim_Vi560_493653348990842
+export DISK=/dev/disk/by-id/ata-Verbatim_Vi560_493653348990842
 
 # Quick health verdict
 sudo smartctl -H "$DISK"
@@ -1333,14 +1335,15 @@ sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
   -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
-sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null <<EOF
-Types: deb
-URIs: https://download.docker.com/linux/ubuntu
-Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
-Components: stable
-Architectures: $(dpkg --print-architecture)
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
+export codename="$(sed -n 's/^VERSION_CODENAME=//p' /etc/os-release)"
+printf '%s\n' \
+  'Types: deb' \
+  'URIs: https://download.docker.com/linux/ubuntu' \
+  "Suites: $codename" \
+  'Components: stable' \
+  "Architectures: $(dpkg --print-architecture)" \
+  'Signed-By: /etc/apt/keyrings/docker.asc' |
+  sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null
 ```
 
 Then install the engine, its command-line client, containerd and the Compose plugin.
@@ -1532,8 +1535,8 @@ To see which hub each disk is on:
 
 ```sh
 lsusb -t
-for d in /sys/block/sd?; do readlink -f $d | tr / '\n' | grep -E '^[0-9]+-[0-9.]+$' | tail -1 |
-  sed "s/^/$(basename $d) $(cat $d/device/model) -> /"; done
+bash -c 'for d in /sys/block/sd?; do readlink -f $d | tr / "\n" | grep -E "^[0-9]+-[0-9.]+\$" | tail -1 |
+  sed "s/^/$(basename $d) $(cat $d/device/model) -> /"; done'
 #> sdb Elements 2621    -> 2-1.1
 #> sdc External USB 3.0 -> 2-6.2
 ```
@@ -1608,8 +1611,8 @@ ls -l /dev/disk/by-id/usb-*
 #> lrwxrwxrwx 1 root root 10 Nov 16 13:29 /dev/disk/by-id/usb-WD_Elements_2621_57583632443334335444584A-0:0-part2 -> ../../sdb2
 
 # Set the whole-disk paths of both HDDs (no -partN suffix; use the TAB key to complete the path)
-HDD1=/dev/disk/by-id/usb-WD_Elements_2621_57583632443334335444584A-0:0
-HDD2=/dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0
+export HDD1=/dev/disk/by-id/usb-WD_Elements_2621_57583632443334335444584A-0:0
+export HDD2=/dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0
 
 # Confirm the choice: both disks with the expected model, serial and size, and nothing mounted
 lsblk -o NAME,MODEL,SERIAL,SIZE,FSTYPE,MOUNTPOINTS "$HDD1" "$HDD2"
@@ -1626,7 +1629,7 @@ lsblk -o NAME,MODEL,SERIAL,SIZE,FSTYPE,MOUNTPOINTS "$HDD1" "$HDD2"
 
 ```sh
 # Stop if this prints anything: the disk then holds this guide's backups (section 7.2.2)
-lsblk -no LABEL "${HDD1:?is not set}" | grep -xE 'wyse-btrbk-luks|wyse-btrbk|wyse-borg'
+lsblk -no LABEL "$HDD1" | grep -xE 'wyse-btrbk-luks|wyse-btrbk|wyse-borg'
 
 # Erase HDD 1, give it one GPT partition and remove leftover signatures, such as a factory NTFS
 sudo parted -s "$HDD1" mklabel gpt mkpart btrbk 1MiB 100%
@@ -1668,7 +1671,7 @@ sudo cryptsetup close wyse-btrbk
 
 ```sh
 # Stop if this prints anything: the disk then holds this guide's backups (section 7.2.2)
-lsblk -no LABEL "${HDD2:?is not set}" | grep -xE 'wyse-btrbk-luks|wyse-btrbk|wyse-borg'
+lsblk -no LABEL "$HDD2" | grep -xE 'wyse-btrbk-luks|wyse-btrbk|wyse-borg'
 
 # Erase HDD 2, give it one GPT partition and remove leftover signatures, such as a factory NTFS
 sudo parted -s "$HDD2" mklabel gpt mkpart borg btrfs 1MiB 100%
@@ -1735,8 +1738,8 @@ lsblk -o NAME,SIZE,MODEL,SERIAL,FSTYPE,LABEL,MOUNTPOINTS
 ls -l /dev/disk/by-id/usb-*
 
 # Set the whole-disk paths of both HDDs (no -partN suffix; use the TAB key to complete the path)
-HDD1=/dev/disk/by-id/usb-WD_Elements_2621_57583632443334335444584A-0:0
-HDD2=/dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0
+export HDD1=/dev/disk/by-id/usb-WD_Elements_2621_57583632443334335444584A-0:0
+export HDD2=/dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20201028020375F-0:0
 
 # Confirm: partition btrbk holds crypto_LUKS (wyse-btrbk-luks), partition borg holds btrfs (wyse-borg)
 lsblk -o NAME,SIZE,PARTLABEL,FSTYPE,LABEL "$HDD1" "$HDD2"
@@ -1752,9 +1755,9 @@ Unlock HDD 1 once with its passphrase from your password manager and take the ke
 
 ```sh
 sudo cryptsetup open "$HDD1"-part1 wyse-btrbk
-tmp=$(mktemp -d)
+export tmp="$(mktemp -d)"
 sudo mount -o ro /dev/mapper/wyse-btrbk "$tmp"
-latest=$(sudo sh -c "ls -d '$tmp'/wyse/@root.* | tail -n 1")
+export latest="$(sudo sh -c "ls -d '$tmp'/wyse/@root.* | tail -n 1")"
 sudo install -d -m 0700 /etc/cryptsetup-keys.d
 sudo install -m 0400 "$latest/etc/cryptsetup-keys.d/wyse-btrbk.key" /etc/cryptsetup-keys.d/wyse-btrbk.key
 sudo umount "$tmp"
@@ -1781,7 +1784,7 @@ HDD 1's udev rule, explained after this note, names the old disk by its bridge's
 The next daily send copies everything again in full.
 
 ```sh
-luks_uuid=$(sudo cryptsetup luksUUID "$HDD1"-part1)
+export luks_uuid="$(sudo cryptsetup luksUUID "$HDD1"-part1)"
 [ -n "$luks_uuid" ] && sudo sed -i -E "s|^(wyse-btrbk[[:space:]]+)UUID=[^[:space:]]+|\1UUID=$luks_uuid|" /etc/crypttab
 grep '^wyse-btrbk ' /etc/crypttab
 sudo udevadm control --reload
@@ -1819,13 +1822,13 @@ sudo chattr +i /mnt/btrbk /mnt/backup
 # The keyfile must open slot 1, which the crypttab line below relies on
 sudo cryptsetup open --test-passphrase --key-slot 1 --key-file /etc/cryptsetup-keys.d/wyse-btrbk.key "$HDD1"-part1 && echo 'slot 1 ok'
 #> slot 1 ok
-luks_uuid=$(sudo cryptsetup luksUUID "$HDD1"-part1)
+export luks_uuid="$(sudo cryptsetup luksUUID "$HDD1"-part1)"
 echo "wyse-btrbk  UUID=$luks_uuid  /etc/cryptsetup-keys.d/wyse-btrbk.key  luks,key-slot=1,nofail,x-systemd.device-timeout=10s" |
   sudo tee -a /etc/crypttab
-sudo tee -a /etc/fstab >/dev/null <<'FSTAB'
-/dev/mapper/wyse-btrbk  /mnt/btrbk   btrfs  defaults,noatime,compress=zstd:3,nofail,x-systemd.device-timeout=20s  0 0
-LABEL=wyse-borg         /mnt/backup  btrfs  defaults,noatime,nofail,x-systemd.device-timeout=10s                  0 0
-FSTAB
+printf '%s\n' \
+  '/dev/mapper/wyse-btrbk  /mnt/btrbk   btrfs  defaults,noatime,compress=zstd:3,nofail,x-systemd.device-timeout=20s  0 0' \
+  'LABEL=wyse-borg         /mnt/backup  btrfs  defaults,noatime,nofail,x-systemd.device-timeout=10s                  0 0' |
+  sudo tee -a /etc/fstab >/dev/null
 # Apply HDD 1's udev rule, in case the disk was attached before the rule was installed
 sudo udevadm trigger --action=add --settle --subsystem-match=scsi_disk
 sudo systemctl daemon-reload
@@ -2333,17 +2336,17 @@ If the admin console still lists a node called `dell-wyse`, for example from an 
 {{< /callout >}}
 
 ```sh
-codename=$(. /etc/os-release && echo "$VERSION_CODENAME")
+export codename="$(sed -n 's/^VERSION_CODENAME=//p' /etc/os-release)"
 sudo curl -fsSL "https://pkgs.tailscale.com/stable/ubuntu/$codename.noarmor.gpg" -o /etc/apt/keyrings/tailscale.gpg
 sudo chmod a+r /etc/apt/keyrings/tailscale.gpg
 
-sudo tee /etc/apt/sources.list.d/tailscale.sources >/dev/null <<EOF
-Types: deb
-URIs: https://pkgs.tailscale.com/stable/ubuntu
-Suites: $codename
-Components: main
-Signed-By: /etc/apt/keyrings/tailscale.gpg
-EOF
+printf '%s\n' \
+  'Types: deb' \
+  'URIs: https://pkgs.tailscale.com/stable/ubuntu' \
+  "Suites: $codename" \
+  'Components: main' \
+  'Signed-By: /etc/apt/keyrings/tailscale.gpg' |
+  sudo tee /etc/apt/sources.list.d/tailscale.sources >/dev/null
 
 sudo apt update
 sudo apt install --no-install-recommends tailscale -y
@@ -2452,9 +2455,9 @@ If the containers cannot resolve and reach the name this way, Euro-Office cannot
 Once AIO's containers run, each of them must reach Nextcloud through the sidecar's tailnet address, `100.x`, with `200`; leave out `nextcloud-aio-eurooffice` without Euro-Office:
 
 ```sh
-for c in nextcloud-aio-nextcloud nextcloud-aio-eurooffice nextcloud-aio-mastercontainer; do
-  sudo docker exec "$c" curl -sS -m 10 -o /dev/null -w "$c %{remote_ip} %{http_code}\n" https://nextcloud.tailnet-name.ts.net/status.php
-done
+sudo bash -c 'for c in nextcloud-aio-nextcloud nextcloud-aio-eurooffice nextcloud-aio-mastercontainer; do
+  docker exec "$c" curl -sS -m 10 -o /dev/null -w "$c %{remote_ip} %{http_code}\n" https://nextcloud.tailnet-name.ts.net/status.php
+done'
 ```
 
 `serve status` lists both URLs as `(tailnet only)`; skip the Funnel checks in sections [9.3.1](#931-path-a-start-the-stack-and-check-the-node-name), [9.3.2](#932-path-a-set-up-nextcloud-aio) and [9.4.3](#943-path-b-hand-over-the-tailscale-name).
@@ -2564,8 +2567,8 @@ These should be addresses outside `100.x`, but the record can take up to ten min
    * From the Mac, the name resolves to a public address that serves Tailscale's certificate for it:
 
      ```sh
-     name=nextcloud.tailnet-name.ts.net
-     ip=$(dig @1.1.1.1 +short "$name" | grep -v ':' | head -1); echo "$ip"
+     export name=nextcloud.tailnet-name.ts.net
+     export ip="$(dig @1.1.1.1 +short "$name" | grep -v ':' | head -1)"; echo "$ip"
      curl -sv --resolve "$name:443:$ip" "https://$name" -o /dev/null 2>&1 \
        | grep -E 'subject:|issuer:|SSL certificate verify|< HTTP'
      #>   185.40.234.37
@@ -2889,7 +2892,7 @@ The files at the folder's top level are not compared: the compose file and `.env
 
 ```sh
 cd ~/scripts/Dell-Wyse-Thin-Client-5070
-find etc usr -type f | while read -r f; do diff -u "/$f" "$f"; done
+bash -c 'find etc usr -type f | while read -r f; do diff -u "/$f" "$f"; done'
 ```
 
 ### 10.3 Snapshots around risky changes
@@ -2912,14 +2915,14 @@ Trim runs weekly ([section 5.1](#51-packages-updates-and-disk-health)), the scru
 Look at these now and then anyway, especially after an import and after updates:
 
 ```sh
-for fs in / /mnt/btrbk /mnt/backup; do sudo btrfs filesystem usage -T "$fs"; sudo btrfs device stats "$fs"; done
+sudo bash -c 'for fs in / /mnt/btrbk /mnt/backup; do btrfs filesystem usage -T "$fs"; btrfs device stats "$fs"; done'
 sudo btrbk list latest
 systemctl list-timers 'dell-wyse-*'
 sudo journalctl -u dell-wyse-btrbk-send -u dell-wyse-scrub -u dell-wyse-offsite --since '40 days ago'
 sudo ls -lh /srv/ha-backups
 sudo docker system df
 cd ~/scripts/Dell-Wyse-Thin-Client-5070
-find etc usr -type f | while read -r f; do diff -u "/$f" "$f"; done
+bash -c 'find etc usr -type f | while read -r f; do diff -u "/$f" "$f"; done'
 systemctl --failed
 ```
 
