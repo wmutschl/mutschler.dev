@@ -1405,6 +1405,7 @@ Set this up before either Nextcloud path, so that the first data already lands o
 | Off-site mirror | Daily, 06:30, once AIO's backup has finished | Borg repository and the encrypted HA backups in `/srv/ha-backups` → Storage Box | `dell-wyse-offsite` |
 | BTRFS scrub | Monthly, on the 1st at 10:00 | Vi560 and both HDDs | `dell-wyse-scrub` |
 | SMART monitoring | Continuously; self-tests weekly and monthly | Vi560 and both HDDs | `dell-wyse-smartd`, failures only |
+| Disk removal alert | When HDD 1 or HDD 2 drops off the USB bus | Both HDDs | `dell-wyse-hdd-removed`, failures only |
 | Uptime | Every five minutes | – | `dell-wyse-alive` |
 
 The layers do different jobs:
@@ -1439,8 +1440,9 @@ cd ~/scripts/Dell-Wyse-Thin-Client-5070
 sudo install -D -m 0644 etc/btrbk/btrbk.conf /etc/btrbk/btrbk.conf
 sudo install -D -m 0644 etc/samba/smb.conf /etc/samba/smb.conf
 sudo install -D -m 0644 etc/smartd.conf /etc/smartd.conf
-sudo install -m 0644 etc/udev/rules.d/60-dell-wyse-hdd1-write-cache.rules /etc/udev/rules.d/
+sudo install -m 0644 etc/udev/rules.d/*-dell-wyse-*.rules /etc/udev/rules.d/
 sudo install -m 0644 etc/systemd/system/dell-wyse-* /etc/systemd/system/
+sudo install -D -m 0644 etc/systemd/system/mnt-btrbk.mount.d/dell-wyse.conf /etc/systemd/system/mnt-btrbk.mount.d/dell-wyse.conf
 sudo install -m 0755 usr/local/sbin/dell-wyse-* /usr/local/sbin/
 sudo systemctl daemon-reload
 sudo udevadm control --reload
@@ -1459,8 +1461,10 @@ sudo systemctl restart smbd
 | `dell-wyse-alive.timer` | Uptime ping ([7.1](#71-alerts-to-healthchecksio)) |
 | `/etc/udev/rules.d/60-dell-wyse-hdd1-write-cache.rules` | Cache flushes for HDD 1, whose USB bridge hides the drive's write cache ([7.2.3](#723-unlock-and-mount-the-hdds-at-boot)) |
 | `/etc/btrbk/btrbk.conf`, `dell-wyse-btrbk-snapshot.timer`, `dell-wyse-btrbk-send.timer` | Snapshots and send/receive ([7.3](#73-hourly-snapshots-and-daily-sendreceive-with-btrbk)) |
+| `/etc/systemd/system/mnt-btrbk.mount.d/dell-wyse.conf` | Unmounts HDD 1 before its LUKS mapping is closed, so that HDD 1 is mounted again by itself after it drops off the USB bus ([11.4](#114-a-disk-dropped-off-the-usb-bus)) |
 | `/usr/local/sbin/dell-wyse-btrbk-progress` | Progress of a running send to HDD 1, and the size of the next one ([11.1](#111-catch-up-on-missed-daily-sends)) |
 | `dell-wyse-scrub.timer`, `/etc/smartd.conf`, `/usr/local/sbin/dell-wyse-smartd-alert` | Disk health ([7.4](#74-disk-health-monthly-scrub-and-smart-monitoring)) |
+| `/etc/udev/rules.d/90-dell-wyse-hdd-removed.rules`, `dell-wyse-hdd-removed@.service` and its script | Alert when HDD 1 or HDD 2 drops off the USB bus ([7.4](#74-disk-health-monthly-scrub-and-smart-monitoring)) |
 | `/etc/samba/smb.conf`, `dell-wyse-ha-backup-check.timer` and its script | Home Assistant share and its daily check ([7.5](#75-backup-share-for-home-assistant)) |
 | `dell-wyse-offsite.timer`, `/usr/local/sbin/dell-wyse-offsite` | Off-site mirror on the Storage Box ([7.6](#76-off-site-mirror-on-a-hetzner-storage-box)) |
 | `/etc/dell-wyse/host.env` | Secrets and settings, created once from the template with mode 600, never overwritten |
@@ -1504,6 +1508,7 @@ A run that never happens, because the Wyse is off, a disk is missing or a timer 
    | `dell-wyse-btrbk-send` | 1 day | 6 hours |
    | `dell-wyse-btrbk-snapshot` | 1 hour | 1 hour |
    | `dell-wyse-ha-backup-check` | 1 day | 2 hours |
+   | `dell-wyse-hdd-removed` | 365 days | Any; it only receives failures |
    | `dell-wyse-offsite` | 1 day | 6 hours |
    | `dell-wyse-scrub` | 31 days | 2 days |
    | `dell-wyse-smartd` | 365 days | Any; it only receives failures |
@@ -1530,6 +1535,8 @@ Connect HDD 1 to a rear port and HDD 2 to the front blue port.
 Then a reset or power dip on one hub no longer takes out both backup disks at once, and the spin-up current of two bus-powered drives is spread over two hubs.
 Speed hardly changes, because the jobs that use the two disks rarely run at the same time.
 HDD 2 goes in front because an interrupted Borg backup recovers on its own, so a bumped cable costs less there; HDD 1 stays at the back, out of the way.
+Touching the rear ports or their cables can make the whole rear hub drop off the bus for a second, and HDD 1 with it, probably through a static discharge.
+So touch them only while `dell-wyse-reboot-check` ([section 11.3](#113-reboot-the-wyse)) shows no BUSY line other than the one about Nextcloud, and if a disk drops off anyway, see [section 11.4](#114-a-disk-dropped-off-the-usb-bus).
 No configuration depends on the port, so you can move a disk later: unmount it first, for example with `sudo systemctl stop mnt-backup.mount`, then mount it again and restart `smartd`.
 To see which hub each disk is on:
 
@@ -1776,11 +1783,13 @@ Then skip the block below: its `crypttab` and `fstab` lines already exist.
 After preparing the new disk with its block in [section 7.2.1](#721-new-hdds-partition-and-encrypt), do only this:
 
 **New HDD 2:** its `fstab` line finds it by its label `wyse-borg`, so mount it with `sudo systemctl start mnt-backup.mount`.
-HDD 2's line in the repository's `smartd.conf` names the old disk by its by-id path, which contains its serial number: change it to the new disk's path, or remove it if the new USB bridge reports standby ([section 7.4](#74-disk-health-monthly-scrub-and-smart-monitoring)), and copy the file again.
+HDD 2's line in the repository's `smartd.conf` names the old disk by its by-id path, which contains its serial number: change it to the new disk's path and copy the file again.
+If the new USB bridge reports standby, give the line HDD 1's options instead ([section 7.4](#74-disk-health-monthly-scrub-and-smart-monitoring)).
 Then copy the Borg repository back from the Storage Box ([section 7.7](#77-restore-from-the-storage-box)).
 
 **New HDD 1:** point the existing `wyse-btrbk` line in `/etc/crypttab` at the new disk's LUKS UUID, then mount it.
 HDD 1's udev rule, explained after this note, names the old disk by its bridge's serial: put the new disk's values into it in the repository and copy it again, or delete it from `/etc/udev/rules.d` if the new disk reports its write cache itself.
+HDD 1's line in `smartd.conf` names the old disk by its by-id path as well: change it to the new disk's path and copy the file again.
 The next daily send copies everything again in full.
 
 ```sh
@@ -1811,7 +1820,7 @@ That matters because the root filesystem is BTRFS too: without it, BTRBK would h
 The WD Elements' bridge also hides the drive's write cache.
 The kernel logs `No Caching mode page found` and `Assuming drive cache: write through` for HDD 1 (`journalctl -k -b | grep 'drive cache'`) and then never sends it a cache flush, although the drive's own write cache is on, as `sudo smartctl -g wcache "$HDD1"` shows.
 BTRFS relies on these flushes to keep its commits consistent across a power cut.
-The udev rule copied at the start of [section 7](#7-backup-disks-snapshots-alerts-and-the-home-assistant-share) corrects only the kernel's view and writes nothing to the drive.
+The rule `60-dell-wyse-hdd1-write-cache.rules`, copied at the start of [section 7](#7-backup-disks-snapshots-alerts-and-the-home-assistant-share), corrects only the kernel's view and writes nothing to the drive.
 It matches my WD Elements by its bridge's USB IDs and serial.
 For another disk that logs the same two lines, take these values from `udevadm info -a -n "$HDD1"`, put them into the rule in the repository and copy it again; a disk without these lines needs no rule.
 HDD 1's LUKS mapping takes the setting over when it is opened, so the block below applies the rule before it unlocks HDD 1.
@@ -1909,9 +1918,11 @@ To keep each nightly send short, upload or import large amounts of data in chunk
 Two timers split the work.
 `dell-wyse-btrbk-snapshot` runs `btrbk snapshot` hourly, which creates and prunes snapshots on the SSD and only reads HDD 1 to find the latest snapshot/backup pair it must keep.
 While HDD 1 is not mounted, BTRBK keeps every snapshot, so that the send can later catch up on the missed days, and the hourly job fails and alerts until HDD 1 is back.
+When HDD 1 comes back after it dropped off the USB bus, the next hourly run also unlocks and mounts it again ([section 11.4](#114-a-disk-dropped-off-the-usb-bus)).
 After a boot, the timer runs the job once right away to make up for the hours the Wyse was off, and systemd mounts HDD 1 first, if it is attached, so that this run doesn't send a false alert while HDD 1 is still being unlocked.
 `dell-wyse-btrbk-send` runs `btrbk resume` daily.
 It sends every snapshot that HDD 1's retention still needs, incrementally, including days missed while the disk was detached.
+Before that, `btrbk clean` deletes any copy that an interrupted send left half-received on HDD 1.
 BTRBK always keeps the latest snapshot pair it needs for the next incremental send.
 A shared `flock` makes the two wait for each other instead of failing.
 A long send, such as the one after an import, therefore holds up the hourly snapshots, so there are none for the hours it takes.
@@ -1970,7 +1981,8 @@ A full balance rewrites every block on the disk without any benefit here.
 {{< /callout >}}
 
 SMART catches a failing disk before BTRFS does.
-The repository's `/etc/smartd.conf` watches every disk `smartd` finds when it starts: overall health, error and self-test logs, attribute changes and temperature, with an alert at 60 °C.
+The repository's `/etc/smartd.conf` watches the two HDDs by their by-id paths and every other disk `smartd` finds when it starts, here the Vi560: overall health, error and self-test logs, attribute changes and temperature, with an alert at 60 °C.
+`smartd` opens each disk by that name at every check, and the by-id path still leads to an HDD that dropped off the USB bus for a moment and came back under a new device name, such as `/dev/sdd` instead of `/dev/sdb`.
 It runs a short self-test every Sunday and a long one on the 15th of each month, both at 11:00, and does not wake HDDs in standby for its half-hourly checks.
 Instead of sending mail, it hands each problem to `dell-wyse-smartd-alert`, which forwards it to the `dell-wyse-smartd` check.
 The `smartmontools` package from [section 5.1](#51-packages-updates-and-disk-health) pulls in no mail server.
@@ -1992,7 +2004,7 @@ USB bridges differ in what they pass on to the drive, and `smartctl` and the jou
 * **`SMART Disabled`** from `smartctl -H`: the drive ships with SMART switched off.
   Switch it on once with `sudo smartctl -s on /dev/disk/by-id/usb-…`; the drive keeps the setting.
 * **No answer without `-d sat`:** some enclosures answer only with `-d sat` added to `smartctl`.
-  If `smartd` skips such a disk, list it in `/etc/smartd.conf` by its `/dev/disk/by-id/usb-…` path with `-d sat`, as the file's comment shows.
+  If `smartd` skips such a disk, give it a line of its own in `/etc/smartd.conf`, by its `/dev/disk/by-id/usb-…` path and with `-d sat`, like the lines of the two HDDs.
 * **`not capable of SMART Health Status check`:** the bridge cannot pass on the drive's own pass/fail verdict.
   `smartd` still watches the attributes, the error and self-test logs and the temperature.
 * **`no ATA CHECK POWER STATUS support, ignoring -n Directive`:** `smartd` cannot see that the disk sleeps and would wake it at every check.
@@ -2008,6 +2020,22 @@ Finally, test the alert path and set the check back to up:
 ```sh
 sudo env SMARTD_DEVICE=/dev/test SMARTD_FAILTYPE=Test SMARTD_MESSAGE='Test alert' /usr/local/sbin/dell-wyse-smartd-alert
 sudo dell-wyse-hc-ping smartd
+```
+
+`smartd` notices a missing disk only at its next check, and not at all if the disk is back by then.
+The udev rule `90-dell-wyse-hdd-removed.rules` reports it right away: when the partition of HDD 1 or HDD 2 disappears, for example after a USB hub reset or through a loose cable, the rule starts `dell-wyse-hdd-removed@.service`.
+Half a minute later, that unit sends a failure ping to the check `dell-wyse-hdd-removed`, with whether the disk came back and is mounted, and with the kernel's USB and BTRFS messages.
+Nothing sends that check a success ping, and [section 11.4](#114-a-disk-dropped-off-the-usb-bus) says what to do after such an alert.
+The rule finds the disks by the labels from [section 7.2.1](#721-new-hdds-partition-and-encrypt), so a new disk needs no change.
+Test it without unplugging anything: `udevadm test` only simulates the removal and prints the command that the rule would run.
+The second command sends the alert itself; it returns after the half minute, and the alert says that HDD 2 is back and mounted.
+It also creates the check: set its period as in [section 7.1](#71-alerts-to-healthchecksio), and let the last command set the check back to up:
+
+```sh
+udevadm test --action=remove /dev/disk/by-label/wyse-borg 2>&1 | grep -F 'RUN{program}'
+#>   RUN{program} : /usr/bin/systemctl --no-block start dell-wyse-hdd-removed@wyse-borg.service
+sudo systemctl start dell-wyse-hdd-removed@wyse-borg.service
+sudo dell-wyse-hc-ping hdd-removed
 ```
 
 ### 7.5 Backup share for Home Assistant
@@ -3176,6 +3204,64 @@ The notes do not block the reboot, but some need a step afterwards:
 * **`/etc/fstab`:** a broken line without `nofail` ends the boot in emergency mode, which has no SSH.
   `findmnt --verify` ignores `nofail`, though, so while HDD 2 is detached, its line is reported as an error too; that one is harmless.
 * **Failed units** lose their failed state at the reboot; look at them first.
+
+### 11.4 A disk dropped off the USB bus
+
+A loose cable, or a USB hub that resets for a second, takes a disk away while it is mounted.
+`dell-wyse-hdd-removed` alerts half a minute later and says whether the disk is back and mounted ([section 7.4](#74-disk-health-monthly-scrub-and-smart-monitoring)).
+Much of the recovery happens by itself:
+
+* **HDD 1:** systemd unmounts it before it closes its LUKS mapping, so the next hourly snapshot run unlocks and mounts it again.
+  A send that the drop cut off fails with an alert; the next daily send first deletes the half-received copy with `btrbk clean` and then catches up ([section 7.3](#73-hourly-snapshots-and-daily-sendreceive-with-btrbk)).
+* **HDD 2** is mounted again only by the next job that needs it, the off-site mirror or the scrub, and AIO's daily backup is not one of them.
+  Mount it before that backup runs: `sudo systemctl start mnt-backup.mount`.
+* **`smartd`** reaches both HDDs through their by-id paths, also under a new device name.
+
+Then look at what happened:
+
+```sh
+journalctl -k -b | grep -E 'USB disconnect|Transaction aborted|forced readonly'
+findmnt /mnt/btrbk
+findmnt /mnt/backup
+systemctl --failed
+```
+
+* **`USB disconnect`** lines show what dropped off: `usb 1-1` and `usb 2-1` together are the rear hub itself, `usb 2-1.1` alone is the disk in the top left rear port or its cable ([section 7.2](#72-prepare-the-two-hdds)).
+* **`Transaction aborted` and `forced readonly`** mean that the drop hit a write.
+  BTRFS then discards the unfinished transaction, and the disk mounts again at its last completed one, as after a power cut.
+  Check the error counters, and confirm with a scrub that the disk is otherwise intact; for HDD 1 with 500 GB, the scrub takes about two hours:
+
+  ```sh
+  sudo btrfs device stats /mnt/btrbk
+  sudo btrfs scrub start /mnt/btrbk
+  sudo btrfs scrub status /mnt/btrbk
+  ```
+
+  The write errors from the moment of the drop belonged to the discarded transaction, so they usually don't show up in the counters.
+  If they do, reset the counters with `sudo btrfs device stats -z /mnt/btrbk` once the scrub has found no errors; otherwise the monthly scrub job reports them again ([section 7.4](#74-disk-health-monthly-scrub-and-smart-monitoring)).
+* **HDD 1 still not mounted after the next full hour, although the disk is back,** means that the automatic remount did not work, and `systemctl --failed` usually lists `mnt-btrbk.mount` or `systemd-cryptsetup@wyse\x2dbtrbk.service`.
+  The unmount or the close failed, for example because a process still had a file open on the vanished disk.
+  Unmount and close what is left, then mount HDD 1 again:
+
+  ```sh
+  sudo umount /mnt/btrbk
+  sudo cryptsetup close wyse-btrbk
+  sudo systemctl reset-failed mnt-btrbk.mount 'systemd-cryptsetup@wyse\x2dbtrbk.service'
+  sudo systemctl start mnt-btrbk.mount
+  ```
+
+  The first two commands fail harmlessly when there is nothing left to unmount or close.
+  If `umount` reports the target as busy, `sudo fuser -vm /mnt/btrbk` names the process.
+
+Finally, set the check back to up:
+
+```sh
+sudo dell-wyse-hc-ping hdd-removed
+```
+
+A half-received copy waits for the next daily send; to delete it right away, run `sudo flock /run/lock/btrbk-timers.lock btrbk clean`.
+A send started by hand ([section 11.2](#112-send-the-current-state-to-hdd-1)) breaks off as well; start it again once HDD 1 is mounted.
+If a disk drops off again and again while nobody is near the Wyse, connect it to the front USB-C port, which sits directly on the USB controller, and see whether the drops follow it ([section 7.2](#72-prepare-the-two-hdds)).
 
 [^1]: Instead of the interface, you can use AIO's own script in the mastercontainer ([AIO's documentation](https://github.com/nextcloud/all-in-one#how-to-stopstartupdate-containers-or-trigger-the-daily-backup-from-a-script-externally)).
     The first command stops the containers, and the second starts them again after the unlock, without updating them:
