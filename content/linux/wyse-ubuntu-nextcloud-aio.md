@@ -91,7 +91,7 @@ The deployment and the host configuration live in my [scripts repository](https:
 | Hourly snapshots | `@snapshots`, reached through the top-level mount `/mnt/wyse-top`; kept 48 hours hourly and 7 days daily |
 | HDD 1 (WD Elements, 6 TB), label `wyse-btrbk` | LUKS2-encrypted BTRFS at `/mnt/btrbk`, unlocked at boot by a keyfile on the encrypted SSD; daily `btrfs send/receive` of the snapshots, kept 30 days, 12 weeks and 12 months |
 | HDD 2 (Toshiba, 4 TB), label `wyse-borg` | BTRFS at `/mnt/backup`; AIO's daily Borg repository in `/mnt/backup/borg`, encrypted by Borg |
-| Off-site | Nightly mirror of the Borg repository and the HA backups on a Hetzner Storage Box over SSH, protected by the Storage Box's own snapshots ([section 7.6](#76-off-site-mirror-on-a-hetzner-storage-box)) |
+| Off-site | Nightly mirror of the Borg repository and the encrypted HA backups on a Hetzner Storage Box over SSH, protected by the Storage Box's own snapshots ([section 7.6](#76-off-site-mirror-on-a-hetzner-storage-box)) |
 | Monitoring | healthchecks.io: the backup jobs, the scrub, SMART, the arrival of HA's backups and an uptime ping |
 | Public access | Funnel `https://nextcloud.tailnet-name.ts.net` → sidecar → `nextcloud-aio-apache:11000` |
 | AIO interface | Tailnet only: `https://nextcloud.tailnet-name.ts.net:8080` → sidecar → mastercontainer. Break-glass: host loopback `127.0.0.1:8080` through SSH |
@@ -1402,7 +1402,7 @@ Set this up before either Nextcloud path, so that the first data already lands o
 | BTRBK send/receive | Daily, 01:30 | `@snapshots` → HDD 1, `/mnt/btrbk/wyse` | `dell-wyse-btrbk-send` |
 | AIO Borg backup | Daily, 03:00 UTC, i.e. 04:00 CET or 05:00 CEST (set in AIO, [section 10.1](#101-aio-borg-backup-to-hdd-2)) | Nextcloud → HDD 2, `/mnt/backup/borg` | AIO notifies its administrators when Borg fails; the off-site job notices a backup that never ran |
 | Home Assistant backup | Daily, at HA's "System optimal" time | Pi → `/srv/ha-backups`, then to HDD 1 with the next daily send | `dell-wyse-ha-backup-check`, daily at 07:00 |
-| Off-site mirror | Daily, 06:30, once AIO's backup has finished | Borg repository and `/srv/ha-backups` → Storage Box | `dell-wyse-offsite` |
+| Off-site mirror | Daily, 06:30, once AIO's backup has finished | Borg repository and the encrypted HA backups in `/srv/ha-backups` → Storage Box | `dell-wyse-offsite` |
 | BTRFS scrub | Monthly, on the 1st at 10:00 | Vi560 and both HDDs | `dell-wyse-scrub` |
 | SMART monitoring | Continuously; self-tests weekly and monthly | Vi560 and both HDDs | `dell-wyse-smartd`, failures only |
 | Uptime | Every five minutes | – | `dell-wyse-alive` |
@@ -2016,7 +2016,8 @@ Samba serves one share, `ha-backups`, to one account, and accepts connections on
 Its configuration is the `/etc/samba/smb.conf` copied at the start of [section 7](#7-backup-disks-snapshots-alerts-and-the-home-assistant-share): SMB 3 only, port 445 only, no NetBIOS, no guest access, no printing, and only the onboard interface `enp1s0`.
 Change that interface name in the repository if yours differs, and copy the file again.
 The backups land on the `@ha-backups` subvolume, so they are snapshotted hourly, reach HDD 1 every night and go off-site with the mirror.
-Home Assistant encrypts them with the key from its emergency kit, so neither the share nor the off-site copy ever holds readable HA data.
+Home Assistant encrypts them with the key from its emergency kit.
+A backup created with encryption switched off would still land on the share, but it never leaves the house: the off-site job skips it and alerts ([section 7.6](#76-off-site-mirror-on-a-hetzner-storage-box)).
 My post [Home Assistant OS on a Raspberry Pi 4](/linux/raspi-home-assistant-os/) covers the Pi's side in more detail.
 
 #### 7.5.1 Steps on the Wyse
@@ -2061,7 +2062,7 @@ Substitute your interface name if it is not `enp1s0`.
    Schedule daily backups at the **System optimal** time, set the retention, for example 7 backups, and turn on the location `dell_wyse`.
    Pruned HA backups stay in the Wyse's snapshots on HDD 1 for months, so a short retention is enough.
    Keep **This system** as well, for quick restores on the Pi itself.
-   Leave encryption on for `dell_wyse`.
+   Leave encryption on for `dell_wyse`, also when you create a backup by hand: the off-site job copies only encrypted backups.
 3. Download the **emergency kit** from the **Encryption key** card and store it in your password manager.
    Without that key, the backups on the Wyse and off-site cannot be restored.
 4. Create a backup now.
@@ -2085,6 +2086,8 @@ See [Home Assistant network storage](https://www.home-assistant.io/common-tasks/
 ### 7.6 Off-site mirror on a Hetzner Storage Box
 
 `dell-wyse-offsite` copies two things that are encrypted before they leave the house: AIO's Borg repository from HDD 2, and the HA backups.
+Of the HA backups, it copies only those that HA encrypted, which the `backup.json` inside each backup marks as `"protected": true`.
+Any other file in the share stays at home: the job removes it from the Storage Box and fails with an alert that names it, for example for a manual HA backup made with encryption switched off.
 It starts at 06:30 and first waits until AIO's whole daily run is over, including its image pulls and the restart of the containers, and no Borg lock is left.
 Then it copies the repository in three passes: new data segments first, then the index files that reference them, and only then deletions.
 So once the first run has finished, even an interrupted run leaves a usable repository on the Storage Box; at worst it holds some newer segments, which the restore in [section 7.7](#77-restore-from-the-storage-box) removes.
@@ -2195,7 +2198,7 @@ sudo bash -c '. /etc/dell-wyse/host.env
 #> …
 ```
 
-* **After the morning run:** both index lines show the same name and size, and the two HA lists hold the same files with the same sizes.
+* **After the morning run:** both index lines show the same name and size, and the two HA lists hold the same files with the same sizes, except for files that are not encrypted HA backups, which the Storage Box does not get.
   The Storage Box prints its times in UTC.
 * **Between AIO's backup and the end of the job:** the Wyse has the newer index; that is expected.
 * **Two index files on the Storage Box:** a run stopped after copying the index files; the next run removes the older one.
@@ -2223,7 +2226,7 @@ Then mount it as the note **Replacing a single HDD** at the start of [section 7.
    ```
 
 2. **Copy the repository** into `/mnt/backup/borg.restore`, next to its final place, so that the job finds no repository until it is complete.
-   Copy the HA backups back into `/srv/ha-backups` as well: the job refuses to mirror an empty share, but a half-filled one would replace the Storage Box's HA backups.
+   Copy the HA backups back into `/srv/ha-backups` as well: the job refuses to mirror a share without an encrypted backup, but a half-filled one would replace the Storage Box's HA backups.
    Both rsync commands read everything through your home download, which takes hours:
 
    ```sh
