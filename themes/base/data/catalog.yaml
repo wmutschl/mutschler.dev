@@ -26,20 +26,22 @@ kinds:
 
 guides:
   # --- Pop!_OS ---
-  pop-os-btrfs-24-04:
-    { platform: pop-os, kind: install, status: current, release: "Pop!_OS 24.04", short: "Install Pop!_OS 24.04 with BTRFS, LUKS and Timeshift" }
+  pop-os-btrfs-26-04:
+    { platform: pop-os, kind: install, status: current, release: "Pop!_OS 26.04", short: "Install Pop!_OS 26.04 with BTRFS, LUKS and Timeshift" }
   pop-os-post-install:
     { platform: pop-os, kind: post-install, status: current, release: "Pop!_OS 24.04", short: "Pop!_OS: things to do after installation" }
+  pop-os-btrfs-24-04:
+    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 24.04", short: "Install Pop!_OS 24.04 with BTRFS, LUKS and Timeshift", successor: pop-os-btrfs-26-04, note: "Superseded by the guide for Pop!_OS 26.04" }
   pop-os-btrfs-22-04:
-    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 22.04", short: "Install Pop!_OS 22.04 with BTRFS, LUKS and Timeshift", successor: pop-os-btrfs-24-04, note: "Superseded by the guide for Pop!_OS 24.04" }
+    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 22.04", short: "Install Pop!_OS 22.04 with BTRFS, LUKS and Timeshift", successor: pop-os-btrfs-26-04, note: "Superseded by the guide for Pop!_OS 26.04" }
   pop-os-btrfs-21-10:
-    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 21.10", short: "Install Pop!_OS 21.10 with BTRFS, LUKS and BTRBK (draft)", successor: pop-os-btrfs-24-04, note: "An unfinished draft; Pop!_OS 21.10 reached end of life in 2022" }
+    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 21.10", short: "Install Pop!_OS 21.10 with BTRFS, LUKS and BTRBK (draft)", successor: pop-os-btrfs-26-04, note: "An unfinished draft; Pop!_OS 21.10 reached end of life in 2022" }
   pop-os-btrfs-21-04:
-    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 21.04", short: "Install Pop!_OS 21.04 with BTRFS, LUKS and Timeshift", successor: pop-os-btrfs-24-04, note: "Pop!_OS 21.04 is no longer supported" }
+    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 21.04", short: "Install Pop!_OS 21.04 with BTRFS, LUKS and Timeshift", successor: pop-os-btrfs-26-04, note: "Pop!_OS 21.04 is no longer supported" }
   pop-os-btrfs-20-04:
-    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 20.04", short: "Install Pop!_OS 20.04 with BTRFS, LUKS and Timeshift", successor: pop-os-btrfs-24-04, note: "Pop!_OS 20.04 has reached end of life" }
+    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 20.04", short: "Install Pop!_OS 20.04 with BTRFS, LUKS and Timeshift", successor: pop-os-btrfs-26-04, note: "Pop!_OS 20.04 has reached end of life" }
   pop-os-btrfs-raid1-20-04:
-    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 20.04", short: "Install Pop!_OS 20.04 on a BTRFS RAID1 with LUKS and Timeshift", successor: pop-os-btrfs-24-04, note: "Pop!_OS 20.04 has reached end of life" }
+    { platform: pop-os, kind: install, status: previous, release: "Pop!_OS 20.04", short: "Install Pop!_OS 20.04 on a BTRFS RAID1 with LUKS and Timeshift", successor: pop-os-btrfs-26-04, note: "Pop!_OS 20.04 has reached end of life" }
 
   # --- Ubuntu ---
   ubuntu-post-install:

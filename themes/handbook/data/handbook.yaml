@@ -10,7 +10,7 @@ parts:
   - id: part-1
     numeral: "I"
     title: "Installing Linux with encryption and snapshots"
-    guides: [pop-os-btrfs-24-04, debian-btrfs-trixie]
+    guides: [pop-os-btrfs-26-04, debian-btrfs-trixie]
   - id: part-2
     numeral: "II"
     title: "After installation"
