@@ -194,6 +194,10 @@ You will see your partitioned hard disk (for me, `/dev/nvme0n1`) as shown in the
     A new device called `LVM data` will appear at the bottom of the screen (you might need to scroll down).
     Click on this partition, activate `Use partition`, activate `Format`, set **Use as** to `Root (/)`, and **Filesystem** to `btrfs`.
 
+{{< callout warning >}}
+If you have other disks or partitions attached, check their types and usage carefully and make sure `Use partition` is deactivated on any other EFI partitions so the installer does not overwrite or format them.
+{{< /callout >}}
+
 Recheck everything (ensure the correct use of partitions that have a black checkmark) and hit `Erase and Install`.
 Follow the steps to create a user account and write changes to the disk.
 
@@ -206,8 +210,8 @@ Once the installer finishes, do **NOT** select `Restart Device`, but keep the wi
 Open a terminal[^2] and switch to an interactive root session (all commands in this step run as root in `bash`):
 
 [^2]: You can also run these commands from another computer via SSH.
-    In a terminal of the live session, install the SSH server with `sudo apt install -y openssh-server`.
-    Then log in from the other computer with `ssh pop-os@192.168.178.51` and the password `pop-os`.
+    In a terminal of the live session, install the SSH server with `sudo apt update && sudo apt install -y openssh-server`.
+    Then log in from the other computer, for example with `ssh pop-os@192.168.178.51` and the password `pop-os`.
     You get the IP address from your router or with `hostname -I` in the live session.
 
 ```fish
@@ -523,8 +527,8 @@ lsinitrd -m /boot/initrd.img | grep -E '^(btrfs|crypt|lvm)$'
 #> lvm
 lsinitrd -f /etc/crypttab /boot/initrd.img
 #> cryptdata /dev/disk/by-uuid/f1403334-28d6-40eb-94d3-3a9931e27d29 none luks,discard
-EFIUUID=$(blkid -s UUID -o value /dev/nvme0n1p1)
-echo $EFIUUID
+export EFIUUID="$(blkid -s UUID -o value /dev/nvme0n1p1)"
+echo "$EFIUUID"
 #> ED6A-F65C
 lsinitrd /boot/initrd.img | grep -F "$EFIUUID"
 #> -rw-r--r--   1 root     root           92 Nov 26 13:45 var/lib/dracut/hooks/emergency/80-\x2fdev\x2fdisk\x2fby-uuid\x2fED6A-F65C.sh
@@ -532,7 +536,7 @@ lsinitrd /boot/initrd.img | grep -F "$EFIUUID"
 ```
 
 The bootloader entry must contain `rootflags=subvol=@` (with the NVIDIA driver, you will also see `nvidia-drm.modeset=1`), the initial RAM disk must contain the dracut modules `btrfs`, `crypt` and `lvm`, and its copy of the crypttab must match `/etc/crypttab`.
-`grep -F "$EFIUUID"` must find the `devexists` script; if it prints nothing, the initial RAM disk still waits for an old UUID: leave the chroot, run `udevadm trigger --settle` again, enter the chroot, mount `/boot/efi` and regenerate the initial RAM disk.
+`grep -F "$EFIUUID"` must find the `devexists` script; if it prints nothing, the initial RAM disk still waits for an old UUID: leave the chroot (`exit`), run `udevadm trigger --settle` again, re-enter the chroot (`chroot /mnt`) — `/boot/efi` stays mounted — and run `update-initramfs -c -k all` again.
 
 {{< callout note >}}
 On Pop!_OS 24.04, this guide edited `/etc/kernelstub/configuration` and the bootloader entry by hand.
@@ -566,7 +570,7 @@ If all goes well, you will see a passphrase prompt.
 Enter your LUKS passphrase, and your system should boot.
 
 {{< callout note >}}
-If instead it hangs after unlocking LUKS with `still waiting for following initqueue hooks` and a short FAT UUID in a `devexists-…` script, the initial RAM disk was built against a stale EFI UUID: boot the recovery system, refresh udev, remount, and regenerate the initial RAM disk as in Step 3.
+If instead it hangs after unlocking LUKS with `still waiting for following initqueue hooks` and a short FAT UUID in a `devexists-…` script, the initial RAM disk was built against a stale EFI UUID: boot the recovery system, unlock `cryptdata` and activate LVM, mount `@` and enter the chroot as in [Create a chroot environment](#create-a-chroot-environment) (running `udevadm trigger --settle` before entering), then run `mount -av` and `update-initramfs -c -k all`.
 {{< /callout >}}
 
 After the welcome screen, go to the settings and:
@@ -710,8 +714,6 @@ sudo apt install -y timeshift
 ```
 Go to `Applications` and search for `Timeshift`.
 
-<!-- TEST: walk through the Timeshift 25.12 wizard; are the option names and the "does not have BTRFS partition" warning still accurate? -->
-
 *   Select **BTRFS** as the **Snapshot Type**; click **Next**.
 *   Select your BTRFS system partition as the **Snapshot Location**; click **Next**.
     If Timeshift warns "Selected device does not have BTRFS partition", ignore it; this is a bug with encrypted devices.
@@ -797,13 +799,13 @@ vgchange -ay data # activate every logical volume in the LVM volume group named 
 3.  Find a valid snapshot in `timeshift-btrfs/snapshots/`:
     ```fish
     ls /mnt/timeshift-btrfs/snapshots
-    #> 2026-11-26_13-30-04
+    #> 2026-11-26_14-16-35
     ```
 4.  Create a snapshot of the good subvolume as the new `@`.
     A snapshot instead of `mv` leaves the Timeshift snapshot intact:
     ```fish
-    btrfs subvolume snapshot /mnt/timeshift-btrfs/snapshots/2026-11-25_10-37-12/@ /mnt/@
-    #> Create snapshot of '/mnt/timeshift-btrfs/snapshots/2026-11-25_10-37-12/@'  in '/mnt/@'
+    btrfs subvolume snapshot /mnt/timeshift-btrfs/snapshots/2026-11-26_14-16-35/@ /mnt/@
+    #> Create snapshot of '/mnt/timeshift-btrfs/snapshots/2026-11-26_14-16-35/@' in '/mnt/@'
     ```
 5.  Unmount the top-level root filesystem and continue with [Refresh the boot files](#refresh-the-boot-files):
     ```fish
@@ -814,12 +816,17 @@ vgchange -ay data # activate every logical volume in the LVM volume group named 
 
 Unlike with GRUB, the kernel and the initial RAM disk that systemd-boot starts live on the EFI partition, outside of any snapshot.
 If the snapshot is older than the last kernel update, the kernel on the EFI partition is newer than the modules in the restored `@`, and the system boots without them (no network, no graphics) or not at all.
-So after every rollback, let kernelstub copy the kernel and the initial RAM disk of the restored snapshot to the EFI partition (if they have not changed, this does no harm), then reboot:
+So after every rollback, let kernelstub copy the kernel and the initial RAM disk of the restored snapshot to the EFI partition (if they have not changed, this does no harm):
 
 ```sh
 mount -o subvol=@ /dev/mapper/data-root /mnt
 for i in /dev /dev/pts /proc /sys /sys/firmware/efi/efivars /run; do mount -B $i /mnt$i; done
-chroot /mnt sh -c 'mount /boot/efi && kernelstub -v'
+chroot /mnt sh -c 'mount /boot/efi && kernelstub -v && umount /boot/efi'
+```
+
+Check that kernelstub finished without errors, then reboot:
+
+```fish
 reboot
 ```
 
